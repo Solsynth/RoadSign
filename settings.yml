@@ -1,0 +1,19 @@
+debug:
+  print_routes: true
+
+performance:
+  prefork: false
+  network_timeout: 3000
+
+hypertext:
+  ports: [ ":80" ]
+  secured_ports: []
+  certificate:
+    pem: "./cert.pem"
+    key: "./cert.key"
+  limitation:
+    max_body_size: -1
+    max_qps: 30
+
+paths:
+  configs: "./config"

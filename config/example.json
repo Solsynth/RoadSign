@@ -1,0 +1,15 @@
+{
+  "name": "Example Site",
+  "rules": [
+    {
+      "host": ["localhost"],
+      "path": ["/"]
+    }
+  ],
+  "upstreams": [
+    {
+      "name": "Example Upstream",
+      "uri": "https://example.com"
+    }
+  ]
+}
