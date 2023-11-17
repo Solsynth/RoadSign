@@ -1,9 +1,10 @@
-package configurator
+package sign
 
 import (
 	"fmt"
 	"github.com/gofiber/fiber/v2"
 	"github.com/samber/lo"
+	"net/url"
 	"strings"
 )
 
@@ -29,6 +30,14 @@ func (v *UpstreamConfig) GetType() string {
 	}
 
 	return UpstreamTypeUnknown
+}
+
+func (v *UpstreamConfig) GetRawURI() (string, url.Values) {
+	uri := strings.SplitN(v.URI, "://", 2)[1]
+	data := strings.SplitN(uri, "?", 2)
+	qs, _ := url.ParseQuery(uri)
+
+	return data[0], qs
 }
 
 func (v *UpstreamConfig) MakeURI(ctx *fiber.Ctx) string {

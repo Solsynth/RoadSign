@@ -6,22 +6,22 @@
         "localhost"
       ],
       "path": [
-        "/"
+        "/site1"
       ]
     }
   ],
   "upstreams": [
     {
       "name": "Example Upstream",
-      "uri": "https://disk.smartsheep.studio"
+      "uri": "file:///site"
     }
   ],
   "transformers": [
     {
       "type": "replacePath",
       "options": {
-        "pattern": "/p/123",
-        "value": "/p/%E5%B7%A5%E4%BD%9C%E5%AE%A4/icon.png"
+        "pattern": "/site1",
+        "value": "/"
       }
     }
   ]

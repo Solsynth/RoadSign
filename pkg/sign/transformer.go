@@ -1,4 +1,4 @@
-package configurator
+package sign
 
 import (
 	"github.com/gofiber/fiber/v2"

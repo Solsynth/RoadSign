@@ -1,15 +1,10 @@
 package hypertext
 
 import (
-	"code.smartsheep.studio/goatworks/roadsign/pkg/configurator"
+	"code.smartsheep.studio/goatworks/roadsign/pkg/sign"
 	"github.com/gofiber/fiber/v2"
-	"github.com/gofiber/fiber/v2/middleware/proxy"
-	"github.com/rs/zerolog/log"
 	"github.com/samber/lo"
-	"github.com/spf13/viper"
-	"github.com/valyala/fasthttp"
 	"regexp"
-	"time"
 )
 
 func UseProxies(app *fiber.App) {
@@ -20,21 +15,28 @@ func UseProxies(app *fiber.App) {
 		headers := ctx.GetReqHeaders()
 
 		// Filtering sites
-		for _, site := range configurator.C.Sites {
+		for _, site := range sign.C.Sites {
 			// Matching rules
 			for _, rule := range site.Rules {
 				if !lo.Contains(rule.Host, host) {
 					continue
-				} else if !lo.ContainsBy(rule.Path, func(item string) bool {
-					matched, err := regexp.MatchString(item, path)
-					return matched && err == nil
-				}) {
+				}
+
+				if !func() bool {
+					flag := false
+					for _, pattern := range rule.Path {
+						if ok, _ := regexp.MatchString(pattern, path); ok {
+							flag = true
+							break
+						}
+					}
+					return flag
+				}() {
 					continue
 				}
 
-				flag := true
-
 				// Filter query strings
+				flag := true
 				for rk, rv := range rule.Queries {
 					for ik, iv := range queries {
 						if rk != ik && rv != iv {
@@ -72,11 +74,11 @@ func UseProxies(app *fiber.App) {
 				if !flag {
 					continue
 				}
-			}
 
-			// Passing all the rules means the site is what we are looking for.
-			// Let us respond to our client!
-			return makeResponse(ctx, site)
+				// Passing all the rules means the site is what we are looking for.
+				// Let us respond to our client!
+				return makeResponse(ctx, site)
+			}
 		}
 
 		// There is no site available for this request.
@@ -86,25 +88,14 @@ func UseProxies(app *fiber.App) {
 	})
 }
 
-func makeResponse(ctx *fiber.Ctx, site configurator.SiteConfig) error {
-	// Load balance
-	upstream := configurator.C.LoadBalance(site)
-	if upstream == nil {
-		log.Warn().Str("id", site.ID).Msg("There is no available upstream for this request.")
-		return fiber.ErrBadGateway
-	}
-
+func makeResponse(ctx *fiber.Ctx, site sign.SiteConfig) error {
 	// Modify request
 	for _, transformer := range site.Transformers {
 		transformer.TransformRequest(ctx)
 	}
 
-	// Perform forward
-	timeout := time.Duration(viper.GetInt64("performance.network_timeout")) * time.Millisecond
-	err := proxy.Do(ctx, upstream.MakeURI(ctx), &fasthttp.Client{
-		ReadTimeout:  timeout,
-		WriteTimeout: timeout,
-	})
+	// Forward
+	err := sign.C.Forward(ctx, site)
 
 	// Modify response
 	for _, transformer := range site.Transformers {

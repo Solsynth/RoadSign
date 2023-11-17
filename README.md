@@ -6,10 +6,12 @@ A blazing fast reverse proxy with a lot of shining features.
 
 1. Reverse proxy
 2. Static file hosting
-3. Analytics and Metrics
+3. ~~Analytics and Metrics~~
 4. Integrate with CI/CD
-5. Webhook integration
-6. Web management panel
+5. ~~Webhook integration~~
+6. ~~Web management panel~~
 7. **Blazing fast ⚡**
+
+> Deleted item means under construction, check out our roadmap!
 
 ### How fast is it?

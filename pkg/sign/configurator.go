@@ -1,4 +1,4 @@
-package configurator
+package sign
 
 import (
 	"encoding/json"

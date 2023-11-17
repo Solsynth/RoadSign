@@ -3,8 +3,8 @@ package main
 import (
 	roadsign "code.smartsheep.studio/goatworks/roadsign/pkg"
 	"code.smartsheep.studio/goatworks/roadsign/pkg/administration"
-	"code.smartsheep.studio/goatworks/roadsign/pkg/configurator"
 	"code.smartsheep.studio/goatworks/roadsign/pkg/hypertext"
+	"code.smartsheep.studio/goatworks/roadsign/pkg/sign"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 	"github.com/spf13/viper"
@@ -30,11 +30,11 @@ func main() {
 		log.Panic().Err(err).Msg("An error occurred when loading settings.")
 	}
 
-	// Load configurations
-	if err := configurator.ReadInConfig(viper.GetString("paths.configs")); err != nil {
+	// Load & init sign
+	if err := sign.ReadInConfig(viper.GetString("paths.configs")); err != nil {
 		log.Panic().Err(err).Msg("An error occurred when loading configurations.")
 	} else {
-		log.Debug().Any("sites", configurator.C).Msg("All configuration has been loaded.")
+		log.Debug().Any("sites", sign.C).Msg("All configuration has been loaded.")
 	}
 
 	// Init hypertext server
