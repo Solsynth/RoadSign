@@ -33,8 +33,8 @@ func InitServer() *fiber.App {
 	return app
 }
 
-func RunServer(app *fiber.App) {
-	for _, port := range viper.GetStringSlice("hypertext.ports") {
+func RunServer(app *fiber.App, ports []string, securedPorts []string, pem string, key string) {
+	for _, port := range ports {
 		port := port
 		go func() {
 			if err := app.Listen(port); err != nil {
@@ -43,10 +43,8 @@ func RunServer(app *fiber.App) {
 		}()
 	}
 
-	for _, port := range viper.GetStringSlice("hypertext.secured_ports") {
+	for _, port := range securedPorts {
 		port := port
-		pem := viper.GetString("hypertext.certificate.pem")
-		key := viper.GetString("hypertext.certificate.key")
 		go func() {
 			if err := app.ListenTLS(port, pem, key); err != nil {
 				log.Panic().Err(err).Msg("An error occurred when listening hypertext tls ports.")

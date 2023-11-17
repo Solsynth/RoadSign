@@ -1,16 +1,23 @@
 debug:
   print_routes: true
 
+security:
+  administration_trusted_proxies: [ "localhost" ]
+
 performance:
   prefork: false
   network_timeout: 3000
 
 hypertext:
   ports: [ ":80" ]
-  secured_ports: []
+  secured_ports: [ ]
+  administration_ports: [ ":81" ]
+  administration_secured_ports: [ ]
   certificate:
     pem: "./cert.pem"
     key: "./cert.key"
+    administration_pem: "./cert.pem"
+    administration_key: "./cert.key"
   limitation:
     max_body_size: -1
     max_qps: 30

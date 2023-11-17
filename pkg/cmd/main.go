@@ -2,6 +2,7 @@ package main
 
 import (
 	roadsign "code.smartsheep.studio/goatworks/roadsign/pkg"
+	"code.smartsheep.studio/goatworks/roadsign/pkg/administration"
 	"code.smartsheep.studio/goatworks/roadsign/pkg/configurator"
 	"code.smartsheep.studio/goatworks/roadsign/pkg/hypertext"
 	"github.com/rs/zerolog"
@@ -37,7 +38,22 @@ func main() {
 	}
 
 	// Init hypertext server
-	hypertext.RunServer(hypertext.InitServer())
+	hypertext.RunServer(
+		hypertext.InitServer(),
+		viper.GetStringSlice("hypertext.ports"),
+		viper.GetStringSlice("hypertext.secured_ports"),
+		viper.GetString("hypertext.certificate.pem"),
+		viper.GetString("hypertext.certificate.key"),
+	)
+
+	// Init administration server
+	hypertext.RunServer(
+		administration.InitAdministration(),
+		viper.GetStringSlice("hypertext.administration_ports"),
+		viper.GetStringSlice("hypertext.administration_secured_ports"),
+		viper.GetString("hypertext.certificate.administration_pem"),
+		viper.GetString("hypertext.certificate.administration_key"),
+	)
 
 	log.Info().Msgf("RoadSign v%s is started...", roadsign.AppVersion)
 
