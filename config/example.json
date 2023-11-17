@@ -6,7 +6,7 @@
         "localhost"
       ],
       "path": [
-        "/site1"
+        "/"
       ]
     }
   ],
@@ -14,15 +14,6 @@
     {
       "name": "Example Upstream",
       "uri": "file:///site"
-    }
-  ],
-  "transformers": [
-    {
-      "type": "replacePath",
-      "options": {
-        "pattern": "/site1",
-        "value": "/"
-      }
     }
   ]
 }
