@@ -13,8 +13,14 @@ func InitAdministration() *fiber.App {
 		ServerHeader:          fmt.Sprintf("RoadSign Administration v%s", roadsign.AppVersion),
 		DisableStartupMessage: true,
 		EnableIPValidation:    true,
+		EnablePrintRoutes:     viper.GetBool("debug.print_routes"),
 		TrustedProxies:        viper.GetStringSlice("security.administration_trusted_proxies"),
 	})
+
+	webhooks := app.Group("/webhooks").Name("WebHooks")
+	{
+		webhooks.Put("/publish/:site/:upstream", doPublish)
+	}
 
 	return app
 }

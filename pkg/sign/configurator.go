@@ -8,7 +8,7 @@ import (
 	"strings"
 )
 
-var C *AppConfig
+var App *AppConfig
 
 func ReadInConfig(root string) error {
 	cfg := &AppConfig{
@@ -37,7 +37,7 @@ func ReadInConfig(root string) error {
 		return err
 	}
 
-	C = cfg
+	App = cfg
 
 	return nil
 }

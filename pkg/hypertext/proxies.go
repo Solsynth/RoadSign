@@ -15,7 +15,7 @@ func UseProxies(app *fiber.App) {
 		headers := ctx.GetReqHeaders()
 
 		// Filtering sites
-		for _, site := range sign.C.Sites {
+		for _, site := range sign.App.Sites {
 			// Matching rules
 			for _, rule := range site.Rules {
 				if !lo.Contains(rule.Host, host) {
@@ -95,7 +95,7 @@ func makeResponse(ctx *fiber.Ctx, site sign.SiteConfig) error {
 	}
 
 	// Forward
-	err := sign.C.Forward(ctx, site)
+	err := sign.App.Forward(ctx, site)
 
 	// Modify response
 	for _, transformer := range site.Transformers {

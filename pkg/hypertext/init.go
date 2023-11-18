@@ -16,7 +16,6 @@ func InitServer() *fiber.App {
 		ServerHeader:          fmt.Sprintf("RoadSign v%s", roadsign.AppVersion),
 		DisableStartupMessage: true,
 		EnableIPValidation:    true,
-		EnablePrintRoutes:     viper.GetBool("debug.print_routes"),
 		Prefork:               viper.GetBool("performance.prefork"),
 		BodyLimit:             viper.GetInt("hypertext.limitation.max_body_size"),
 	})

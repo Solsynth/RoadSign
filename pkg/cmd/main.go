@@ -34,7 +34,7 @@ func main() {
 	if err := sign.ReadInConfig(viper.GetString("paths.configs")); err != nil {
 		log.Panic().Err(err).Msg("An error occurred when loading configurations.")
 	} else {
-		log.Debug().Any("sites", sign.C).Msg("All configuration has been loaded.")
+		log.Debug().Any("sites", sign.App).Msg("All configuration has been loaded.")
 	}
 
 	// Init hypertext server

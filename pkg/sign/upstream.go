@@ -15,6 +15,8 @@ const (
 )
 
 type UpstreamConfig struct {
+	ID string `json:"id"`
+
 	Name string `json:"name"`
 	URI  string `json:"uri"`
 }
