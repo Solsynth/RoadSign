@@ -20,7 +20,7 @@ hypertext:
     administration_key: "./cert.key"
   limitation:
     max_body_size: -1
-    max_qps: 30
+    max_qps: -1
 
 paths:
   configs: "./config"

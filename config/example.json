@@ -13,7 +13,7 @@
   "upstreams": [
     {
       "name": "Example Upstream",
-      "uri": "file:///site"
+      "uri": "file://C:\\site"
     }
   ]
 }
