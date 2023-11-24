@@ -16,36 +16,15 @@ A blazing fast reverse proxy with a lot of shining features.
 
 ### How fast is it?
 
-Static Files Hosting
+We use roadsign and nginx to host a same static file, and test them with [go-wrk](https://github.com/tsliwowicz/go-wrk). 
+Here's the result:
 
-```shell
-go-wrk -t=8 -c=100 -n=10000 "http://localhost"
-```
+|      **Software**     | Total Requests | Requests per Seconds | Transfer per Seconds |   Avg Time  | Fastest Time | Slowest Time | Errors Count |
+|:---------------------:|----------------|:--------------------:|:--------------------:|:-----------:|:------------:|:------------:|:------------:|
+|        _Nginx_        |     515749     |        4299.58       |        2.05MB        | 13.954846ms |      0s      |  410.6972ms  |       0      |
+|       _RoadSign_      |     3256820    |       27265.90       |        12.27MB       |  2.20055ms  |      0s      |   56.8726ms  |       0      |
+| _RoadSign w/ Prefork_ |     2188594    |       18248.45       |        8.21MB        |  3.287951ms |      0s      |  121.5189ms  |       0      |
 
-```text
-==========================BENCHMARK==========================
-URL:                            http://localhost
+As result, roadsign undoubtedly is the fastest one.
 
-Used Connections:               100
-Used Threads:                   8
-Total number of calls:          10000
-
-===========================TIMINGS===========================
-Total time passed:              11.36s
-Avg time per request:           112.69ms
-Requests per second:            880.32
-Median time per request:        111.14ms
-99th percentile time:           160.88ms
-Slowest time for request:       217.00ms
-
-=============================DATA=============================
-Total response body sizes:              190130000
-Avg response body per request:          19013.00 Byte
-Transfer rate per second:               16737517.73 Byte/s (16.74 MByte/s)
-==========================RESPONSES==========================
-20X Responses:          10000   (100.00%)
-30X Responses:          0       (0.00%)
-40X Responses:          0       (0.00%)
-50X Responses:          0       (0.00%)
-Errors:                 0       (0.00%)
-```
+More details can be found at benchmark's [README.md](./test/benchmark/README.md)
