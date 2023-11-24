@@ -25,6 +25,7 @@ func (v *UpstreamConfig) GetType() string {
 	protocol := strings.SplitN(v.URI, "://", 2)[0]
 	switch protocol {
 	case "file":
+	case "files":
 		return UpstreamTypeFile
 	case "http":
 	case "https":

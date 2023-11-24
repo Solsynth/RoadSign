@@ -5,11 +5,13 @@ import (
 	"code.smartsheep.studio/goatworks/roadsign/pkg/administration"
 	"code.smartsheep.studio/goatworks/roadsign/pkg/hypertext"
 	"code.smartsheep.studio/goatworks/roadsign/pkg/sign"
+	"github.com/google/uuid"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 	"github.com/spf13/viper"
 	"os"
 	"os/signal"
+	"strings"
 	"syscall"
 )
 
@@ -30,6 +32,16 @@ func main() {
 		log.Panic().Err(err).Msg("An error occurred when loading settings.")
 	}
 
+	// Present settings
+	if len(viper.GetString("security.credential")) <= 0 {
+		credential := strings.ReplaceAll(uuid.NewString(), "-", "")
+		viper.Set("security.credential", credential)
+		_ = viper.WriteConfig()
+
+		log.Warn().Msg("There isn't any api credential configured in settings.yml, auto generated a credential for api accessing.")
+		log.Warn().Msgf("RoadSign auto generated api credential is %s", credential)
+	}
+
 	// Load & init sign
 	if err := sign.ReadInConfig(viper.GetString("paths.configs")); err != nil {
 		log.Panic().Err(err).Msg("An error occurred when loading configurations.")
@@ -45,7 +57,7 @@ func main() {
 		viper.GetString("hypertext.certificate.pem"),
 		viper.GetString("hypertext.certificate.key"),
 	)
-
+	
 	// Init administration server
 	hypertext.RunServer(
 		administration.InitAdministration(),

@@ -1,26 +1,26 @@
 debug:
-  print_routes: true
-
-security:
-  administration_trusted_proxies: [ "localhost" ]
-
-performance:
-  prefork: false
-  network_timeout: 3000
-
+    print_routes: true
 hypertext:
-  ports: [ ":80" ]
-  secured_ports: [ ]
-  administration_ports: [ ":81" ]
-  administration_secured_ports: [ ]
-  certificate:
-    pem: "./cert.pem"
-    key: "./cert.key"
-    administration_pem: "./cert.pem"
-    administration_key: "./cert.key"
-  limitation:
-    max_body_size: -1
-    max_qps: -1
-
+    administration_ports:
+        - :81
+    administration_secured_ports: []
+    certificate:
+        administration_key: ./cert.key
+        administration_pem: ./cert.pem
+        key: ./cert.key
+        pem: ./cert.pem
+    limitation:
+        max_body_size: -1
+        max_qps: -1
+    ports:
+        - :80
+    secured_ports: []
 paths:
-  configs: "./config"
+    configs: ./config
+performance:
+    network_timeout: 3000
+    prefork: false
+security:
+    administration_trusted_proxies:
+        - localhost
+    credential: e81f43f32d934271af6322e5376f5f59

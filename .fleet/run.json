@@ -1,0 +1,11 @@
+{
+    "configurations": [
+        {
+            "type": "go",
+            "name": "Run RoadSign",
+            "goExecPath": "C:\\Tools\\Scoop\\shims\\go.exe",
+            "buildParams": ["code.smartsheep.studio/goatworks/roadsign/pkg/cmd"],
+        },
+        
+    ]
+}
