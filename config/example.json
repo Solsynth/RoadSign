@@ -14,7 +14,7 @@
     {
       "id": "example",
       "name": "Example Upstream",
-      "uri": "file://C:\\site"
+      "uri": "files://./test/benchmark/data"
     }
   ]
 }

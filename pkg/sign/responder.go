@@ -62,10 +62,9 @@ func makeFileResponse(ctx *fiber.Ctx, upstream *UpstreamConfig) error {
 			file, err = root.Open(queries.Get("fallback"))
 		}
 	}
-
 	if err != nil {
 		if errors.Is(err, fs.ErrNotExist) {
-			return ctx.Status(fiber.StatusNotFound).Next()
+			return fiber.ErrNotFound
 		}
 		return fmt.Errorf("failed to open: %w", err)
 	}
@@ -77,7 +76,8 @@ func makeFileResponse(ctx *fiber.Ctx, upstream *UpstreamConfig) error {
 
 	// Serve index if path is directory
 	if stat.IsDir() {
-		indexPath := utils.TrimRight(path, '/') + queries.Get("index")
+		indexFile := lo.Ternary(len(queries.Get("index")) > 0, queries.Get("index"), "index.html")
+		indexPath := utils.TrimRight(path, '/') + indexFile
 		index, err := root.Open(indexPath)
 		if err == nil {
 			indexStat, err := index.Stat()
@@ -105,7 +105,6 @@ func makeFileResponse(ctx *fiber.Ctx, upstream *UpstreamConfig) error {
 		ctx.Set(fiber.HeaderLastModified, modTime.UTC().Format(http.TimeFormat))
 	}
 
-	// Set Cache-Control header
 	if method == fiber.MethodGet {
 		maxAge, err := strconv.Atoi(queries.Get("maxAge"))
 		if lo.Ternary(err != nil, maxAge, 0) > 0 {
@@ -124,5 +123,5 @@ func makeFileResponse(ctx *fiber.Ctx, upstream *UpstreamConfig) error {
 		return nil
 	}
 
-	return ctx.Next()
+	return fiber.ErrNotFound
 }
