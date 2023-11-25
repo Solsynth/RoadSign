@@ -15,10 +15,8 @@ const (
 )
 
 type UpstreamConfig struct {
-	ID string `json:"id"`
-
-	Name string `json:"name"`
-	URI  string `json:"uri"`
+	ID  string `json:"id"`
+	URI string `json:"uri"`
 }
 
 func (v *UpstreamConfig) GetType() string {
