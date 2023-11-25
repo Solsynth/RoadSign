@@ -1,10 +1,13 @@
 package administration
 
 import (
-	roadsign "code.smartsheep.studio/goatworks/roadsign/pkg"
 	"fmt"
+
+	roadsign "code.smartsheep.studio/goatworks/roadsign/pkg"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/basicauth"
+	"github.com/gofiber/fiber/v2/middleware/logger"
+	"github.com/rs/zerolog/log"
 	"github.com/spf13/viper"
 )
 
@@ -17,6 +20,11 @@ func InitAdministration() *fiber.App {
 		EnablePrintRoutes:     viper.GetBool("debug.print_routes"),
 		TrustedProxies:        viper.GetStringSlice("security.administration_trusted_proxies"),
 	})
+
+	app.Use(logger.New(logger.Config{
+		Output: log.Logger,
+		Format: "[Administration] [${time}] ${status} - ${latency} ${method} ${path}\n",
+	}))
 
 	app.Use(basicauth.New(basicauth.Config{
 		Realm: fmt.Sprintf("RoadSign v%s", roadsign.AppVersion),

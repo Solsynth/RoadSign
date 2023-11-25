@@ -1,13 +1,15 @@
 package hypertext
 
 import (
-	roadsign "code.smartsheep.studio/goatworks/roadsign/pkg"
 	"fmt"
+	"time"
+
+	roadsign "code.smartsheep.studio/goatworks/roadsign/pkg"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/limiter"
+	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/rs/zerolog/log"
 	"github.com/spf13/viper"
-	"time"
 )
 
 func InitServer() *fiber.App {
@@ -19,6 +21,11 @@ func InitServer() *fiber.App {
 		Prefork:               viper.GetBool("performance.prefork"),
 		BodyLimit:             viper.GetInt("hypertext.limitation.max_body_size"),
 	})
+
+	app.Use(logger.New(logger.Config{
+		Output: log.Logger,
+		Format: "[Proxies] [${time}] ${status} - ${latency} ${method} ${path}\n",
+	}))
 
 	if viper.GetInt("hypertext.limitation.max_qps") > 0 {
 		app.Use(limiter.New(limiter.Config{
