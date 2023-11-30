@@ -21,10 +21,12 @@ func InitAdministration() *fiber.App {
 		TrustedProxies:        viper.GetStringSlice("security.administration_trusted_proxies"),
 	})
 
-	app.Use(logger.New(logger.Config{
-		Output: log.Logger,
-		Format: "[Administration] [${time}] ${status} - ${latency} ${method} ${path}\n",
-	}))
+	if viper.GetBool("performance.request_logging") {
+		app.Use(logger.New(logger.Config{
+			Output: log.Logger,
+			Format: "[Administration] [${time}] ${status} - ${latency} ${method} ${path}\n",
+		}))
+	}
 
 	app.Use(basicauth.New(basicauth.Config{
 		Realm: fmt.Sprintf("RoadSign v%s", roadsign.AppVersion),

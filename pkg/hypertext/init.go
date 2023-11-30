@@ -22,10 +22,12 @@ func InitServer() *fiber.App {
 		BodyLimit:             viper.GetInt("hypertext.limitation.max_body_size"),
 	})
 
-	app.Use(logger.New(logger.Config{
-		Output: log.Logger,
-		Format: "[Proxies] [${time}] ${status} - ${latency} ${method} ${path}\n",
-	}))
+	if viper.GetBool("performance.request_logging") {
+		app.Use(logger.New(logger.Config{
+			Output: log.Logger,
+			Format: "[Proxies] [${time}] ${status} - ${latency} ${method} ${path}\n",
+		}))
+	}
 
 	if viper.GetInt("hypertext.limitation.max_qps") > 0 {
 		app.Use(limiter.New(limiter.Config{
