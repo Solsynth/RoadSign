@@ -17,6 +17,7 @@ hypertext:
 paths:
     configs: ./config
 performance:
+    request_logging: false
     network_timeout: 3000
     prefork: true
 security:

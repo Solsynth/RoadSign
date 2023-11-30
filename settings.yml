@@ -13,11 +13,12 @@ hypertext:
         max_body_size: -1
         max_qps: -1
     ports:
-        - :80
+        - :8000
     secured_ports: []
 paths:
     configs: ./config
 performance:
+    request_logging: true
     network_timeout: 3000
     prefork: false
 security:

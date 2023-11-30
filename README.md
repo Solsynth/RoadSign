@@ -20,11 +20,13 @@ We use roadsign and nginx to host a same static file, and test them with [go-wrk
 Here's the result:
 
 |      **Software**     | Total Requests | Requests per Seconds | Transfer per Seconds |   Avg Time  | Fastest Time | Slowest Time | Errors Count |
-|:---------------------:|----------------|:--------------------:|:--------------------:|:-----------:|:------------:|:------------:|:------------:|
-|        _Nginx_        |     515749     |        4299.58       |        2.05MB        | 13.954846ms |      0s      |  410.6972ms  |       0      |
-|       _RoadSign_      |     3256820    |       27265.90       |        12.27MB       |  2.20055ms  |      0s      |   56.8726ms  |       0      |
-| _RoadSign w/ Prefork_ |     2188594    |       18248.45       |        8.21MB        |  3.287951ms |      0s      |  121.5189ms  |       0      |
+|:---------------------:|:--------------:|:--------------------:|:--------------------:|:-----------:|:------------:|:------------:|:------------:|
+|        _Nginx_        |     515749     |        4299.58       |        2.05MB        | 13.954846ms |      0s (Cached)      |  410.6972ms  |       0      |
+|       _RoadSign_      |     8905230    |       76626.70       | 30.98MB       |  783.016µs  |      28.542µs      |   46.773083ms  |       0      |
+| _RoadSign w/ Prefork_ | 4784308    |       40170.41       |        16.24MB        | 1.493636ms |      34.291µs      |  8.727666ms  |       0      |
 
 As result, roadsign undoubtedly is the fastest one.
+
+It can be found that the prefork feature makes RoadSign more stable in concurrency. We can see this from the **Slowest Time**. At the same time, the **Fastest Time** is affected because reusing ports requires some extra steps to handle load balancing. Enable this feature at your own discretion depending on your use case.
 
 More details can be found at benchmark's [README.md](./test/benchmark/README.md)
