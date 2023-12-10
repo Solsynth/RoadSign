@@ -70,10 +70,10 @@ var DeployCommands = []*cli.Command{
 				BasicAuth("RoadSign CLI", server.Credential)
 
 			var mistake error
-			if status, _, err := client.Bytes(); len(err) > 0 {
+			if status, data, err := client.Bytes(); len(err) > 0 {
 				mistake = fmt.Errorf("failed to publish to remote: %q", err)
 			} else if status != 200 {
-				mistake = fmt.Errorf("server rejected request, status code %d", status)
+				mistake = fmt.Errorf("server rejected request, status code %d, response %s", status, string(data))
 			}
 
 			// Cleanup

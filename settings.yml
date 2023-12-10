@@ -10,7 +10,7 @@ hypertext:
         key: ./cert.key
         pem: ./cert.pem
     limitation:
-        max_body_size: -1
+        max_body_size: 536870912
         max_qps: -1
     ports:
         - :8000

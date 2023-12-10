@@ -22,6 +22,8 @@ func (v *AppConfig) Forward(ctx *fiber.Ctx, site *SiteConfig) error {
 		if err := process.BootProcess(); err != nil {
 			log.Warn().Err(err).Msgf("An error occurred when booting process (%s) for %s", process.ID, site.ID)
 			return fiber.ErrBadGateway
+		} else {
+			log.Debug().Msg("process is alive!")
 		}
 	}
 

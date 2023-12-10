@@ -12,14 +12,24 @@ import (
 )
 
 func doPublish(c *fiber.Ctx) error {
-	var upstream *sign.UpstreamConfig
+	var workdir string
 	var site *sign.SiteConfig
+	var upstream *sign.UpstreamConfig
+	var process *sign.ProcessConfig
 	for _, item := range sign.App.Sites {
 		if item.ID == c.Params("site") {
 			site = item
 			for _, stream := range item.Upstreams {
-				if stream.ID == c.Params("upstream") {
+				if stream.ID == c.Params("slug") {
 					upstream = stream
+					workdir, _ = stream.GetRawURI()
+					break
+				}
+			}
+			for _, proc := range item.Processes {
+				if proc.ID == c.Params("slug") {
+					process = proc
+					workdir = proc.Workdir
 					break
 				}
 			}
@@ -27,17 +37,15 @@ func doPublish(c *fiber.Ctx) error {
 		}
 	}
 
-	if upstream == nil {
+	if upstream == nil && process == nil {
 		return fiber.ErrNotFound
-	} else if upstream.GetType() != sign.UpstreamTypeFile {
+	} else if upstream != nil && upstream.GetType() != sign.UpstreamTypeFile {
 		return fiber.ErrUnprocessableEntity
 	}
 
 	for _, process := range site.Processes {
 		process.StopProcess()
 	}
-
-	workdir, _ := upstream.GetRawURI()
 
 	if c.Query("overwrite", "yes") == "yes" {
 		files, _ := filepath.Glob(filepath.Join(workdir, "*"))

@@ -8,5 +8,5 @@ upstreams:
     uri: http://localhost:3000
 processes:
   - id: nuxt-ssr
-    workdir: ../data
+    workdir: ../data/ssr
     command: ["node", ".output/server/index.mjs"]

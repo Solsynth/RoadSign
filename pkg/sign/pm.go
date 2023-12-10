@@ -20,7 +20,6 @@ func (v *ProcessConfig) BootProcess() error {
 	if v.Cmd != nil {
 		return nil
 	}
-
 	if err := v.PreapreProcess(); err != nil {
 		return err
 	}
@@ -69,8 +68,13 @@ func (v *ProcessConfig) StartProcess() error {
 
 func (v *ProcessConfig) StopProcess() error {
 	if v.Cmd != nil && v.Cmd.Process != nil {
-		return v.Cmd.Process.Signal(os.Interrupt)
-	} else {
-		return nil
+		if err := v.Cmd.Process.Signal(os.Interrupt); err != nil {
+			v.Cmd.Process.Kill()
+			return err
+		} else {
+			v.Cmd = nil
+		}
 	}
+
+	return nil
 }
