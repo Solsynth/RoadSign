@@ -1,9 +1,10 @@
 package sign
 
 import (
-	"github.com/gofiber/fiber/v2"
 	"regexp"
 	"strings"
+
+	"github.com/gofiber/fiber/v2"
 )
 
 type RequestTransformer struct {
@@ -12,8 +13,8 @@ type RequestTransformer struct {
 }
 
 type RequestTransformerConfig struct {
-	Type    string `json:"type"`
-	Options any    `json:"options"`
+	Type    string `json:"type" yaml:"type"`
+	Options any    `json:"options" yaml:"options"`
 }
 
 func (v *RequestTransformerConfig) TransformRequest(ctx *fiber.Ctx) {

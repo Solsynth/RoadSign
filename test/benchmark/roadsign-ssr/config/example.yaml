@@ -1,0 +1,12 @@
+name: Example Site
+rules:
+  - host: ["localhost:8000"]
+    path: ["/"]
+upstreams:
+  - id: example
+    name: Benchmarking Data
+    uri: http://localhost:3000
+processes:
+  - id: nuxt-ssr
+    workdir: ../data
+    command: ["node", ".output/server/index.mjs"]

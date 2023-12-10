@@ -5,19 +5,29 @@ import (
 	"math/rand"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/rs/zerolog/log"
 )
 
 type AppConfig struct {
-	Sites []SiteConfig `json:"sites"`
+	Sites []*SiteConfig `json:"sites"`
 }
 
-func (v *AppConfig) Forward(ctx *fiber.Ctx, site SiteConfig) error {
+func (v *AppConfig) Forward(ctx *fiber.Ctx, site *SiteConfig) error {
 	if len(site.Upstreams) == 0 {
 		return errors.New("invalid configuration")
 	}
 
+	// Boot processes
+	for _, process := range site.Processes {
+		if err := process.BootProcess(); err != nil {
+			log.Warn().Err(err).Msgf("An error occurred when booting process (%s) for %s", process.ID, site.ID)
+			return fiber.ErrBadGateway
+		}
+	}
+
+	// Do forward
 	idx := rand.Intn(len(site.Upstreams))
-	upstream := &site.Upstreams[idx]
+	upstream := site.Upstreams[idx]
 
 	switch upstream.GetType() {
 	case UpstreamTypeHypertext:
@@ -30,15 +40,16 @@ func (v *AppConfig) Forward(ctx *fiber.Ctx, site SiteConfig) error {
 }
 
 type SiteConfig struct {
-	ID           string                     `json:"id"`
-	Rules        []RouterRuleConfig         `json:"rules"`
-	Transformers []RequestTransformerConfig `json:"transformers"`
-	Upstreams    []UpstreamConfig           `json:"upstreams"`
+	ID           string                      `json:"id"`
+	Rules        []*RouterRuleConfig         `json:"rules" yaml:"rules"`
+	Transformers []*RequestTransformerConfig `json:"transformers" yaml:"transformers"`
+	Upstreams    []*UpstreamConfig           `json:"upstreams" yaml:"upstreams"`
+	Processes    []*ProcessConfig            `json:"processes" yaml:"processes"`
 }
 
 type RouterRuleConfig struct {
-	Host    []string            `json:"host"`
-	Path    []string            `json:"path"`
-	Queries map[string]string   `json:"query"`
-	Headers map[string][]string `json:"headers"`
+	Host    []string            `json:"host" yaml:"host"`
+	Path    []string            `json:"path" yaml:"path"`
+	Queries map[string]string   `json:"queries" yaml:"queries"`
+	Headers map[string][]string `json:"headers" yaml:"headers"`
 }

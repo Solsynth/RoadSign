@@ -1,10 +1,11 @@
 package hypertext
 
 import (
+	"regexp"
+
 	"code.smartsheep.studio/goatworks/roadsign/pkg/sign"
 	"github.com/gofiber/fiber/v2"
 	"github.com/samber/lo"
-	"regexp"
 )
 
 func UseProxies(app *fiber.App) {
@@ -88,7 +89,7 @@ func UseProxies(app *fiber.App) {
 	})
 }
 
-func makeResponse(ctx *fiber.Ctx, site sign.SiteConfig) error {
+func makeResponse(ctx *fiber.Ctx, site *sign.SiteConfig) error {
 	// Modify request
 	for _, transformer := range site.Transformers {
 		transformer.TransformRequest(ctx)

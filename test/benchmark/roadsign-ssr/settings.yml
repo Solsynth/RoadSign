@@ -1,0 +1,26 @@
+debug:
+    print_routes: false
+hypertext:
+    administration_ports: []
+    administration_secured_ports: []
+    certificate:
+        administration_key: ./cert.key
+        administration_pem: ./cert.pem
+        key: ./cert.key
+        pem: ./cert.pem
+    limitation:
+        max_body_size: -1
+        max_qps: -1
+    ports:
+        - :8000
+    secured_ports: []
+paths:
+    configs: ./config
+performance:
+    request_logging: false
+    network_timeout: 3000
+    prefork: false
+security:
+    administration_trusted_proxies:
+        - localhost
+    credential: e81f43f32d934271af6322e5376f5f59
