@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"code.smartsheep.studio/goatworks/roadsign/pkg/cmd/rds/conn"
 	"github.com/gofiber/fiber/v2"
@@ -31,25 +32,30 @@ var DeployCommands = []*cli.Command{
 			}
 
 			// Prepare file to upload
-			log.Info().Msg("Preparing file to upload, please stand by...")
-
-			filelist, err := archiver.FilesFromDisk(&archiver.FromDiskOptions{FollowSymlinks: true}, map[string]string{
-				lo.Ternary(ctx.Args().Len() > 3, ctx.Args().Get(4), "."): "",
-			})
-			if err != nil {
-				return fmt.Errorf("failed to prepare file: %q", err)
-			}
-
 			workdir, _ := os.Getwd()
-			filename := filepath.Join(workdir, fmt.Sprintf("rds-deploy-cache-%s.zip", uuid.NewString()))
-			out, err := os.Create(filename)
-			if err != nil {
-				return fmt.Errorf("failed to prepare file: %q", err)
-			}
-			defer out.Close()
+			var filename string
+			if ctx.Args().Len() < 3 || !strings.HasSuffix(ctx.Args().Get(3), ".zip") {
+				log.Info().Msg("Preparing file to upload, please stand by...")
 
-			if err := (archiver.Zip{}).Archive(context.Background(), out, filelist); err != nil {
-				return fmt.Errorf("failed to prepare file: %q", err)
+				filelist, err := archiver.FilesFromDisk(nil, map[string]string{
+					lo.Ternary(ctx.Args().Len() > 3, ctx.Args().Get(4), "."): "",
+				})
+				if err != nil {
+					return fmt.Errorf("failed to prepare file: %q", err)
+				}
+
+				filename = filepath.Join(workdir, fmt.Sprintf("rds-deploy-cache-%s.zip", uuid.NewString()))
+				out, err := os.Create(filename)
+				if err != nil {
+					return fmt.Errorf("failed to prepare file: %q", err)
+				}
+				defer out.Close()
+
+				if err := (archiver.Zip{}).Archive(context.Background(), out, filelist); err != nil {
+					return fmt.Errorf("failed to prepare file: %q", err)
+				}
+			} else if ctx.Args().Len() > 3 {
+				filename = ctx.Args().Get(3)
 			}
 
 			// Send request
