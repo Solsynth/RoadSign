@@ -33,7 +33,7 @@ var DeployCommands = []*cli.Command{
 			// Prepare file to upload
 			log.Info().Msg("Preparing file to upload, please stand by...")
 
-			filelist, err := archiver.FilesFromDisk(nil, map[string]string{
+			filelist, err := archiver.FilesFromDisk(&archiver.FromDiskOptions{FollowSymlinks: true}, map[string]string{
 				lo.Ternary(ctx.Args().Len() > 3, ctx.Args().Get(4), "."): "",
 			})
 			if err != nil {
