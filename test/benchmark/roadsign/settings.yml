@@ -1,7 +1,7 @@
 debug:
     print_routes: false
 hypertext:
-    administration_ports: []
+    administration_ports: [":81"]
     administration_secured_ports: []
     certificate:
         administration_key: ./cert.key
