@@ -43,7 +43,9 @@ func (v *UpstreamConfig) GetRawURI() (string, url.Values) {
 func (v *UpstreamConfig) MakeURI(ctx *fiber.Ctx) string {
 	var queries []string
 	for k, v := range ctx.Queries() {
-		queries = append(queries, fmt.Sprintf("%s=%s", k, v))
+		parsed, _ := url.QueryUnescape(v)
+		value := url.QueryEscape(parsed)
+		queries = append(queries, fmt.Sprintf("%s=%s", k, value))
 	}
 
 	path := string(ctx.Request().URI().Path())

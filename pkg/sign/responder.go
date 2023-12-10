@@ -18,28 +18,28 @@ import (
 	"github.com/valyala/fasthttp"
 )
 
-func makeHypertextResponse(ctx *fiber.Ctx, upstream *UpstreamConfig) error {
+func makeHypertextResponse(c *fiber.Ctx, upstream *UpstreamConfig) error {
 	timeout := time.Duration(viper.GetInt64("performance.network_timeout")) * time.Millisecond
-	return proxy.Do(ctx, upstream.MakeURI(ctx), &fasthttp.Client{
+	return proxy.Do(c, upstream.MakeURI(c), &fasthttp.Client{
 		ReadTimeout:  timeout,
 		WriteTimeout: timeout,
 	})
 }
 
-func makeFileResponse(ctx *fiber.Ctx, upstream *UpstreamConfig) error {
+func makeFileResponse(c *fiber.Ctx, upstream *UpstreamConfig) error {
 	uri, queries := upstream.GetRawURI()
 	root := http.Dir(uri)
 
-	method := ctx.Method()
+	method := c.Method()
 
 	// We only serve static assets for GET and HEAD methods
 	if method != fiber.MethodGet && method != fiber.MethodHead {
-		return ctx.Next()
+		return c.Next()
 	}
 
 	// Strip prefix
-	prefix := ctx.Route().Path
-	path := strings.TrimPrefix(ctx.Path(), prefix)
+	prefix := c.Route().Path
+	path := strings.TrimPrefix(c.Path(), prefix)
 	if !strings.HasPrefix(path, "/") {
 		path = "/" + path
 	}
@@ -88,35 +88,35 @@ func makeFileResponse(ctx *fiber.Ctx, upstream *UpstreamConfig) error {
 		}
 	}
 
-	ctx.Status(fiber.StatusOK)
+	c.Status(fiber.StatusOK)
 
 	modTime := stat.ModTime()
 	contentLength := int(stat.Size())
 
 	// Set Content-Type header
 	if queries.Get("charset") == "" {
-		ctx.Type(filepath.Ext(stat.Name()))
+		c.Type(filepath.Ext(stat.Name()))
 	} else {
-		ctx.Type(filepath.Ext(stat.Name()), queries.Get("charset"))
+		c.Type(filepath.Ext(stat.Name()), queries.Get("charset"))
 	}
 
 	// Set Last-Modified header
 	if !modTime.IsZero() {
-		ctx.Set(fiber.HeaderLastModified, modTime.UTC().Format(http.TimeFormat))
+		c.Set(fiber.HeaderLastModified, modTime.UTC().Format(http.TimeFormat))
 	}
 
 	if method == fiber.MethodGet {
 		maxAge, err := strconv.Atoi(queries.Get("maxAge"))
 		if lo.Ternary(err != nil, maxAge, 0) > 0 {
-			ctx.Set(fiber.HeaderCacheControl, "public, max-age="+queries.Get("maxAge"))
+			c.Set(fiber.HeaderCacheControl, "public, max-age="+queries.Get("maxAge"))
 		}
-		ctx.Response().SetBodyStream(file, contentLength)
+		c.Response().SetBodyStream(file, contentLength)
 		return nil
 	}
 	if method == fiber.MethodHead {
-		ctx.Request().ResetBody()
-		ctx.Response().SkipBody = true
-		ctx.Response().Header.SetContentLength(contentLength)
+		c.Request().ResetBody()
+		c.Response().SkipBody = true
+		c.Response().Header.SetContentLength(contentLength)
 		if err := file.Close(); err != nil {
 			return fmt.Errorf("failed to close: %w", err)
 		}
