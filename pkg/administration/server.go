@@ -19,6 +19,7 @@ func InitAdministration() *fiber.App {
 		EnableIPValidation:    true,
 		EnablePrintRoutes:     viper.GetBool("debug.print_routes"),
 		TrustedProxies:        viper.GetStringSlice("security.administration_trusted_proxies"),
+		BodyLimit:             viper.GetInt("hypertext.limitation.max_body_size"),
 	})
 
 	if viper.GetBool("performance.request_logging") {
@@ -42,7 +43,7 @@ func InitAdministration() *fiber.App {
 
 	webhooks := app.Group("/webhooks").Name("WebHooks")
 	{
-		webhooks.Put("/publish/:site/:upstream", doPublish)
+		webhooks.Put("/publish/:site/:slug", doPublish)
 	}
 
 	return app
