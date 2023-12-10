@@ -32,6 +32,7 @@ var DeployCommands = []*cli.Command{
 			}
 
 			// Prepare file to upload
+			cleanup := true
 			workdir, _ := os.Getwd()
 			var filename string
 			if ctx.Args().Len() < 3 || !strings.HasSuffix(ctx.Args().Get(3), ".zip") {
@@ -55,6 +56,7 @@ var DeployCommands = []*cli.Command{
 					return fmt.Errorf("failed to prepare file: %q", err)
 				}
 			} else if ctx.Args().Len() > 3 {
+				cleanup = false
 				filename = ctx.Args().Get(3)
 			}
 
@@ -71,12 +73,14 @@ var DeployCommands = []*cli.Command{
 			if status, _, err := client.Bytes(); len(err) > 0 {
 				mistake = fmt.Errorf("failed to publish to remote: %q", err)
 			} else if status != 200 {
-				mistake = fmt.Errorf("server rejected request, may cause by invalid credential")
+				mistake = fmt.Errorf("server rejected request, status code %d", status)
 			}
 
 			// Cleanup
-			log.Info().Msg("Cleaning up...")
-			os.Remove(filename)
+			if cleanup {
+				log.Info().Msg("Cleaning up...")
+				os.Remove(filename)
+			}
 
 			if mistake != nil {
 				return mistake
