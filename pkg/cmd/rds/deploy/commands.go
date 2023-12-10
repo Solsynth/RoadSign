@@ -2,7 +2,6 @@ package deploy
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"io"
 	"os"
@@ -117,10 +116,9 @@ var DeployCommands = []*cli.Command{
 				yaml.Unmarshal(raw, &site)
 			}
 
-			raw, _ := json.Marshal(site)
 			url := fmt.Sprintf("/webhooks/sync/%s", ctx.Args().Get(1))
 			client := fiber.Put(server.Url+url).
-				Body(raw).
+				JSON(site).
 				BasicAuth("RoadSign CLI", server.Credential)
 
 			if status, data, err := client.Bytes(); len(err) > 0 {
