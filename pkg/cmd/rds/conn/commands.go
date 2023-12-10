@@ -22,7 +22,7 @@ var CliCommands = []*cli.Command{
 
 			log.Info().Msgf("There are %d server(s) connected in total.", len(servers))
 			for idx, server := range servers {
-				log.Info().Msgf("%d. %s", idx+1, server.Url)
+				log.Info().Msgf("%d) %s: %s", idx+1, server.ID, server.Url)
 			}
 
 			return nil
@@ -32,15 +32,16 @@ var CliCommands = []*cli.Command{
 		Name:        "connect",
 		Aliases:     []string{"add"},
 		Description: "Connect and save configuration of remote server",
-		ArgsUsage:   "<server url> <credential>",
+		ArgsUsage:   "<id> <server url> <credential>",
 		Action: func(ctx *cli.Context) error {
-			if ctx.Args().Len() < 2 {
-				return fmt.Errorf("must have more two arguments: <server url> <credential>")
+			if ctx.Args().Len() < 3 {
+				return fmt.Errorf("must have three arguments: <id> <server url> <credential>")
 			}
 
 			c := CliConnection{
-				Url:        ctx.Args().Get(0),
-				Credential: ctx.Args().Get(1),
+				ID:         ctx.Args().Get(0),
+				Url:        ctx.Args().Get(1),
+				Credential: ctx.Args().Get(2),
 			}
 
 			if err := c.GetConnectivity(); err != nil {
@@ -64,7 +65,7 @@ var CliCommands = []*cli.Command{
 		Name:        "disconnect",
 		Aliases:     []string{"remove"},
 		Description: "Remove a remote server configuration",
-		ArgsUsage:   "<server url>",
+		ArgsUsage:   "<id>",
 		Action: func(ctx *cli.Context) error {
 			if ctx.Args().Len() < 1 {
 				return fmt.Errorf("must have more one arguments: <server url>")
@@ -74,7 +75,7 @@ var CliCommands = []*cli.Command{
 			raw, _ := json.Marshal(viper.Get("servers"))
 			_ = json.Unmarshal(raw, &servers)
 			viper.Set("servers", lo.Filter(servers, func(item CliConnection, idx int) bool {
-				return item.Url != ctx.Args().Get(0)
+				return item.ID != ctx.Args().Get(0)
 			}))
 
 			if err := viper.WriteConfig(); err != nil {

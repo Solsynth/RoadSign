@@ -4,7 +4,7 @@ import (
 	"os"
 
 	roadsign "code.smartsheep.studio/goatworks/roadsign/pkg"
-	"code.smartsheep.studio/goatworks/roadsign/pkg/cmd/cli/conn"
+	"code.smartsheep.studio/goatworks/roadsign/pkg/cmd/rds/conn"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 	"github.com/spf13/viper"
@@ -36,6 +36,7 @@ func main() {
 	app := &cli.App{
 		Name:     "RoadSign CLI",
 		Version:  roadsign.AppVersion,
+		Suggest:  true,
 		Commands: append([]*cli.Command{}, conn.CliCommands...),
 	}
 
