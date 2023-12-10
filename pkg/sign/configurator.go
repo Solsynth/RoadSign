@@ -27,9 +27,10 @@ func ReadInConfig(root string) error {
 		} else if err := yaml.Unmarshal(data, &site); err != nil {
 			return err
 		} else {
+			defer file.Close()
+
 			// Extract file name as site id
 			site.ID = strings.SplitN(filepath.Base(fp), ".", 2)[0]
-
 			cfg.Sites = append(cfg.Sites, &site)
 		}
 

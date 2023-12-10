@@ -2,18 +2,22 @@ package deploy
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
+	"io"
 	"os"
 	"path/filepath"
 	"strings"
 
 	"code.smartsheep.studio/goatworks/roadsign/pkg/cmd/rds/conn"
+	"code.smartsheep.studio/goatworks/roadsign/pkg/sign"
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
 	"github.com/mholt/archiver/v4"
 	"github.com/rs/zerolog/log"
 	"github.com/samber/lo"
 	"github.com/urfave/cli/v2"
+	"gopkg.in/yaml.v2"
 )
 
 var DeployCommands = []*cli.Command{
@@ -86,8 +90,46 @@ var DeployCommands = []*cli.Command{
 				return mistake
 			}
 
-			// Well done!
 			log.Info().Msg("Well done! Your site is successfully published! 🎉")
+
+			return nil
+		},
+	},
+	{
+		Name:      "sync",
+		Aliases:   []string{"sc"},
+		ArgsUsage: "<server> <site> <configuration path>",
+		Action: func(ctx *cli.Context) error {
+			if ctx.Args().Len() < 3 {
+				return fmt.Errorf("must have three arguments: <server> <site> <configuration path>")
+			}
+
+			server, ok := conn.GetConnection(ctx.Args().Get(0))
+			if !ok {
+				return fmt.Errorf("server was not found, use \"rds connect\" add one first")
+			}
+
+			var site sign.SiteConfig
+			if file, err := os.Open(ctx.Args().Get(2)); err != nil {
+				return err
+			} else {
+				raw, _ := io.ReadAll(file)
+				yaml.Unmarshal(raw, &site)
+			}
+
+			raw, _ := json.Marshal(site)
+			url := fmt.Sprintf("/webhooks/sync/%s", ctx.Args().Get(1))
+			client := fiber.Put(server.Url+url).
+				Body(raw).
+				BasicAuth("RoadSign CLI", server.Credential)
+
+			if status, data, err := client.Bytes(); len(err) > 0 {
+				return fmt.Errorf("failed to sync to remote: %q", err)
+			} else if status != 200 {
+				return fmt.Errorf("server rejected request, status code %d, response %s", status, string(data))
+			}
+
+			log.Info().Msg("Well done! Your site configuration is up-to-date! 🎉")
 
 			return nil
 		},

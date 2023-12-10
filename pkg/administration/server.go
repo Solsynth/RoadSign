@@ -44,6 +44,7 @@ func InitAdministration() *fiber.App {
 	webhooks := app.Group("/webhooks").Name("WebHooks")
 	{
 		webhooks.Put("/publish/:site/:slug", doPublish)
+		webhooks.Put("/sync/:slug", doSyncSite)
 	}
 
 	return app
