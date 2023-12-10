@@ -1,6 +1,11 @@
 package main
 
 import (
+	"os"
+	"os/signal"
+	"strings"
+	"syscall"
+
 	roadsign "code.smartsheep.studio/goatworks/roadsign/pkg"
 	"code.smartsheep.studio/goatworks/roadsign/pkg/administration"
 	"code.smartsheep.studio/goatworks/roadsign/pkg/hypertext"
@@ -9,10 +14,6 @@ import (
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 	"github.com/spf13/viper"
-	"os"
-	"os/signal"
-	"strings"
-	"syscall"
 )
 
 func init() {
@@ -46,7 +47,7 @@ func main() {
 	if err := sign.ReadInConfig(viper.GetString("paths.configs")); err != nil {
 		log.Panic().Err(err).Msg("An error occurred when loading configurations.")
 	} else {
-		log.Debug().Any("sites", sign.App).Msg("All configuration has been loaded.")
+		log.Info().Int("count", len(sign.App.Sites)).Msg("All configuration has been loaded.")
 	}
 
 	// Init hypertext server
@@ -57,7 +58,7 @@ func main() {
 		viper.GetString("hypertext.certificate.pem"),
 		viper.GetString("hypertext.certificate.key"),
 	)
-	
+
 	// Init administration server
 	hypertext.RunServer(
 		administration.InitAdministration(),

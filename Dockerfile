@@ -3,7 +3,7 @@ FROM golang:alpine as roadsign-server
 
 WORKDIR /source
 COPY . .
-RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o /dist ./pkg/cmd/main.go
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o /dist ./pkg/cmd/server/main.go
 
 # Runtime
 FROM golang:alpine

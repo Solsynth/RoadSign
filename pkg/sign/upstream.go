@@ -2,10 +2,11 @@ package sign
 
 import (
 	"fmt"
-	"github.com/gofiber/fiber/v2"
-	"github.com/samber/lo"
 	"net/url"
 	"strings"
+
+	"github.com/gofiber/fiber/v2"
+	"github.com/samber/lo"
 )
 
 const (
@@ -15,18 +16,16 @@ const (
 )
 
 type UpstreamConfig struct {
-	ID  string `json:"id"`
-	URI string `json:"uri"`
+	ID  string `json:"id" yaml:"id"`
+	URI string `json:"uri" yaml:"uri"`
 }
 
 func (v *UpstreamConfig) GetType() string {
 	protocol := strings.SplitN(v.URI, "://", 2)[0]
 	switch protocol {
-	case "file":
-	case "files":
+	case "file", "files":
 		return UpstreamTypeFile
-	case "http":
-	case "https":
+	case "http", "https":
 		return UpstreamTypeHypertext
 	}
 

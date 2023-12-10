@@ -1,12 +1,13 @@
 package administration
 
 import (
-	"code.smartsheep.studio/goatworks/roadsign/pkg/fs"
+	"os"
+	"path/filepath"
+
+	"code.smartsheep.studio/goatworks/roadsign/pkg/filesystem"
 	"code.smartsheep.studio/goatworks/roadsign/pkg/sign"
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
-	"os"
-	"path/filepath"
 )
 
 func doPublish(ctx *fiber.Ctx) error {
@@ -15,7 +16,7 @@ func doPublish(ctx *fiber.Ctx) error {
 		if item.ID == ctx.Params("site") {
 			for _, stream := range item.Upstreams {
 				if stream.ID == ctx.Params("upstream") {
-					upstream = &stream
+					upstream = stream
 					break
 				}
 			}
@@ -48,7 +49,7 @@ func doPublish(ctx *fiber.Ctx) error {
 				if err := ctx.SaveFile(file, dst); err != nil {
 					return err
 				} else {
-					_ = fs.Unzip(dst, workdir)
+					_ = filesystem.Unzip(dst, workdir)
 				}
 			default:
 				dst := filepath.Join(workdir, file.Filename)
