@@ -1,14 +1,15 @@
 package administration
 
 import (
+	"context"
 	"os"
 	"path/filepath"
 
-	"code.smartsheep.studio/goatworks/roadsign/pkg/filesystem"
 	"code.smartsheep.studio/goatworks/roadsign/pkg/sign"
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
 	"github.com/samber/lo"
+	"github.com/saracen/fastzip"
 )
 
 func doPublish(c *fiber.Ctx) error {
@@ -64,7 +65,12 @@ func doPublish(c *fiber.Ctx) error {
 				if err := c.SaveFile(file, dst); err != nil {
 					return err
 				} else {
-					_ = filesystem.Unzip(dst, workdir)
+					if ex, err := fastzip.NewExtractor(dst, workdir); err != nil {
+						return err
+					} else if err = ex.Extract(context.Background()); err != nil {
+						defer ex.Close()
+						return err
+					}
 				}
 			default:
 				dst := filepath.Join(workdir, file.Filename)

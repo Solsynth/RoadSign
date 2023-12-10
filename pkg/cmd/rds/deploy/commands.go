@@ -12,9 +12,9 @@ import (
 	"code.smartsheep.studio/goatworks/roadsign/pkg/sign"
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
-	"github.com/mholt/archiver/v4"
 	"github.com/rs/zerolog/log"
 	"github.com/samber/lo"
+	"github.com/saracen/fastzip"
 	"github.com/urfave/cli/v2"
 	"gopkg.in/yaml.v2"
 )
@@ -41,13 +41,7 @@ var DeployCommands = []*cli.Command{
 			if ctx.Args().Len() < 3 || !strings.HasSuffix(ctx.Args().Get(3), ".zip") {
 				log.Info().Msg("Preparing file to upload, please stand by...")
 
-				filelist, err := archiver.FilesFromDisk(nil, map[string]string{
-					lo.Ternary(ctx.Args().Len() > 3, ctx.Args().Get(4), "."): "",
-				})
-				if err != nil {
-					return fmt.Errorf("failed to prepare file: %q", err)
-				}
-
+				dest := lo.Ternary(ctx.Args().Len() > 3, ctx.Args().Get(3), workdir)
 				filename = filepath.Join(workdir, fmt.Sprintf("rds-deploy-cache-%s.zip", uuid.NewString()))
 				out, err := os.Create(filename)
 				if err != nil {
@@ -55,8 +49,22 @@ var DeployCommands = []*cli.Command{
 				}
 				defer out.Close()
 
-				if err := (archiver.Zip{}).Archive(context.Background(), out, filelist); err != nil {
-					return fmt.Errorf("failed to prepare file: %q", err)
+				arc, err := fastzip.NewArchiver(out, dest)
+				if err != nil {
+					return err
+				}
+				defer arc.Close()
+
+				filelist := make(map[string]os.FileInfo)
+				if err := filepath.Walk(dest, func(pathname string, info os.FileInfo, err error) error {
+					filelist[pathname] = info
+					return nil
+				}); err != nil {
+					return err
+				}
+
+				if err := arc.Archive(context.Background(), filelist); err != nil {
+					return err
 				}
 			} else if ctx.Args().Len() > 3 {
 				cleanup = false

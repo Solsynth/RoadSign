@@ -30,13 +30,19 @@ func doSyncSite(c *fiber.Ctx) error {
 		defer file.Close()
 	}
 
+	pushed := false
 	sign.App.Sites = lo.Map(sign.App.Sites, func(item *sign.SiteConfig, idx int) *sign.SiteConfig {
 		if item.ID == id {
+			pushed = true
 			return &req
 		} else {
 			return item
 		}
 	})
+
+	if !pushed {
+		sign.App.Sites = append(sign.App.Sites, &req)
+	}
 
 	return c.SendStatus(fiber.StatusOK)
 }
