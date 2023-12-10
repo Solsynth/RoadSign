@@ -35,6 +35,11 @@ func InitAdministration() *fiber.App {
 		},
 	}))
 
+	cgi := app.Group("/cgi").Name("CGI")
+	{
+		cgi.All("/connectivity", responseConnectivity)
+	}
+
 	webhooks := app.Group("/webhooks").Name("WebHooks")
 	{
 		webhooks.Put("/publish/:site/:upstream", doPublish)

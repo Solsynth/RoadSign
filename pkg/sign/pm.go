@@ -68,5 +68,9 @@ func (v *ProcessConfig) StartProcess() error {
 }
 
 func (v *ProcessConfig) StopProcess() error {
-	return v.Cmd.Process.Signal(os.Interrupt)
+	if v.Cmd != nil && v.Cmd.Process != nil {
+		return v.Cmd.Process.Signal(os.Interrupt)
+	} else {
+		return nil
+	}
 }

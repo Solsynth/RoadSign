@@ -2,11 +2,9 @@ package filesystem
 
 import (
 	"archive/zip"
-	"fmt"
 	"io"
 	"os"
 	"path/filepath"
-	"strings"
 )
 
 func Unzip(src, dest string) error {
@@ -34,10 +32,6 @@ func Unzip(src, dest string) error {
 		}()
 
 		path := filepath.Join(dest, f.Name)
-
-		if !strings.HasPrefix(path, filepath.Clean(dest)+string(os.PathSeparator)) {
-			return fmt.Errorf("illegal file path: %s", path)
-		}
 
 		if f.FileInfo().IsDir() {
 			_ = os.MkdirAll(path, f.Mode())
