@@ -8,11 +8,11 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-type AppConfig struct {
+type RoadApp struct {
 	Sites []*SiteConfig `json:"sites"`
 }
 
-func (v *AppConfig) Forward(ctx *fiber.Ctx, site *SiteConfig) error {
+func (v *RoadApp) Forward(ctx *fiber.Ctx, site *SiteConfig) error {
 	if len(site.Upstreams) == 0 {
 		return errors.New("invalid configuration")
 	}

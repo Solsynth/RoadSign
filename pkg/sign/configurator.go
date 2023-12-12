@@ -9,10 +9,10 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
-var App *AppConfig
+var App *RoadApp
 
 func ReadInConfig(root string) error {
-	cfg := &AppConfig{
+	instance := &RoadApp{
 		Sites: []*SiteConfig{},
 	}
 
@@ -31,7 +31,7 @@ func ReadInConfig(root string) error {
 
 			// Extract file name as site id
 			site.ID = strings.SplitN(filepath.Base(fp), ".", 2)[0]
-			cfg.Sites = append(cfg.Sites, &site)
+			instance.Sites = append(instance.Sites, &site)
 		}
 
 		return nil
@@ -39,7 +39,7 @@ func ReadInConfig(root string) error {
 		return err
 	}
 
-	App = cfg
+	App = instance
 
 	return nil
 }

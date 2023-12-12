@@ -12,6 +12,7 @@ type ProcessConfig struct {
 	Workdir  string     `json:"workdir" yaml:"workdir"`
 	Command  []string   `json:"command" yaml:"command"`
 	Prepares [][]string `json:"prepares" yaml:"prepares"`
+	Preheat  bool       `json:"preheat" yaml:"preheat"`
 
 	Cmd *exec.Cmd `json:"-"`
 }
@@ -20,7 +21,7 @@ func (v *ProcessConfig) BootProcess() error {
 	if v.Cmd != nil {
 		return nil
 	}
-	if err := v.PreapreProcess(); err != nil {
+	if err := v.PrepareProcess(); err != nil {
 		return err
 	}
 	if v.Cmd == nil {
@@ -41,7 +42,7 @@ func (v *ProcessConfig) BootProcess() error {
 	}
 }
 
-func (v *ProcessConfig) PreapreProcess() error {
+func (v *ProcessConfig) PrepareProcess() error {
 	for _, script := range v.Prepares {
 		if len(script) <= 0 {
 			continue
@@ -77,4 +78,19 @@ func (v *ProcessConfig) StopProcess() error {
 	}
 
 	return nil
+}
+
+func (v *RoadApp) PreheatProcesses() {
+	var processes []*ProcessConfig
+	for _, site := range v.Sites {
+		for _, process := range site.Processes {
+			if process.Preheat {
+				processes = append(processes, process)
+			}
+		}
+	}
+
+	for _, process := range processes {
+		process.BootProcess()
+	}
 }
