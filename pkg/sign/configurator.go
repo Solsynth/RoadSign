@@ -43,18 +43,3 @@ func ReadInConfig(root string) error {
 
 	return nil
 }
-
-func SaveInConfig(root string, cfg *AppConfig) error {
-	for _, site := range cfg.Sites {
-		data, _ := yaml.Marshal(site)
-
-		fp := filepath.Join(root, site.ID)
-		if file, err := os.OpenFile(fp, os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0755); err != nil {
-			return err
-		} else if _, err := file.Write(data); err != nil {
-			return err
-		}
-	}
-
-	return nil
-}

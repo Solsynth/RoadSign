@@ -30,19 +30,16 @@ func doSyncSite(c *fiber.Ctx) error {
 		defer file.Close()
 	}
 
-	pushed := false
-	sign.App.Sites = lo.Map(sign.App.Sites, func(item *sign.SiteConfig, idx int) *sign.SiteConfig {
-		if item.ID == id {
-			pushed = true
-			return &req
-		} else {
-			return item
+	if site, ok := lo.Find(sign.App.Sites, func(item *sign.SiteConfig) bool {
+		return item.ID == id
+	}); ok {
+		for _, process := range site.Processes {
+			process.StopProcess()
 		}
-	})
-
-	if !pushed {
-		sign.App.Sites = append(sign.App.Sites, &req)
 	}
+
+	// Reload
+	sign.ReadInConfig(viper.GetString("paths.configs"))
 
 	return c.SendStatus(fiber.StatusOK)
 }
