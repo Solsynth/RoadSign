@@ -5,4 +5,4 @@ rules:
 upstreams:
   - id: example
     name: Benchmarking Data
-    uri: files://../data/.spa
+    uri: files://../data/spa
