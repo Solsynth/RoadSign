@@ -1,4 +1,4 @@
-package administration
+package sideload
 
 import (
 	"fmt"
@@ -11,21 +11,21 @@ import (
 	"github.com/spf13/viper"
 )
 
-func InitAdministration() *fiber.App {
+func InitSideload() *fiber.App {
 	app := fiber.New(fiber.Config{
-		AppName:               "RoadSign Administration",
-		ServerHeader:          fmt.Sprintf("RoadSign Administration v%s", roadsign.AppVersion),
+		AppName:               "RoadSign Sideload",
+		ServerHeader:          fmt.Sprintf("RoadSign Sideload v%s", roadsign.AppVersion),
 		DisableStartupMessage: true,
 		EnableIPValidation:    true,
 		EnablePrintRoutes:     viper.GetBool("debug.print_routes"),
-		TrustedProxies:        viper.GetStringSlice("security.administration_trusted_proxies"),
+		TrustedProxies:        viper.GetStringSlice("security.sideload_trusted_proxies"),
 		BodyLimit:             viper.GetInt("hypertext.limitation.max_body_size"),
 	})
 
 	if viper.GetBool("performance.request_logging") {
 		app.Use(logger.New(logger.Config{
 			Output: log.Logger,
-			Format: "[Administration] [${time}] ${status} - ${latency} ${method} ${path}\n",
+			Format: "[Sideload] [${time}] ${status} - ${latency} ${method} ${path}\n",
 		}))
 	}
 

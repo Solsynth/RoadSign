@@ -1,4 +1,4 @@
-package administration
+package sideload
 
 import (
 	"fmt"

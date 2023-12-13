@@ -7,8 +7,8 @@ import (
 	"syscall"
 
 	roadsign "code.smartsheep.studio/goatworks/roadsign/pkg"
-	"code.smartsheep.studio/goatworks/roadsign/pkg/administration"
 	"code.smartsheep.studio/goatworks/roadsign/pkg/hypertext"
+	"code.smartsheep.studio/goatworks/roadsign/pkg/sideload"
 	"code.smartsheep.studio/goatworks/roadsign/pkg/sign"
 	"github.com/google/uuid"
 	"github.com/rs/zerolog"
@@ -65,13 +65,13 @@ func main() {
 		viper.GetString("hypertext.certificate.key"),
 	)
 
-	// Init administration server
+	// Init sideload server
 	hypertext.RunServer(
-		administration.InitAdministration(),
-		viper.GetStringSlice("hypertext.administration_ports"),
-		viper.GetStringSlice("hypertext.administration_secured_ports"),
-		viper.GetString("hypertext.certificate.administration_pem"),
-		viper.GetString("hypertext.certificate.administration_key"),
+		sideload.InitSideload(),
+		viper.GetStringSlice("hypertext.sideload_ports"),
+		viper.GetStringSlice("hypertext.sideload_secured_ports"),
+		viper.GetString("hypertext.certificate.sideload_pem"),
+		viper.GetString("hypertext.certificate.sideload_key"),
 	)
 
 	log.Info().Msgf("RoadSign v%s is started...", roadsign.AppVersion)

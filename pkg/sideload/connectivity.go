@@ -1,4 +1,4 @@
-package administration
+package sideload
 
 import (
 	roadsign "code.smartsheep.studio/goatworks/roadsign/pkg"

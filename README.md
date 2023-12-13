@@ -74,7 +74,7 @@ rds cli with this command.
 ```shell
 rds connect <id> <url> <password>
 # ID will allow you find this server in after commands.
-# URL is to your roadsign server administration api.
+# URL is to your roadsign server sideload api.
 # Password is your roadsign server credential.
 # ======================================================================
 # !WARNING! All these things will storage in your $HOME/.roadsignrc.yaml
