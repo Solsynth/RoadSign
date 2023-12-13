@@ -29,7 +29,6 @@ func doSyncSite(c *fiber.Ctx) error {
 		file.Write(raw)
 		defer file.Close()
 	}
-
 	if site, ok := lo.Find(sign.App.Sites, func(item *sign.SiteConfig) bool {
 		return item.ID == id
 	}); ok {
@@ -40,7 +39,7 @@ func doSyncSite(c *fiber.Ctx) error {
 
 	// Reload
 	sign.ReadInConfig(viper.GetString("paths.configs"))
-	sign.App.PreheatProcesses(func(total int, success int) {})
+	sign.App.PreheatProcesses()
 
 	return c.SendStatus(fiber.StatusOK)
 }
