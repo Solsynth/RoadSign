@@ -50,6 +50,12 @@ func main() {
 		log.Info().Int("count", len(sign.App.Sites)).Msg("All configuration has been loaded.")
 	}
 
+	// Preheat processes
+	log.Info().Msg("Preheating processes...")
+	sign.App.PreheatProcesses(func(total int, success int) {
+		log.Info().Int("requested", total).Int("succeed", success).Msgf("Preheat processes completed!")
+	})
+
 	// Init hypertext server
 	hypertext.RunServer(
 		hypertext.InitServer(),

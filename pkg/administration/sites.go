@@ -40,6 +40,7 @@ func doSyncSite(c *fiber.Ctx) error {
 
 	// Reload
 	sign.ReadInConfig(viper.GetString("paths.configs"))
+	sign.App.PreheatProcesses(func(total int, success int) {})
 
 	return c.SendStatus(fiber.StatusOK)
 }

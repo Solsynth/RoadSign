@@ -80,7 +80,7 @@ func (v *ProcessConfig) StopProcess() error {
 	return nil
 }
 
-func (v *RoadApp) PreheatProcesses() {
+func (v *RoadApp) PreheatProcesses(callback func(total int, success int)) {
 	var processes []*ProcessConfig
 	for _, site := range v.Sites {
 		for _, process := range site.Processes {
@@ -90,7 +90,12 @@ func (v *RoadApp) PreheatProcesses() {
 		}
 	}
 
+	success := 0
 	for _, process := range processes {
-		process.BootProcess()
+		if process.BootProcess() == nil {
+			success++
+		}
 	}
+
+	callback(len(processes), success)
 }
