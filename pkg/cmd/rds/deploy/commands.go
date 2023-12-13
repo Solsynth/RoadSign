@@ -31,6 +31,8 @@ var DeployCommands = []*cli.Command{
 			server, ok := conn.GetConnection(ctx.Args().Get(0))
 			if !ok {
 				return fmt.Errorf("server was not found, use \"rds connect\" add one first")
+			} else if err := server.CheckConnectivity(); err != nil {
+				return fmt.Errorf("couldn't connect server: %s", err.Error())
 			}
 
 			// Send request
@@ -65,6 +67,8 @@ var DeployCommands = []*cli.Command{
 			server, ok := conn.GetConnection(ctx.Args().Get(0))
 			if !ok {
 				return fmt.Errorf("server was not found, use \"rds connect\" add one first")
+			} else if err := server.CheckConnectivity(); err != nil {
+				return fmt.Errorf("couldn't connect server: %s", err.Error())
 			}
 
 			var site sign.SiteConfig

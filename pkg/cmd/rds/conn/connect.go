@@ -3,6 +3,7 @@ package conn
 import (
 	"encoding/json"
 	"fmt"
+	"strings"
 
 	roadsign "code.smartsheep.studio/goatworks/roadsign/pkg"
 	"github.com/gofiber/fiber/v2"
@@ -15,7 +16,7 @@ type CliConnection struct {
 	Credential string `json:"credential"`
 }
 
-func (v CliConnection) GetConnectivity() error {
+func (v CliConnection) CheckConnectivity() error {
 	client := fiber.Get(v.Url + "/cgi/connectivity")
 	client.BasicAuth("RoadSign CLI", v.Credential)
 
@@ -30,7 +31,11 @@ func (v CliConnection) GetConnectivity() error {
 		} else if resp["server"] != "RoadSign" {
 			return fmt.Errorf("remote server isn't roadsign")
 		} else if resp["version"] != roadsign.AppVersion {
-			log.Warn().Msg("Server connected successfully, but remote server version mismatch than CLI version, some features may buggy or completely unusable.")
+			if strings.Contains(roadsign.AppVersion, "#") {
+				return fmt.Errorf("remote server version mismatch client version, update or downgrade client required")
+			} else {
+				log.Warn().Msg("RoadSign CLI didn't complied with vcs information, compatibility was disabled. To enable it, reinstall cli with -buildvcs flag.")
+			}
 		}
 	}
 	return nil

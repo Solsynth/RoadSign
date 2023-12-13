@@ -44,7 +44,7 @@ var CliCommands = []*cli.Command{
 				Credential: ctx.Args().Get(2),
 			}
 
-			if err := c.GetConnectivity(); err != nil {
+			if err := c.CheckConnectivity(); err != nil {
 				return fmt.Errorf("couldn't connect server: %s", err.Error())
 			} else {
 				var servers []CliConnection
