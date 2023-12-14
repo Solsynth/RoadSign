@@ -66,7 +66,7 @@ go install -buildvcs code.smartsheep.studio/goatworks/roadsign/pkg/cmd/rds@lates
 ## Usage
 
 To use roadsign, you need to add a configuration for it. Create a file locally.
-Name whatever you like. And follow our [documentation](https://wiki.smartsheep.studio/roadsign/02-configuration.html) to
+Name whatever you like. And follow our [documentation](https://wiki.smartsheep.studio/roadsign/configuration/index.html) to
 write it.
 
 After configure, you need sync your config to remote server. Before that, add a connection between roadsign server and
