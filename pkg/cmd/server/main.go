@@ -51,10 +51,12 @@ func main() {
 	}
 
 	// Preheat processes
-	log.Info().Msg("Preheating processes...")
-	sign.App.PreheatProcesses(func(total int, success int) {
-		log.Info().Int("requested", total).Int("succeed", success).Msgf("Preheat processes completed!")
-	})
+	go func() {
+		log.Info().Msg("Preheating processes...")
+		sign.App.PreheatProcesses(func(total int, success int) {
+			log.Info().Int("requested", total).Int("succeed", success).Msgf("Preheat processes completed!")
+		})
+	}()
 
 	// Init hypertext server
 	hypertext.RunServer(
