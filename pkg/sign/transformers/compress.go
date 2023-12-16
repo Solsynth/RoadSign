@@ -2,8 +2,7 @@ package transformers
 
 import (
 	"github.com/gofiber/fiber/v2"
-	"github.com/gofiber/fiber/v2/middleware/compress"
-	"github.com/samber/lo"
+	"github.com/valyala/fasthttp"
 )
 
 var CompressResponse = RequestTransformer{
@@ -11,9 +10,32 @@ var CompressResponse = RequestTransformer{
 		opts := DeserializeOptions[struct {
 			Level int `json:"level"`
 		}](options)
-		level := lo.Ternary(opts.Level < 0 || opts.Level > 2, 0, opts.Level)
-		ware := compress.New(compress.Config{Level: compress.Level(level)})
 
-		return ware(ctx)
+		var fctx = func(c *fasthttp.RequestCtx) {}
+		var compressor fasthttp.RequestHandler
+		switch opts.Level {
+		// Best Speed Mode
+		case 1:
+			compressor = fasthttp.CompressHandlerBrotliLevel(fctx,
+				fasthttp.CompressBrotliBestSpeed,
+				fasthttp.CompressBestSpeed,
+			)
+		// Best Compression Mode
+		case 2:
+			compressor = fasthttp.CompressHandlerBrotliLevel(fctx,
+				fasthttp.CompressBrotliBestCompression,
+				fasthttp.CompressBestCompression,
+			)
+		// Default Mode
+		default:
+			compressor = fasthttp.CompressHandlerBrotliLevel(fctx,
+				fasthttp.CompressBrotliDefaultCompression,
+				fasthttp.CompressDefaultCompression,
+			)
+		}
+
+		compressor(ctx.Context())
+
+		return nil
 	},
 }
