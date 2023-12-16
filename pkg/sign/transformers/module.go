@@ -1,11 +1,13 @@
 package transformers
 
 import (
-	"encoding/json"
 	"github.com/gofiber/fiber/v2"
+	jsoniter "github.com/json-iterator/go"
 )
 
 // Definitions
+
+var json = jsoniter.ConfigCompatibleWithStandardLibrary
 
 type RequestTransformer struct {
 	ModifyRequest  func(options any, ctx *fiber.Ctx) error
