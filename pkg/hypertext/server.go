@@ -1,6 +1,7 @@
 package hypertext
 
 import (
+	jsoniter "github.com/json-iterator/go"
 	"time"
 
 	"github.com/gofiber/fiber/v2"
@@ -16,6 +17,8 @@ func InitServer() *fiber.App {
 		ServerHeader:          "RoadSign",
 		DisableStartupMessage: true,
 		EnableIPValidation:    true,
+		JSONDecoder:           jsoniter.ConfigCompatibleWithStandardLibrary.Unmarshal,
+		JSONEncoder:           jsoniter.ConfigCompatibleWithStandardLibrary.Marshal,
 		Prefork:               viper.GetBool("performance.prefork"),
 		BodyLimit:             viper.GetInt("hypertext.limitation.max_body_size"),
 	})

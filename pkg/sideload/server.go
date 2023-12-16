@@ -2,6 +2,7 @@ package sideload
 
 import (
 	"fmt"
+	jsoniter "github.com/json-iterator/go"
 
 	roadsign "code.smartsheep.studio/goatworks/roadsign/pkg"
 	"github.com/gofiber/fiber/v2"
@@ -17,6 +18,8 @@ func InitSideload() *fiber.App {
 		ServerHeader:          "RoadSign Sideload",
 		DisableStartupMessage: true,
 		EnableIPValidation:    true,
+		JSONDecoder:           jsoniter.ConfigCompatibleWithStandardLibrary.Unmarshal,
+		JSONEncoder:           jsoniter.ConfigCompatibleWithStandardLibrary.Marshal,
 		EnablePrintRoutes:     viper.GetBool("debug.print_routes"),
 		TrustedProxies:        viper.GetStringSlice("security.sideload_trusted_proxies"),
 		BodyLimit:             viper.GetInt("hypertext.limitation.max_body_size"),
