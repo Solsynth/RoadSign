@@ -1,11 +1,11 @@
-package sign
+package transformers
 
 import (
-	"regexp"
-	"strings"
-
+	"encoding/json"
 	"github.com/gofiber/fiber/v2"
 )
+
+// Definitions
 
 type RequestTransformer struct {
 	ModifyRequest  func(options any, ctx *fiber.Ctx)
@@ -39,21 +39,18 @@ func (v *RequestTransformerConfig) TransformResponse(ctx *fiber.Ctx) {
 	}
 }
 
+// Helpers
+
+func DeserializeOptions[T any](data any) T {
+	var out T
+	raw, _ := json.Marshal(data)
+	_ = json.Unmarshal(raw, &out)
+	return out
+}
+
+// Map of Transformers
+// Every transformer need to be mapped here so that they can get work.
+
 var Transformers = map[string]RequestTransformer{
-	"replacePath": {
-		ModifyRequest: func(options any, ctx *fiber.Ctx) {
-			opts := DeserializeOptions[struct {
-				Pattern string `json:"pattern"`
-				Value   string `json:"value"`
-				Repl    string `json:"repl"` // Use when complex mode(regexp) enabled
-				Complex bool   `json:"complex"`
-			}](options)
-			path := string(ctx.Request().URI().Path())
-			if !opts.Complex {
-				ctx.Path(strings.ReplaceAll(path, opts.Pattern, opts.Value))
-			} else if ex := regexp.MustCompile(opts.Pattern); ex != nil {
-				ctx.Path(ex.ReplaceAllString(path, opts.Repl))
-			}
-		},
-	},
+	"replacePath": ReplacePath,
 }

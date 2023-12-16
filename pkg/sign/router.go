@@ -1,6 +1,7 @@
 package sign
 
 import (
+	"code.smartsheep.studio/goatworks/roadsign/pkg/sign/transformers"
 	"errors"
 	"math/rand"
 
@@ -38,6 +39,8 @@ func (v *RoadApp) Forward(ctx *fiber.Ctx, site *SiteConfig) error {
 		return fiber.ErrBadGateway
 	}
 }
+
+type RequestTransformerConfig = transformers.RequestTransformerConfig
 
 type SiteConfig struct {
 	ID           string                      `json:"id"`
