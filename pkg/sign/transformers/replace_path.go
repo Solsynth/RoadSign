@@ -7,7 +7,7 @@ import (
 )
 
 var ReplacePath = RequestTransformer{
-	ModifyRequest: func(options any, ctx *fiber.Ctx) {
+	ModifyRequest: func(options any, ctx *fiber.Ctx) error {
 		opts := DeserializeOptions[struct {
 			Pattern string `json:"pattern"`
 			Value   string `json:"value"`
@@ -20,5 +20,6 @@ var ReplacePath = RequestTransformer{
 		} else if ex := regexp.MustCompile(opts.Pattern); ex != nil {
 			ctx.Path(ex.ReplaceAllString(path, opts.Repl))
 		}
+		return nil
 	},
 }

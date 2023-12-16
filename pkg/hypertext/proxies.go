@@ -92,7 +92,9 @@ func UseProxies(app *fiber.App) {
 func makeResponse(ctx *fiber.Ctx, site *sign.SiteConfig) error {
 	// Modify request
 	for _, transformer := range site.Transformers {
-		transformer.TransformRequest(ctx)
+		if err := transformer.TransformRequest(ctx); err != nil {
+			return err
+		}
 	}
 
 	// Forward
@@ -100,7 +102,9 @@ func makeResponse(ctx *fiber.Ctx, site *sign.SiteConfig) error {
 
 	// Modify response
 	for _, transformer := range site.Transformers {
-		transformer.TransformResponse(ctx)
+		if err := transformer.TransformResponse(ctx); err != nil {
+			return err
+		}
 	}
 
 	return err

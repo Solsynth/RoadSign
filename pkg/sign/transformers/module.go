@@ -8,8 +8,8 @@ import (
 // Definitions
 
 type RequestTransformer struct {
-	ModifyRequest  func(options any, ctx *fiber.Ctx)
-	ModifyResponse func(options any, ctx *fiber.Ctx)
+	ModifyRequest  func(options any, ctx *fiber.Ctx) error
+	ModifyResponse func(options any, ctx *fiber.Ctx) error
 }
 
 type RequestTransformerConfig struct {
@@ -17,26 +17,28 @@ type RequestTransformerConfig struct {
 	Options any    `json:"options" yaml:"options"`
 }
 
-func (v *RequestTransformerConfig) TransformRequest(ctx *fiber.Ctx) {
+func (v *RequestTransformerConfig) TransformRequest(ctx *fiber.Ctx) error {
 	for k, f := range Transformers {
 		if k == v.Type {
 			if f.ModifyRequest != nil {
-				f.ModifyRequest(v.Options, ctx)
+				return f.ModifyRequest(v.Options, ctx)
 			}
 			break
 		}
 	}
+	return nil
 }
 
-func (v *RequestTransformerConfig) TransformResponse(ctx *fiber.Ctx) {
+func (v *RequestTransformerConfig) TransformResponse(ctx *fiber.Ctx) error {
 	for k, f := range Transformers {
 		if k == v.Type {
 			if f.ModifyResponse != nil {
-				f.ModifyResponse(v.Options, ctx)
+				return f.ModifyResponse(v.Options, ctx)
 			}
 			break
 		}
 	}
+	return nil
 }
 
 // Helpers
@@ -52,5 +54,6 @@ func DeserializeOptions[T any](data any) T {
 // Every transformer need to be mapped here so that they can get work.
 
 var Transformers = map[string]RequestTransformer{
-	"replacePath": ReplacePath,
+	"replacePath":      ReplacePath,
+	"compressResponse": CompressResponse,
 }
