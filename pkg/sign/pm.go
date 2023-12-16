@@ -8,11 +8,12 @@ import (
 )
 
 type ProcessConfig struct {
-	ID       string     `json:"id" yaml:"id"`
-	Workdir  string     `json:"workdir" yaml:"workdir"`
-	Command  []string   `json:"command" yaml:"command"`
-	Prepares [][]string `json:"prepares" yaml:"prepares"`
-	Preheat  bool       `json:"preheat" yaml:"preheat"`
+	ID          string     `json:"id" yaml:"id"`
+	Workdir     string     `json:"workdir" yaml:"workdir"`
+	Command     []string   `json:"command" yaml:"command"`
+	Environment []string   `json:"environment" yaml:"environment"`
+	Prepares    [][]string `json:"prepares" yaml:"prepares"`
+	Preheat     bool       `json:"preheat" yaml:"preheat"`
 
 	Cmd *exec.Cmd `json:"-"`
 }
@@ -63,6 +64,7 @@ func (v *ProcessConfig) StartProcess() error {
 
 	v.Cmd = exec.Command(v.Command[0], v.Command[1:]...)
 	v.Cmd.Dir = filepath.Join(v.Workdir)
+	v.Cmd.Env = append(v.Cmd.Env, v.Environment...)
 
 	return v.Cmd.Start()
 }
