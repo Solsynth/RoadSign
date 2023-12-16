@@ -2,6 +2,7 @@ package deploy
 
 import (
 	"fmt"
+	jsoniter "github.com/json-iterator/go"
 	"io"
 	"os"
 	"strings"
@@ -81,6 +82,8 @@ var DeployCommands = []*cli.Command{
 
 			url := fmt.Sprintf("/webhooks/sync/%s", ctx.Args().Get(1))
 			client := fiber.Put(server.Url+url).
+				JSONEncoder(jsoniter.ConfigCompatibleWithStandardLibrary.Marshal).
+				JSONDecoder(jsoniter.ConfigCompatibleWithStandardLibrary.Unmarshal).
 				JSON(site).
 				BasicAuth("RoadSign CLI", server.Credential)
 

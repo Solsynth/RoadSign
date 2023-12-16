@@ -35,7 +35,8 @@ func (v *UpstreamConfig) GetType() string {
 func (v *UpstreamConfig) GetRawURI() (string, url.Values) {
 	uri := strings.SplitN(v.URI, "://", 2)[1]
 	data := strings.SplitN(uri, "?", 2)
-	qs, _ := url.ParseQuery(data[1])
+	data = append(data, " ") // Make data array least have two element
+	qs, _ := url.ParseQuery(data[0])
 
 	return data[0], qs
 }

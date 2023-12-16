@@ -9,10 +9,10 @@ import (
 var ReplacePath = RequestTransformer{
 	ModifyRequest: func(options any, ctx *fiber.Ctx) error {
 		opts := DeserializeOptions[struct {
-			Pattern string `json:"pattern"`
-			Value   string `json:"value"`
-			Repl    string `json:"repl"` // Use when complex mode(regexp) enabled
-			Complex bool   `json:"complex"`
+			Pattern string `json:"pattern" yaml:"pattern"`
+			Value   string `json:"value" yaml:"value"`
+			Repl    string `json:"repl" yaml:"repl"` // Use when complex mode(regexp) enabled
+			Complex bool   `json:"complex" yaml:"complex"`
 		}](options)
 		path := string(ctx.Request().URI().Path())
 		if !opts.Complex {

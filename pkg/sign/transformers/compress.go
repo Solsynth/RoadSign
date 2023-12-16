@@ -8,7 +8,7 @@ import (
 var CompressResponse = RequestTransformer{
 	ModifyResponse: func(options any, ctx *fiber.Ctx) error {
 		opts := DeserializeOptions[struct {
-			Level int `json:"level"`
+			Level int `json:"level" yaml:"level"`
 		}](options)
 
 		var fctx = func(c *fasthttp.RequestCtx) {}
