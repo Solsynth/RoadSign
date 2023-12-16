@@ -14,7 +14,7 @@ import (
 func InitSideload() *fiber.App {
 	app := fiber.New(fiber.Config{
 		AppName:               "RoadSign Sideload",
-		ServerHeader:          fmt.Sprintf("RoadSign Sideload v%s", roadsign.AppVersion),
+		ServerHeader:          "RoadSign Sideload",
 		DisableStartupMessage: true,
 		EnableIPValidation:    true,
 		EnablePrintRoutes:     viper.GetBool("debug.print_routes"),

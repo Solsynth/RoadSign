@@ -1,10 +1,8 @@
 package hypertext
 
 import (
-	"fmt"
 	"time"
 
-	roadsign "code.smartsheep.studio/goatworks/roadsign/pkg"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/limiter"
 	"github.com/gofiber/fiber/v2/middleware/logger"
@@ -15,7 +13,7 @@ import (
 func InitServer() *fiber.App {
 	app := fiber.New(fiber.Config{
 		AppName:               "RoadSign",
-		ServerHeader:          fmt.Sprintf("RoadSign v%s", roadsign.AppVersion),
+		ServerHeader:          "RoadSign",
 		DisableStartupMessage: true,
 		EnableIPValidation:    true,
 		Prefork:               viper.GetBool("performance.prefork"),
