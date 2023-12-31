@@ -2,6 +2,7 @@ package hypertext
 
 import (
 	jsoniter "github.com/json-iterator/go"
+	"strings"
 	"time"
 
 	"github.com/gofiber/fiber/v2"
@@ -46,8 +47,23 @@ func RunServer(app *fiber.App, ports []string, securedPorts []string, pem string
 	for _, port := range ports {
 		port := port
 		go func() {
-			if err := app.Listen(port); err != nil {
-				log.Panic().Err(err).Msg("An error occurred when listening hypertext tls ports.")
+			if viper.GetBool("hypertext.certificate.redirect") {
+				redirector := fiber.New(fiber.Config{
+					AppName:               "RoadSign",
+					ServerHeader:          "RoadSign",
+					DisableStartupMessage: true,
+					EnableIPValidation:    true,
+				})
+				redirector.All("/", func(c *fiber.Ctx) error {
+					return c.Redirect(strings.ReplaceAll(string(c.Request().URI().FullURI()), "http", "https"))
+				})
+				if err := redirector.Listen(port); err != nil {
+					log.Panic().Err(err).Msg("An error occurred when listening hypertext common ports.")
+				}
+			} else {
+				if err := app.Listen(port); err != nil {
+					log.Panic().Err(err).Msg("An error occurred when listening hypertext common ports.")
+				}
 			}
 		}()
 	}
