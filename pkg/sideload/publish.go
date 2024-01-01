@@ -15,8 +15,8 @@ import (
 func doPublish(c *fiber.Ctx) error {
 	var workdir string
 	var site *sign.SiteConfig
-	var upstream *sign.UpstreamConfig
-	var process *sign.ProcessConfig
+	var upstream *sign.UpstreamInstance
+	var process *sign.ProcessInstance
 	for _, item := range sign.App.Sites {
 		if item.ID == c.Params("site") {
 			site = item

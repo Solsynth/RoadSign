@@ -42,6 +42,9 @@ func InitSideload() *fiber.App {
 	cgi := app.Group("/cgi").Name("CGI")
 	{
 		cgi.All("/connectivity", responseConnectivity)
+		cgi.Get("/statistics", getStatistics)
+		cgi.Get("/sites", getSites)
+		cgi.Get("/sites/cfg/:id", getSiteConfig)
 	}
 
 	webhooks := app.Group("/webhooks").Name("WebHooks")

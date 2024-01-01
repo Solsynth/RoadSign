@@ -44,13 +44,13 @@ type RequestTransformerConfig = transformers.RequestTransformerConfig
 
 type SiteConfig struct {
 	ID           string                      `json:"id"`
-	Rules        []*RouterRuleConfig         `json:"rules" yaml:"rules"`
+	Rules        []*RouterRule               `json:"rules" yaml:"rules"`
 	Transformers []*RequestTransformerConfig `json:"transformers" yaml:"transformers"`
-	Upstreams    []*UpstreamConfig           `json:"upstreams" yaml:"upstreams"`
-	Processes    []*ProcessConfig            `json:"processes" yaml:"processes"`
+	Upstreams    []*UpstreamInstance         `json:"upstreams" yaml:"upstreams"`
+	Processes    []*ProcessInstance          `json:"processes" yaml:"processes"`
 }
 
-type RouterRuleConfig struct {
+type RouterRule struct {
 	Host    []string            `json:"host" yaml:"host"`
 	Path    []string            `json:"path" yaml:"path"`
 	Queries map[string]string   `json:"queries" yaml:"queries"`
