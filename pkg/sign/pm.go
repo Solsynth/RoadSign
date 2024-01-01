@@ -32,7 +32,6 @@ type ProcessInstance struct {
 	Logger strings.Builder `json:"-"`
 
 	Status ProcessStatus `json:"status"`
-	Logs   string        `json:"logs"`
 }
 
 func (v *ProcessInstance) BootProcess() error {
@@ -117,8 +116,7 @@ func (v *ProcessInstance) StopProcess() error {
 }
 
 func (v *ProcessInstance) GetLogs() string {
-	v.Logs = v.Logger.String()
-	return v.Logs
+	return v.Logger.String()
 }
 
 func (v *RoadApp) PreheatProcesses(callbacks ...func(total int, success int)) {

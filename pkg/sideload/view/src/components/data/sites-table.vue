@@ -21,7 +21,7 @@ import SitesTableExpand from "@/components/data/sites-table-expand.vue"
 import SitesTableAction from "@/components/data/sites-table-action.vue"
 import SitesTableAdd from "@/components/data/sites-table-add.vue"
 
-const columns = [
+const columns: any[] = [
   {
     type: "expand",
     renderExpand(row: any) {

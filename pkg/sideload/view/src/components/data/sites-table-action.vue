@@ -92,7 +92,7 @@ const submitting = ref(false)
 const publishing = ref(false)
 const editing = ref(false)
 
-const config = ref<string | null>(null)
+const config = ref<string | undefined>(undefined)
 
 async function editConfig() {
   const resp = await fetch(`/cgi/sites/cfg/${props.id}`)
@@ -101,6 +101,8 @@ async function editConfig() {
 }
 
 async function syncConfig() {
+  if (config.value == null) return
+
   let content
   try {
     content = yaml.load(config.value)
