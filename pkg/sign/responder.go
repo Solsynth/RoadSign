@@ -18,7 +18,7 @@ import (
 	"github.com/valyala/fasthttp"
 )
 
-func makeHypertextResponse(c *fiber.Ctx, upstream *UpstreamConfig) error {
+func makeHypertextResponse(c *fiber.Ctx, upstream *UpstreamInstance) error {
 	timeout := time.Duration(viper.GetInt64("performance.network_timeout")) * time.Millisecond
 	return proxy.Do(c, upstream.MakeURI(c), &fasthttp.Client{
 		ReadTimeout:  timeout,
@@ -26,7 +26,7 @@ func makeHypertextResponse(c *fiber.Ctx, upstream *UpstreamConfig) error {
 	})
 }
 
-func makeFileResponse(c *fiber.Ctx, upstream *UpstreamConfig) error {
+func makeFileResponse(c *fiber.Ctx, upstream *UpstreamInstance) error {
 	uri, queries := upstream.GetRawURI()
 	root := http.Dir(uri)
 

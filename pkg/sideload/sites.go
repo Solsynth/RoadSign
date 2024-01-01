@@ -12,6 +12,24 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
+func getSites(c *fiber.Ctx) error {
+	return c.JSON(sign.App.Sites)
+}
+
+func getSiteConfig(c *fiber.Ctx) error {
+	fp := filepath.Join(viper.GetString("paths.configs"), c.Params("id"))
+
+	var err error
+	var data []byte
+	if data, err = os.ReadFile(fp + ".yml"); err != nil {
+		if data, err = os.ReadFile(fp + ".yaml"); err != nil {
+			return fiber.NewError(fiber.StatusNotFound, err.Error())
+		}
+	}
+
+	return c.Type("yaml").SendString(string(data))
+}
+
 func doSyncSite(c *fiber.Ctx) error {
 	var req sign.SiteConfig
 

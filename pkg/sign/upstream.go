@@ -15,12 +15,12 @@ const (
 	UpstreamTypeUnknown   = "unknown"
 )
 
-type UpstreamConfig struct {
+type UpstreamInstance struct {
 	ID  string `json:"id" yaml:"id"`
 	URI string `json:"uri" yaml:"uri"`
 }
 
-func (v *UpstreamConfig) GetType() string {
+func (v *UpstreamInstance) GetType() string {
 	protocol := strings.SplitN(v.URI, "://", 2)[0]
 	switch protocol {
 	case "file", "files":
@@ -32,7 +32,7 @@ func (v *UpstreamConfig) GetType() string {
 	return UpstreamTypeUnknown
 }
 
-func (v *UpstreamConfig) GetRawURI() (string, url.Values) {
+func (v *UpstreamInstance) GetRawURI() (string, url.Values) {
 	uri := strings.SplitN(v.URI, "://", 2)[1]
 	data := strings.SplitN(uri, "?", 2)
 	data = append(data, " ") // Make data array least have two element
@@ -41,7 +41,7 @@ func (v *UpstreamConfig) GetRawURI() (string, url.Values) {
 	return data[0], qs
 }
 
-func (v *UpstreamConfig) MakeURI(ctx *fiber.Ctx) string {
+func (v *UpstreamInstance) MakeURI(ctx *fiber.Ctx) string {
 	var queries []string
 	for k, v := range ctx.Queries() {
 		parsed, _ := url.QueryUnescape(v)
