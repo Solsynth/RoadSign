@@ -1,0 +1,9 @@
+id = "index"
+
+[[locations]]
+id = "root"
+hosts = ["localhost"]
+paths = ["/"]
+[[locations.destinations]]
+id = "example"
+uri = "https://example.com"

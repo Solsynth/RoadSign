@@ -4,21 +4,35 @@ mod sideload;
 
 use poem::{listener::TcpListener, Route, Server};
 use poem_openapi::OpenApiService;
+use tracing::{error, info, Level};
 
 #[tokio::main]
 async fn main() -> Result<(), std::io::Error> {
-    // Load settings
-    let settings = config::loader::load_settings();
-
-    println!(
-        "Will listen at {:?}",
-        settings.get_array("listen.proxies").unwrap()
-    );
-
+    // Setting up logging
     if std::env::var_os("RUST_LOG").is_none() {
         std::env::set_var("RUST_LOG", "poem=debug");
     }
-    tracing_subscriber::fmt::init();
+    tracing_subscriber::fmt()
+        .with_max_level(Level::DEBUG)
+        .init();
+
+    // Prepare all the stuff
+    let mut instance = proxies::Instance::new();
+
+    info!("Loading proxy regions...");
+    match proxies::loader::scan_regions(
+        config::C
+            .read()
+            .unwrap()
+            .get_string("regions")
+            .unwrap_or("./regions".to_string()),
+    ) {
+        Err(_) => error!("Loading proxy regions... failed"),
+        Ok((regions, count)) => {
+            instance.regions = regions;
+            info!(count, "Loading proxy regions... done")
+        }
+    };
 
     // Proxies
 
@@ -27,7 +41,9 @@ async fn main() -> Result<(), std::io::Error> {
         .server("http://localhost:3000/cgi");
 
     let sideload_server = Server::new(TcpListener::bind(
-        settings
+        config::C
+            .read()
+            .unwrap()
             .get_string("listen.sideload")
             .unwrap_or("0.0.0.0:81".to_string()),
     ))
@@ -37,3 +53,5 @@ async fn main() -> Result<(), std::io::Error> {
 
     Ok(())
 }
+
+

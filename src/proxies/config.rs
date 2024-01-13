@@ -1,22 +1,26 @@
-use std::{collections::HashMap, time::Duration};
+use std::collections::HashMap;
 
-#[derive(Debug, Clone)]
+use serde::{Deserialize, Serialize};
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Region {
     id: String,
     locations: Vec<Location>,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Location {
+    id: String,
     hosts: Vec<String>,
     paths: Vec<String>,
-    headers: Vec<HashMap<String, String>>,
-    query_strings: Vec<HashMap<String, String>>,
-    destination: Vec<Destination>,
+    headers: Option<Vec<HashMap<String, String>>>,
+    query_strings: Option<Vec<HashMap<String, String>>>,
+    destinations: Vec<Destination>,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Destination {
-    uri: Vec<String>,
-    timeout: Duration,
+    id: String,
+    uri: String,
+    timeout: Option<u32>,
 }

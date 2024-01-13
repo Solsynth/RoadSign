@@ -1,3 +1,5 @@
+regions = "./regions"
+
 [listen]
 proxies = "0.0.0.0:80"
 proxies_tls = "0.0.0.0:443"
