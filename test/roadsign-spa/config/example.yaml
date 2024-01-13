@@ -1,8 +1,0 @@
-name: Example Site
-rules:
-  - host: ["localhost:8000"]
-    path: ["/"]
-upstreams:
-  - id: example
-    name: Benchmarking Data
-    uri: files://../data/spa?fallback=index.html

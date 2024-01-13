@@ -1,2 +1,6 @@
 /config
 /letsencrypt
+
+# Added by cargo
+
+/target

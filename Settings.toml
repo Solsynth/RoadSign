@@ -1,0 +1,4 @@
+[listen]
+proxies = "0.0.0.0:80"
+proxies_tls = "0.0.0.0:443"
+sideload = "0.0.0.0:81"

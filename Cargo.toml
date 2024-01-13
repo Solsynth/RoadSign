@@ -1,0 +1,15 @@
+[package]
+name = "roadsign"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+config = { version = "0.13.4", features = ["toml"] }
+poem = { version = "2.0.0", features = ["tokio-metrics"] }
+poem-openapi = "4.0.0"
+serde = "1.0.195"
+serde_json = "1.0.111"
+tokio = { version = "1.35.1", features = ["rt-multi-thread", "macros", "time"] }
+tracing-subscriber = "0.3.18"
