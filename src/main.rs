@@ -1,3 +1,4 @@
+pub mod auth;
 mod config;
 mod proxies;
 mod sideload;
@@ -5,7 +6,7 @@ mod sideload;
 use std::collections::VecDeque;
 
 use lazy_static::lazy_static;
-use poem::{listener::TcpListener, Route, Server};
+use poem::{listener::TcpListener, EndpointExt, Route, Server};
 use poem_openapi::OpenApiService;
 use proxies::RoadInstance;
 use tokio::sync::Mutex;
@@ -64,7 +65,6 @@ async fn main() -> Result<(), std::io::Error> {
     // Sideload
     let sideload = OpenApiService::new(sideload::SideloadApi, "Sideload API", "1.0")
         .server("http://localhost:3000/cgi");
-    let sideload_ui = sideload.swagger_ui();
 
     let sideload_server = Server::new(TcpListener::bind(
         config::C
@@ -74,9 +74,14 @@ async fn main() -> Result<(), std::io::Error> {
             .unwrap_or("0.0.0.0:81".to_string()),
     ))
     .run(
-        Route::new()
-            .nest("/cgi", sideload)
-            .nest("/swagger", sideload_ui),
+        Route::new().nest("/cgi", sideload).with(auth::BasicAuth {
+            username: "RoadSign".to_string(),
+            password: config::C
+                .read()
+                .await
+                .get_string("secret")
+                .unwrap_or("password".to_string()),
+        }),
     );
 
     tokio::try_join!(proxies_server, sideload_server)?;

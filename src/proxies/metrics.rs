@@ -47,6 +47,8 @@ pub struct RoadMetrics {
     pub recent_errors: VecDeque<RoadTrace>,
 }
 
+const MAX_TRACE_COUNT: usize = 10;
+
 impl RoadMetrics {
     pub fn get_success_rate(&self) -> f64 {
         if self.requests_count > 0 {
@@ -60,6 +62,9 @@ impl RoadMetrics {
         self.requests_count += 1;
         self.recent_successes
             .push_back(RoadTrace::from_structs(reg, loc, end));
+        if self.recent_successes.len() > MAX_TRACE_COUNT {
+            self.recent_successes.pop_front();
+        }
     }
 
     pub fn add_faliure_request(
@@ -73,7 +78,7 @@ impl RoadMetrics {
         self.failures_count += 1;
         self.recent_errors
             .push_back(RoadTrace::from_structs_with_error(reg, loc, end, err));
-        if self.recent_errors.len() > 10 {
+        if self.recent_errors.len() > MAX_TRACE_COUNT {
             self.recent_errors.pop_front();
         }
     }

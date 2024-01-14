@@ -1,18 +1,19 @@
 use std::collections::HashMap;
 
+use poem_openapi::Object;
 use queryst::parse;
 use serde::{Deserialize, Serialize};
 use serde_json::json;
 
 use super::responder::StaticResponderConfig;
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Object, Clone, Serialize, Deserialize)]
 pub struct Region {
     pub id: String,
     pub locations: Vec<Location>,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Object, Clone, Serialize, Deserialize)]
 pub struct Location {
     pub id: String,
     pub hosts: Vec<String>,
@@ -23,7 +24,7 @@ pub struct Location {
     pub destinations: Vec<Destination>,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Object, Clone, Serialize, Deserialize)]
 pub struct Destination {
     pub id: String,
     pub uri: String,
