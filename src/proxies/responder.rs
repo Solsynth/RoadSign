@@ -63,10 +63,28 @@ pub async fn repond_websocket(req: Builder, ws: WebSocket) -> Response {
 pub async fn respond_hypertext(
     uri: String,
     ori: &Uri,
+    req: &Request,
     method: Method,
     body: Body,
     headers: &HeaderMap,
 ) -> Result<Response, Error> {
+    let ip = req.remote_addr().to_string();
+    let proto = req.uri().scheme_str().unwrap();
+    let host = req.uri().host().unwrap();
+
+    let mut headers = headers.clone();
+    headers.insert("Server", "RoadSign".parse().unwrap());
+    headers.insert("X-Forward-For", ip.parse().unwrap());
+    headers.insert("X-Forwarded-Proto", proto.parse().unwrap());
+    headers.insert("X-Forwarded-Host", host.parse().unwrap());
+    headers.insert("X-Real-IP", ip.parse().unwrap());
+    headers.insert(
+        "Forwarded",
+        format!("by={};for={};host={};proto={}", ip, ip, host, proto)
+            .parse()
+            .unwrap(),
+    );
+
     let res = CLIENT
         .request(method, uri + ori.path() + ori.query().unwrap_or(""))
         .headers(headers.clone())
@@ -81,6 +99,8 @@ pub async fn respond_hypertext(
             result.headers().iter().for_each(|(key, val)| {
                 res.headers_mut().insert(key, val.to_owned());
             });
+            res.headers_mut()
+                .insert("Server", "RoadSign".parse().unwrap());
             res.set_status(result.status());
             res.set_version(result.version());
             res.set_body(result.bytes().await.unwrap());

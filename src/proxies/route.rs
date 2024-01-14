@@ -77,7 +77,7 @@ pub async fn handle(
                     ));
                 };
 
-                responder::respond_hypertext(uri, ori, method, body, headers).await
+                responder::respond_hypertext(uri, ori, req, method, body, headers).await
             }
             DestinationType::StaticFiles => {
                 let Ok(cfg) = end.get_static_config() else {
