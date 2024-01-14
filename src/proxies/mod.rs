@@ -1,3 +1,4 @@
+use http::Method;
 use poem::http::{HeaderMap, Uri};
 use regex::Regex;
 use serde::{Deserialize, Serialize};
@@ -5,8 +6,10 @@ use wildmatch::WildMatch;
 
 use self::config::{Location, Region};
 
+pub mod browser;
 pub mod config;
 pub mod loader;
+pub mod responder;
 pub mod route;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -19,7 +22,7 @@ impl Instance {
         Instance { regions: vec![] }
     }
 
-    pub fn filter(&self, uri: &Uri, headers: &HeaderMap) -> Option<&Location> {
+    pub fn filter(&self, uri: &Uri, method: Method, headers: &HeaderMap) -> Option<&Location> {
         self.regions.iter().find_map(|region| {
             region.locations.iter().find(|location| {
                 let mut hosts = location.hosts.iter();
@@ -35,6 +38,12 @@ impl Instance {
                         || Regex::new(item.as_str()).unwrap().is_match(uri.path())
                 }) {
                     return false;
+                }
+
+                if let Some(val) = location.methods.clone() {
+                    if !val.iter().any(|item| *item == method.to_string()) {
+                        return false;
+                    }
                 }
 
                 if let Some(val) = location.headers.clone() {

@@ -5,5 +5,5 @@ id = "root"
 hosts = ["localhost"]
 paths = ["/"]
 [[locations.destinations]]
-id = "echo"
-uri = "https://postman-echo.com/get"
+id = "static"
+uri = "files://regions/index.html"

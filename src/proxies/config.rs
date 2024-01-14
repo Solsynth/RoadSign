@@ -1,6 +1,10 @@
 use std::collections::HashMap;
 
+use queryst::parse;
 use serde::{Deserialize, Serialize};
+use serde_json::json;
+
+use super::responder::StaticResponderConfig;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Region {
@@ -15,6 +19,7 @@ pub struct Location {
     pub paths: Vec<String>,
     pub headers: Option<HashMap<String, String>>,
     pub queries: Option<Vec<String>>,
+    pub methods: Option<Vec<String>>,
     pub destinations: Vec<Destination>,
 }
 
@@ -46,13 +51,33 @@ impl Destination {
     }
 
     pub fn get_queries(&self) -> &str {
-        self.uri.as_str().splitn(2, "?").collect::<Vec<_>>()[1]
+        self.uri
+            .as_str()
+            .splitn(2, '?')
+            .collect::<Vec<_>>()
+            .get(1)
+            .unwrap_or(&"")
     }
 
     pub fn get_host(&self) -> &str {
-        (self.uri.as_str().splitn(2, "://").collect::<Vec<_>>()[1])
-            .splitn(2, "?")
-            .collect::<Vec<_>>()[0]
+        (self
+            .uri
+            .as_str()
+            .splitn(2, "://")
+            .collect::<Vec<_>>()
+            .get(1)
+            .unwrap_or(&""))
+        .splitn(2, '?')
+        .collect::<Vec<_>>()[0]
+    }
+
+    pub fn get_websocket_uri(&self) -> Result<String, ()> {
+        let parts = self.uri.as_str().splitn(2, "://").collect::<Vec<_>>();
+        let url = parts.get(1).unwrap_or(&"");
+        match self.get_protocol() {
+            "http" | "https" => Ok(url.replace("http", "ws")),
+            _ => Err(()),
+        }
     }
 
     pub fn get_hypertext_uri(&self) -> Result<String, ()> {
@@ -63,10 +88,32 @@ impl Destination {
         }
     }
 
-    pub fn get_websocket_uri(&self) -> Result<String, ()> {
-        let url = self.uri.as_str().splitn(2, "://").collect::<Vec<_>>()[1];
+    pub fn get_static_config(&self) -> Result<StaticResponderConfig, ()> {
         match self.get_protocol() {
-            "http" | "https" => Ok(url.replace("http", "ws")),
+            "file" | "files" => {
+                let queries = parse(self.get_queries()).unwrap_or(json!({}));
+                Ok(StaticResponderConfig {
+                    uri: self.get_host().to_string(),
+                    utf8: queries
+                        .get("utf8")
+                        .and_then(|val| val.as_bool())
+                        .unwrap_or(false),
+                    with_slash: queries
+                        .get("slash")
+                        .and_then(|val| val.as_bool())
+                        .unwrap_or(false),
+                    browse: queries
+                        .get("browse")
+                        .and_then(|val| val.as_bool())
+                        .unwrap_or(false),
+                    index: queries
+                        .get("index")
+                        .and_then(|val| val.as_str().map(str::to_string)),
+                    fallback: queries
+                        .get("fallback")
+                        .and_then(|val| val.as_str().map(str::to_string)),
+                })
+            }
             _ => Err(()),
         }
     }

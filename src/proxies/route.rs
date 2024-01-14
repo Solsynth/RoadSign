@@ -1,4 +1,3 @@
-use futures_util::{SinkExt, StreamExt};
 use poem::{
     handler,
     http::{HeaderMap, StatusCode, Uri},
@@ -8,16 +7,10 @@ use poem::{
 use rand::seq::SliceRandom;
 use reqwest::Method;
 
-use lazy_static::lazy_static;
-use std::sync::Arc;
-use tokio::sync::RwLock;
-use tokio_tungstenite::connect_async;
-
-use crate::proxies::config::{Destination, DestinationType};
-
-lazy_static! {
-    pub static ref CLIENT: reqwest::Client = reqwest::Client::new();
-}
+use crate::proxies::{
+    config::{Destination, DestinationType},
+    responder,
+};
 
 #[handler]
 pub async fn handle(
@@ -28,7 +21,7 @@ pub async fn handle(
     method: Method,
     body: Body,
 ) -> Result<impl IntoResponse, Error> {
-    let location = match app.filter(uri, headers) {
+    let location = match app.filter(uri, method.clone(), headers) {
         Some(val) => val,
         None => {
             return Err(Error::from_string(
@@ -50,13 +43,13 @@ pub async fn handle(
         headers: &HeaderMap,
         method: Method,
         body: Body,
-    ) -> Result<impl IntoResponse, Error> {
+    ) -> Result<Response, Error> {
         // Handle websocket
         if let Ok(ws) = WebSocket::from_request_without_body(req).await {
             // Get uri
             let Ok(uri) = end.get_websocket_uri() else {
                 return Err(Error::from_string(
-                    "Proxy endpoint not configured to support websockets!",
+                    "This destination was not support websockets.",
                     StatusCode::NOT_IMPLEMENTED,
                 ));
             };
@@ -68,47 +61,7 @@ pub async fn handle(
             }
 
             // Start the websocket connection
-            return Ok(ws
-                .on_upgrade(move |socket| async move {
-                    let (mut clientsink, mut clientstream) = socket.split();
-
-                    // Start connection to server
-                    let (serversocket, _) = connect_async(ws_req.body(()).unwrap()).await.unwrap();
-                    let (mut serversink, mut serverstream) = serversocket.split();
-
-                    let client_live = Arc::new(RwLock::new(true));
-                    let server_live = client_live.clone();
-
-                    tokio::spawn(async move {
-                        while let Some(Ok(msg)) = clientstream.next().await {
-                            match serversink.send(msg.into()).await {
-                                Err(_) => break,
-                                _ => {}
-                            };
-                            if !*client_live.read().await {
-                                break;
-                            };
-                        }
-
-                        *client_live.write().await = false;
-                    });
-
-                    // Relay server messages to the client
-                    tokio::spawn(async move {
-                        while let Some(Ok(msg)) = serverstream.next().await {
-                            match clientsink.send(msg.into()).await {
-                                Err(_) => break,
-                                _ => {}
-                            };
-                            if !*server_live.read().await {
-                                break;
-                            };
-                        }
-
-                        *server_live.write().await = false;
-                    });
-                })
-                .into_response());
+            return Ok(responder::repond_websocket(ws_req, ws).await);
         }
 
         // Handle normal web request
@@ -116,38 +69,27 @@ pub async fn handle(
             DestinationType::Hypertext => {
                 let Ok(uri) = end.get_hypertext_uri() else {
                     return Err(Error::from_string(
-                        "Proxy endpoint not configured to support web requests!",
+                        "This destination was not support web requests.",
                         StatusCode::NOT_IMPLEMENTED,
                     ));
                 };
 
-                let res = CLIENT
-                    .request(method, uri + ori.path() + ori.query().unwrap_or(""))
-                    .headers(headers.clone())
-                    .body(body.into_bytes().await.unwrap())
-                    .send()
-                    .await;
-
-                match res {
-                    Ok(result) => {
-                        let mut res = Response::default();
-                        res.extensions().clone_from(&result.extensions());
-                        result.headers().iter().for_each(|(key, val)| {
-                            res.headers_mut().insert(key, val.to_owned());
-                        });
-                        res.set_status(result.status());
-                        res.set_version(result.version());
-                        res.set_body(result.bytes().await.unwrap());
-                        Ok(res)
-                    }
-
-                    Err(error) => Err(Error::from_string(
-                        error.to_string(),
-                        error.status().unwrap_or(StatusCode::BAD_GATEWAY),
-                    )),
-                }
+                responder::respond_hypertext(uri, ori, method, body, headers).await
             }
-            _ => Err(Error::from_status(StatusCode::NOT_IMPLEMENTED)),
+            DestinationType::StaticFiles => {
+                let Ok(cfg) = end.get_static_config() else {
+                    return Err(Error::from_string(
+                        "This destination was not support static files.",
+                        StatusCode::NOT_IMPLEMENTED,
+                    ));
+                };
+
+                responder::respond_static(cfg, method, req).await
+            }
+            _ => Err(Error::from_string(
+                "Unsupported destination protocol.",
+                StatusCode::NOT_IMPLEMENTED,
+            )),
         }
     }
 

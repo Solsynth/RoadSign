@@ -11,8 +11,11 @@ futures-util = "0.3.30"
 http = "1.0.0"
 hyper-util = { version = "0.1.2", features = ["full"] }
 lazy_static = "1.4.0"
-poem = { version = "2.0.0", features = ["tokio-metrics", "websocket"] }
+mime = "0.3.17"
+percent-encoding = "2.3.1"
+poem = { version = "2.0.0", features = ["tokio-metrics", "websocket", "static-files"] }
 poem-openapi = { version = "4.0.0", features = ["swagger-ui"] }
+queryst = "3.0.0"
 rand = "0.8.5"
 regex = "1.10.2"
 reqwest = { git = "https://github.com/seanmonstar/reqwest.git", branch = "hyper-v1", version = "0.11.23" }

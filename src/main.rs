@@ -2,7 +2,7 @@ mod config;
 mod proxies;
 mod sideload;
 
-use poem::{listener::TcpListener, Endpoint, EndpointExt, Route, Server};
+use poem::{listener::TcpListener, EndpointExt, Route, Server};
 use poem_openapi::OpenApiService;
 use tracing::{error, info, Level};
 
