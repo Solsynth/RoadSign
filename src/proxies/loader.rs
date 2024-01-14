@@ -20,7 +20,9 @@ pub fn scan_regions(basepath: String) -> io::Result<(Vec<config::Region>, u32)> 
 }
 
 pub fn load_region(file: DirEntry) -> Result<config::Region, String> {
-    if file.path().extension().and_then(OsStr::to_str).unwrap() != "toml" {
+    if file.metadata().map(|val| val.is_dir()).unwrap()
+        || file.path().extension().and_then(OsStr::to_str).unwrap() != "toml"
+    {
         return Err("File entry wasn't toml file".to_string());
     }
 

@@ -97,10 +97,11 @@ pub async fn respond_hypertext(
 pub struct StaticResponderConfig {
     pub uri: String,
     pub utf8: bool,
-    pub with_slash: bool,
     pub browse: bool,
+    pub with_slash: bool,
     pub index: Option<String>,
     pub fallback: Option<String>,
+    pub suffix: Option<String>,
 }
 
 pub async fn respond_static(
@@ -142,6 +143,22 @@ pub async fn respond_static(
     }
 
     if !file_path.exists() {
+        if let Some(suffix) = cfg.suffix {
+            let file_name = file_path
+                .file_name()
+                .and_then(OsStr::to_str)
+                .unwrap()
+                .to_string();
+            file_path.pop();
+            file_path.push((file_name + &suffix).as_str());
+            if file_path.is_file() {
+                return Ok(StaticFileRequest::from_request_without_body(req)
+                    .await?
+                    .create_response(&file_path, cfg.utf8)?
+                    .into_response());
+            }
+        }
+
         if let Some(file) = cfg.fallback {
             let fallback_path = base_path.join(file);
             if fallback_path.is_file() {

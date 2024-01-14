@@ -98,12 +98,12 @@ impl Destination {
                         .get("utf8")
                         .and_then(|val| val.as_bool())
                         .unwrap_or(false),
-                    with_slash: queries
-                        .get("slash")
-                        .and_then(|val| val.as_bool())
-                        .unwrap_or(false),
                     browse: queries
                         .get("browse")
+                        .and_then(|val| val.as_bool())
+                        .unwrap_or(false),
+                    with_slash: queries
+                        .get("slash")
                         .and_then(|val| val.as_bool())
                         .unwrap_or(false),
                     index: queries
@@ -111,6 +111,9 @@ impl Destination {
                         .and_then(|val| val.as_str().map(str::to_string)),
                     fallback: queries
                         .get("fallback")
+                        .and_then(|val| val.as_str().map(str::to_string)),
+                    suffix: queries
+                        .get("suffix")
                         .and_then(|val| val.as_str().map(str::to_string)),
                 })
             }

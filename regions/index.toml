@@ -6,4 +6,4 @@ hosts = ["localhost"]
 paths = ["/"]
 [[locations.destinations]]
 id = "static"
-uri = "files://regions/index.html"
+uri = "files://regions?index=index.html"
