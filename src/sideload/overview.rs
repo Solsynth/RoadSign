@@ -1,14 +1,81 @@
-use poem_openapi::{param::Query, payload::PlainText, OpenApi};
+use poem_openapi::{payload::Json, ApiResponse, Object, OpenApi};
+
+use crate::{
+    proxies::{
+        config::{Destination, Location},
+        metrics::RoadTrace,
+    },
+    ROAD,
+};
 
 use super::SideloadApi;
 
+#[derive(ApiResponse)]
+enum OverviewResponse {
+    /// Return the overview data.
+    #[oai(status = 200)]
+    Ok(Json<OverviewData>),
+}
+
+#[derive(Debug, Object, Clone, PartialEq)]
+struct OverviewData {
+    /// Loaded regions count
+    #[oai(read_only)]
+    regions: usize,
+    /// Loaded locations count
+    #[oai(read_only)]
+    locations: usize,
+    /// Loaded destnations count
+    #[oai(read_only)]
+    destinations: usize,
+    /// Recent requests count
+    requests_count: u64,
+    /// Recent requests success count
+    faliures_count: u64,
+    /// Recent requests falied count
+    successes_count: u64,
+    /// Recent requests success rate
+    success_rate: f64,
+    /// Recent successes
+    recent_successes: Vec<RoadTrace>,
+    /// Recent errors
+    recent_errors: Vec<RoadTrace>,
+}
+
 #[OpenApi]
 impl SideloadApi {
-    #[oai(path = "/hello", method = "get")]
-    async fn index(&self, name: Query<Option<String>>) -> PlainText<String> {
-        match name.0 {
-            Some(name) => PlainText(format!("hello, {name}!")),
-            None => PlainText("hello!".to_string()),
-        }
+    #[oai(path = "/", method = "get")]
+    async fn index(&self) -> OverviewResponse {
+        let locked_app = ROAD.lock().await;
+        let regions = locked_app.regions.clone();
+        let locations = regions
+            .iter()
+            .flat_map(|item| item.locations.clone())
+            .collect::<Vec<Location>>();
+        let destinations = locations
+            .iter()
+            .flat_map(|item| item.destinations.clone())
+            .collect::<Vec<Destination>>();
+        OverviewResponse::Ok(Json(OverviewData {
+            regions: regions.len(),
+            locations: locations.len(),
+            destinations: destinations.len(),
+            requests_count: locked_app.metrics.requests_count,
+            successes_count: locked_app.metrics.requests_count - locked_app.metrics.failures_count,
+            faliures_count: locked_app.metrics.failures_count,
+            success_rate: locked_app.metrics.get_success_rate(),
+            recent_successes: locked_app
+                .metrics
+                .recent_successes
+                .clone()
+                .into_iter()
+                .collect::<Vec<_>>(),
+            recent_errors: locked_app
+                .metrics
+                .recent_errors
+                .clone()
+                .into_iter()
+                .collect::<Vec<_>>(),
+        }))
     }
 }

@@ -2,11 +2,28 @@ mod config;
 mod proxies;
 mod sideload;
 
-use poem::{listener::TcpListener, EndpointExt, Route, Server};
+use std::collections::VecDeque;
+
+use lazy_static::lazy_static;
+use poem::{listener::TcpListener, Route, Server};
 use poem_openapi::OpenApiService;
+use proxies::RoadInstance;
+use tokio::sync::Mutex;
 use tracing::{error, info, Level};
 
-use crate::proxies::route;
+use crate::proxies::{metrics::RoadMetrics, route};
+
+lazy_static! {
+    static ref ROAD: Mutex<RoadInstance> = Mutex::new(RoadInstance {
+        regions: vec![],
+        metrics: RoadMetrics {
+            requests_count: 0,
+            failures_count: 0,
+            recent_successes: VecDeque::new(),
+            recent_errors: VecDeque::new(),
+        }
+    });
+}
 
 #[tokio::main]
 async fn main() -> Result<(), std::io::Error> {
@@ -19,19 +36,17 @@ async fn main() -> Result<(), std::io::Error> {
         .init();
 
     // Prepare all the stuff
-    let mut instance = proxies::Instance::new();
-
     info!("Loading proxy regions...");
     match proxies::loader::scan_regions(
         config::C
             .read()
-            .unwrap()
+            .await
             .get_string("regions")
             .unwrap_or("./regions".to_string()),
     ) {
         Err(_) => error!("Loading proxy regions... failed"),
         Ok((regions, count)) => {
-            instance.regions = regions;
+            ROAD.lock().await.regions = regions;
             info!(count, "Loading proxy regions... done")
         }
     };
@@ -40,11 +55,11 @@ async fn main() -> Result<(), std::io::Error> {
     let proxies_server = Server::new(TcpListener::bind(
         config::C
             .read()
-            .unwrap()
+            .await
             .get_string("listen.proxies")
             .unwrap_or("0.0.0.0:80".to_string()),
     ))
-    .run(route::handle.data(instance));
+    .run(route::handle);
 
     // Sideload
     let sideload = OpenApiService::new(sideload::SideloadApi, "Sideload API", "1.0")
@@ -54,7 +69,7 @@ async fn main() -> Result<(), std::io::Error> {
     let sideload_server = Server::new(TcpListener::bind(
         config::C
             .read()
-            .unwrap()
+            .await
             .get_string("listen.sideload")
             .unwrap_or("0.0.0.0:81".to_string()),
     ))

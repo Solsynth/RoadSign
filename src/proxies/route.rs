@@ -1,27 +1,30 @@
+use http::Method;
 use poem::{
     handler,
     http::{HeaderMap, StatusCode, Uri},
-    web::{websocket::WebSocket, Data},
+    web::websocket::WebSocket,
     Body, Error, FromRequest, IntoResponse, Request, Response, Result,
 };
 use rand::seq::SliceRandom;
-use reqwest::Method;
 
-use crate::proxies::{
-    config::{Destination, DestinationType},
-    responder,
+use crate::{
+    proxies::{
+        config::{Destination, DestinationType},
+        responder,
+    },
+    ROAD,
 };
 
 #[handler]
 pub async fn handle(
-    app: Data<&super::Instance>,
     req: &Request,
     uri: &Uri,
     headers: &HeaderMap,
     method: Method,
     body: Body,
 ) -> Result<impl IntoResponse, Error> {
-    let location = match app.filter(uri, method.clone(), headers) {
+    let readable_app = ROAD.lock().await;
+    let (region, location) = match readable_app.filter(uri, method.clone(), headers) {
         Some(val) => val,
         None => {
             return Err(Error::from_string(
@@ -93,5 +96,27 @@ pub async fn handle(
         }
     }
 
-    forward(destination, req, uri, headers, method, body).await
+    let reg = region.clone();
+    let loc = location.clone();
+    let end = destination.clone();
+
+    match forward(&end, req, uri, headers, method, body).await {
+        Ok(resp) => {
+            tokio::spawn(async move {
+                let writable_app = &mut ROAD.lock().await;
+                writable_app.metrics.add_success_request(reg, loc, end);
+            });
+            Ok(resp)
+        }
+        Err(err) => {
+            let message = format!("{:}", err);
+            tokio::spawn(async move {
+                let writable_app = &mut ROAD.lock().await;
+                writable_app
+                    .metrics
+                    .add_faliure_request(reg, loc, end, message);
+            });
+            Err(err)
+        }
+    }
 }

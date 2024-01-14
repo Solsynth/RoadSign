@@ -1,7 +1,6 @@
-use std::sync::RwLock;
-
 use config::Config;
 use lazy_static::lazy_static;
+use tokio::sync::RwLock;
 
 use crate::config::loader::load_settings;
 

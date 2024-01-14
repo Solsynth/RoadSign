@@ -1,30 +1,35 @@
 use http::Method;
 use poem::http::{HeaderMap, Uri};
 use regex::Regex;
-use serde::{Deserialize, Serialize};
 use wildmatch::WildMatch;
 
-use self::config::{Location, Region};
+use self::{
+    config::{Location, Region},
+    metrics::RoadMetrics,
+};
 
 pub mod browser;
 pub mod config;
 pub mod loader;
+pub mod metrics;
 pub mod responder;
 pub mod route;
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct Instance {
+#[derive(Debug, Clone)]
+pub struct RoadInstance {
     pub regions: Vec<Region>,
+    pub metrics: RoadMetrics,
 }
 
-impl Instance {
-    pub fn new() -> Instance {
-        Instance { regions: vec![] }
-    }
-
-    pub fn filter(&self, uri: &Uri, method: Method, headers: &HeaderMap) -> Option<&Location> {
+impl RoadInstance {
+    pub fn filter(
+        &self,
+        uri: &Uri,
+        method: Method,
+        headers: &HeaderMap,
+    ) -> Option<(&Region, &Location)> {
         self.regions.iter().find_map(|region| {
-            region.locations.iter().find(|location| {
+            let location = region.locations.iter().find(|location| {
                 let mut hosts = location.hosts.iter();
                 if !hosts.any(|item| {
                     WildMatch::new(item.as_str()).matches(uri.host().unwrap_or("localhost"))
@@ -64,7 +69,9 @@ impl Instance {
                 }
 
                 true
-            })
+            });
+
+            location.map(|location| (region, location))
         })
     }
 }
