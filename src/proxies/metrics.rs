@@ -50,6 +50,15 @@ pub struct RoadMetrics {
 const MAX_TRACE_COUNT: usize = 10;
 
 impl RoadMetrics {
+    pub fn new() -> RoadMetrics {
+        RoadMetrics {
+            requests_count: 0,
+            failures_count: 0,
+            recent_successes: VecDeque::new(),
+            recent_errors: VecDeque::new(),
+        }
+    }
+
     pub fn get_success_rate(&self) -> f64 {
         if self.requests_count > 0 {
             (self.requests_count - self.failures_count) as f64 / self.requests_count as f64

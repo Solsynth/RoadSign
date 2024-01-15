@@ -7,3 +7,8 @@ paths = ["/"]
 [[locations.destinations]]
 id = "static"
 uri = "files://regions?index=index.html"
+
+[[applications]]
+id = "script"
+exe = "./script.sh"
+workdir = "regions"

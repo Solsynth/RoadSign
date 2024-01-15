@@ -3,6 +3,8 @@ use poem::http::{HeaderMap, Uri};
 use regex::Regex;
 use wildmatch::WildMatch;
 
+use crate::warden::WardenInstance;
+
 use self::{
     config::{Location, Region},
     metrics::RoadMetrics,
@@ -19,9 +21,20 @@ pub mod route;
 pub struct RoadInstance {
     pub regions: Vec<Region>,
     pub metrics: RoadMetrics,
+    pub warden: WardenInstance,
 }
 
 impl RoadInstance {
+    pub fn new() -> RoadInstance {
+        RoadInstance {
+            regions: vec![],
+            warden: WardenInstance {
+                applications: vec![],
+            },
+            metrics: RoadMetrics::new(),
+        }
+    }
+
     pub fn filter(
         &self,
         uri: &Uri,

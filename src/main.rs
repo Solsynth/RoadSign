@@ -2,8 +2,7 @@ pub mod auth;
 mod config;
 mod proxies;
 mod sideload;
-
-use std::collections::VecDeque;
+pub mod warden;
 
 use lazy_static::lazy_static;
 use poem::{listener::TcpListener, EndpointExt, Route, Server};
@@ -12,18 +11,10 @@ use proxies::RoadInstance;
 use tokio::sync::Mutex;
 use tracing::{error, info, Level};
 
-use crate::proxies::{metrics::RoadMetrics, route};
+use crate::proxies::route;
 
 lazy_static! {
-    static ref ROAD: Mutex<RoadInstance> = Mutex::new(RoadInstance {
-        regions: vec![],
-        metrics: RoadMetrics {
-            requests_count: 0,
-            failures_count: 0,
-            recent_successes: VecDeque::new(),
-            recent_errors: VecDeque::new(),
-        }
-    });
+    static ref ROAD: Mutex<RoadInstance> = Mutex::new(RoadInstance::new());
 }
 
 #[tokio::main]
@@ -83,6 +74,16 @@ async fn main() -> Result<(), std::io::Error> {
                 .unwrap_or("password".to_string()),
         }),
     );
+
+    // Process manager
+    {
+        let mut app = ROAD.lock().await;
+        {
+            let reg = app.regions.clone();
+            app.warden.scan(reg);
+        }
+        app.warden.start().await;
+    }
 
     tokio::try_join!(proxies_server, sideload_server)?;
 

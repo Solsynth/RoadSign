@@ -5,12 +5,15 @@ use queryst::parse;
 use serde::{Deserialize, Serialize};
 use serde_json::json;
 
+use crate::warden::Application;
+
 use super::responder::StaticResponderConfig;
 
 #[derive(Debug, Object, Clone, Serialize, Deserialize)]
 pub struct Region {
     pub id: String,
     pub locations: Vec<Location>,
+    pub applications: Vec<Application>,
 }
 
 #[derive(Debug, Object, Clone, Serialize, Deserialize)]
