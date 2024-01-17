@@ -5,6 +5,7 @@ import (
 	"os"
 	"path/filepath"
 
+	"code.smartsheep.studio/goatworks/roadsign/pkg/navi"
 	"code.smartsheep.studio/goatworks/roadsign/pkg/sign"
 	"github.com/gofiber/fiber/v2"
 	"github.com/samber/lo"
@@ -31,7 +32,7 @@ func getSiteConfig(c *fiber.Ctx) error {
 }
 
 func doSyncSite(c *fiber.Ctx) error {
-	var req sign.SiteConfig
+	var req navi.SiteConfig
 
 	if err := c.BodyParser(&req); err != nil {
 		return err

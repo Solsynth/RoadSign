@@ -8,6 +8,7 @@ import (
 
 	roadsign "code.smartsheep.studio/goatworks/roadsign/pkg"
 	"code.smartsheep.studio/goatworks/roadsign/pkg/hypertext"
+	"code.smartsheep.studio/goatworks/roadsign/pkg/navi"
 	"code.smartsheep.studio/goatworks/roadsign/pkg/sideload"
 	"code.smartsheep.studio/goatworks/roadsign/pkg/sign"
 	"github.com/google/uuid"
@@ -44,7 +45,7 @@ func main() {
 	}
 
 	// Load & init sign
-	if err := sign.ReadInConfig(viper.GetString("paths.configs")); err != nil {
+	if err := navi.ReadInConfig(viper.GetString("paths.configs")); err != nil {
 		log.Panic().Err(err).Msg("An error occurred when loading configurations.")
 	} else {
 		log.Info().Int("count", len(sign.App.Sites)).Msg("All configuration has been loaded.")

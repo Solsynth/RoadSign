@@ -2,13 +2,14 @@ package deploy
 
 import (
 	"fmt"
-	jsoniter "github.com/json-iterator/go"
 	"io"
 	"os"
 	"strings"
 
+	jsoniter "github.com/json-iterator/go"
+
 	"code.smartsheep.studio/goatworks/roadsign/pkg/cmd/rds/conn"
-	"code.smartsheep.studio/goatworks/roadsign/pkg/sign"
+	"code.smartsheep.studio/goatworks/roadsign/pkg/navi"
 	"github.com/gofiber/fiber/v2"
 	"github.com/rs/zerolog/log"
 	"github.com/urfave/cli/v2"
@@ -72,7 +73,7 @@ var DeployCommands = []*cli.Command{
 				return fmt.Errorf("couldn't connect server: %s", err.Error())
 			}
 
-			var site sign.SiteConfig
+			var site navi.SiteConfig
 			if file, err := os.Open(ctx.Args().Get(2)); err != nil {
 				return err
 			} else {

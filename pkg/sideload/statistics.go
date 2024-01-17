@@ -1,7 +1,6 @@
 package sideload
 
 import (
-	"code.smartsheep.studio/goatworks/roadsign/pkg/sign"
 	"github.com/gofiber/fiber/v2"
 	"github.com/samber/lo"
 )
@@ -15,7 +14,7 @@ func getStatistics(c *fiber.Ctx) error {
 	})
 	unhealthy := lo.FlatMap(sign.App.Sites, func(item *sign.SiteConfig, idx int) []*sign.ProcessInstance {
 		return lo.Filter(item.Processes, func(item *sign.ProcessInstance, idx int) bool {
-			return item.Status != sign.ProcessStarted
+			return item.Status != navi.ProcessStarted
 		})
 	})
 

@@ -3,7 +3,7 @@ package hypertext
 import (
 	"regexp"
 
-	"code.smartsheep.studio/goatworks/roadsign/pkg/sign"
+	"code.smartsheep.studio/goatworks/roadnavi/pkg/navi"
 	"github.com/gofiber/fiber/v2"
 	"github.com/samber/lo"
 )
@@ -16,7 +16,7 @@ func UseProxies(app *fiber.App) {
 		headers := ctx.GetReqHeaders()
 
 		// Filtering sites
-		for _, site := range sign.App.Sites {
+		for _, site := range navi.App.Sites {
 			// Matching rules
 			for _, rule := range site.Rules {
 				if !lo.Contains(rule.Host, host) {
@@ -89,7 +89,7 @@ func UseProxies(app *fiber.App) {
 	})
 }
 
-func makeResponse(ctx *fiber.Ctx, site *sign.SiteConfig) error {
+func makeResponse(ctx *fiber.Ctx, site *navi.SiteConfig) error {
 	// Modify request
 	for _, transformer := range site.Transformers {
 		if err := transformer.TransformRequest(ctx); err != nil {
@@ -98,7 +98,7 @@ func makeResponse(ctx *fiber.Ctx, site *sign.SiteConfig) error {
 	}
 
 	// Forward
-	err := sign.App.Forward(ctx, site)
+	err := navi.App.Forward(ctx, site)
 
 	// Modify response
 	for _, transformer := range site.Transformers {

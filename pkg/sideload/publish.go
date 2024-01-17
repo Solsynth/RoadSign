@@ -5,7 +5,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"code.smartsheep.studio/goatworks/roadsign/pkg/sign"
+	"code.smartsheep.studio/goatworks/roadsign/pkg/navi"
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
 	"github.com/samber/lo"
@@ -17,7 +17,7 @@ func doPublish(c *fiber.Ctx) error {
 	var site *sign.SiteConfig
 	var upstream *sign.UpstreamInstance
 	var process *sign.ProcessInstance
-	for _, item := range sign.App.Sites {
+	for _, item := range navi.App.Sites {
 		if item.ID == c.Params("site") {
 			site = item
 			for _, stream := range item.Upstreams {
@@ -40,7 +40,7 @@ func doPublish(c *fiber.Ctx) error {
 
 	if upstream == nil && process == nil {
 		return fiber.ErrNotFound
-	} else if upstream != nil && upstream.GetType() != sign.UpstreamTypeFile {
+	} else if upstream != nil && upstream.GetType() != navi.UpstreamTypeFile {
 		return fiber.ErrUnprocessableEntity
 	}
 

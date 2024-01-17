@@ -1,12 +1,12 @@
-package sign
+package navi
 
 import (
-	"code.smartsheep.studio/goatworks/roadsign/pkg/sign/transformers"
 	"errors"
 	"math/rand"
 
+	"code.smartsheep.studio/goatworks/roadsign/pkg/navi/transformers"
+
 	"github.com/gofiber/fiber/v2"
-	"github.com/rs/zerolog/log"
 )
 
 type RoadApp struct {
@@ -16,14 +16,6 @@ type RoadApp struct {
 func (v *RoadApp) Forward(ctx *fiber.Ctx, site *SiteConfig) error {
 	if len(site.Upstreams) == 0 {
 		return errors.New("invalid configuration")
-	}
-
-	// Boot processes
-	for _, process := range site.Processes {
-		if err := process.BootProcess(); err != nil {
-			log.Warn().Err(err).Msgf("An error occurred when booting process (%s) for %s", process.ID, site.ID)
-			return fiber.ErrBadGateway
-		}
 	}
 
 	// Do forward
@@ -47,7 +39,6 @@ type SiteConfig struct {
 	Rules        []*RouterRule               `json:"rules" yaml:"rules"`
 	Transformers []*RequestTransformerConfig `json:"transformers" yaml:"transformers"`
 	Upstreams    []*UpstreamInstance         `json:"upstreams" yaml:"upstreams"`
-	Processes    []*ProcessInstance          `json:"processes" yaml:"processes"`
 }
 
 type RouterRule struct {
