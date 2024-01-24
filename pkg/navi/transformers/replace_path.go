@@ -1,18 +1,19 @@
 package transformers
 
 import (
-	"github.com/gofiber/fiber/v2"
 	"regexp"
 	"strings"
+
+	"github.com/gofiber/fiber/v2"
 )
 
-var ReplacePath = RequestTransformer{
+var ReplacePath = Transformer{
 	ModifyRequest: func(options any, ctx *fiber.Ctx) error {
 		opts := DeserializeOptions[struct {
-			Pattern string `json:"pattern" yaml:"pattern"`
-			Value   string `json:"value" yaml:"value"`
-			Repl    string `json:"repl" yaml:"repl"` // Use when complex mode(regexp) enabled
-			Complex bool   `json:"complex" yaml:"complex"`
+			Pattern string `json:"pattern" toml:"pattern"`
+			Value   string `json:"value" toml:"value"`
+			Repl    string `json:"repl" toml:"repl"` // Use when complex mode(regexp) enabled
+			Complex bool   `json:"complex" toml:"complex"`
 		}](options)
 		path := string(ctx.Request().URI().Path())
 		if !opts.Complex {

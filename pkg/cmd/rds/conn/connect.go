@@ -17,7 +17,7 @@ type CliConnection struct {
 }
 
 func (v CliConnection) CheckConnectivity() error {
-	client := fiber.Get(v.Url + "/cgi/connectivity")
+	client := fiber.Get(v.Url + "/cgi/metadata")
 	client.BasicAuth("RoadSign CLI", v.Credential)
 
 	if status, data, err := client.Bytes(); len(err) > 0 {

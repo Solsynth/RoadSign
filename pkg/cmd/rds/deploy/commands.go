@@ -11,9 +11,9 @@ import (
 	"code.smartsheep.studio/goatworks/roadsign/pkg/cmd/rds/conn"
 	"code.smartsheep.studio/goatworks/roadsign/pkg/navi"
 	"github.com/gofiber/fiber/v2"
+	"github.com/pelletier/go-toml/v2"
 	"github.com/rs/zerolog/log"
 	"github.com/urfave/cli/v2"
-	"gopkg.in/yaml.v2"
 )
 
 var DeployCommands = []*cli.Command{
@@ -78,7 +78,7 @@ var DeployCommands = []*cli.Command{
 				return err
 			} else {
 				raw, _ := io.ReadAll(file)
-				yaml.Unmarshal(raw, &site)
+				toml.Unmarshal(raw, &site)
 			}
 
 			url := fmt.Sprintf("/webhooks/sync/%s", ctx.Args().Get(1))

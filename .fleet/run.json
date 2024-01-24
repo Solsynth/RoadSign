@@ -3,9 +3,8 @@
         {
             "type": "go",
             "name": "Run RoadSign",
-            "goExecPath": "C:\\Tools\\Scoop\\shims\\go.exe",
-            "buildParams": ["code.smartsheep.studio/goatworks/roadsign/pkg/cmd"],
+            "goExecPath": "/opt/homebrew/bin/go",
+            "buildParams": ["code.smartsheep.studio/goatworks/roadsign/pkg/cmd/server"],
         },
-        
     ]
 }

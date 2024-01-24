@@ -1,6 +1,7 @@
 package sideload
 
 import (
+	"code.smartsheep.studio/goatworks/roadsign/pkg/warden"
 	"context"
 	"os"
 	"path/filepath"
@@ -14,23 +15,23 @@ import (
 
 func doPublish(c *fiber.Ctx) error {
 	var workdir string
-	var site *sign.SiteConfig
-	var upstream *sign.UpstreamInstance
-	var process *sign.ProcessInstance
-	for _, item := range navi.App.Sites {
+	var destination *navi.Destination
+	var application *warden.Application
+	for _, item := range navi.R.Regions {
 		if item.ID == c.Params("site") {
-			site = item
-			for _, stream := range item.Upstreams {
-				if stream.ID == c.Params("slug") {
-					upstream = stream
-					workdir, _ = stream.GetRawURI()
-					break
+			for _, location := range item.Locations {
+				for _, dest := range location.Destinations {
+					if dest.ID == c.Params("slug") {
+						destination = &dest
+						workdir, _ = dest.GetRawUri()
+						break
+					}
 				}
 			}
-			for _, proc := range item.Processes {
-				if proc.ID == c.Params("slug") {
-					process = proc
-					workdir = proc.Workdir
+			for _, app := range item.Applications {
+				if app.ID == c.Params("slug") {
+					application = &app
+					workdir = app.Workdir
 					break
 				}
 			}
@@ -38,14 +39,15 @@ func doPublish(c *fiber.Ctx) error {
 		}
 	}
 
-	if upstream == nil && process == nil {
-		return fiber.ErrNotFound
-	} else if upstream != nil && upstream.GetType() != navi.UpstreamTypeFile {
+	var instance *warden.AppInstance
+	if application != nil {
+		if instance = warden.GetFromPool(application.ID); instance != nil {
+			instance.Stop()
+		}
+	} else if destination != nil && destination.GetType() != navi.DestinationStaticFile {
 		return fiber.ErrUnprocessableEntity
-	}
-
-	for _, process := range site.Processes {
-		process.StopProcess()
+	} else {
+		return fiber.ErrNotFound
 	}
 
 	if c.Query("overwrite", "yes") == "yes" {
@@ -79,6 +81,10 @@ func doPublish(c *fiber.Ctx) error {
 				}
 			}
 		}
+	}
+
+	if instance != nil {
+		instance.Wake()
 	}
 
 	return c.SendStatus(fiber.StatusOK)

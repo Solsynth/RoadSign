@@ -9,17 +9,17 @@ import (
 
 var json = jsoniter.ConfigCompatibleWithStandardLibrary
 
-type RequestTransformer struct {
+type Transformer struct {
 	ModifyRequest  func(options any, ctx *fiber.Ctx) error
 	ModifyResponse func(options any, ctx *fiber.Ctx) error
 }
 
-type RequestTransformerConfig struct {
-	Type    string `json:"type" yaml:"type"`
-	Options any    `json:"options" yaml:"options"`
+type TransformerConfig struct {
+	Type    string `json:"type" toml:"type"`
+	Options any    `json:"options" toml:"options"`
 }
 
-func (v *RequestTransformerConfig) TransformRequest(ctx *fiber.Ctx) error {
+func (v *TransformerConfig) TransformRequest(ctx *fiber.Ctx) error {
 	for k, f := range Transformers {
 		if k == v.Type {
 			if f.ModifyRequest != nil {
@@ -31,7 +31,7 @@ func (v *RequestTransformerConfig) TransformRequest(ctx *fiber.Ctx) error {
 	return nil
 }
 
-func (v *RequestTransformerConfig) TransformResponse(ctx *fiber.Ctx) error {
+func (v *TransformerConfig) TransformResponse(ctx *fiber.Ctx) error {
 	for k, f := range Transformers {
 		if k == v.Type {
 			if f.ModifyResponse != nil {
@@ -55,7 +55,7 @@ func DeserializeOptions[T any](data any) T {
 // Map of Transformers
 // Every transformer need to be mapped here so that they can get work.
 
-var Transformers = map[string]RequestTransformer{
+var Transformers = map[string]Transformer{
 	"replacePath":      ReplacePath,
 	"compressResponse": CompressResponse,
 }

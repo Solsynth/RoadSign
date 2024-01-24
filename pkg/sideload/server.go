@@ -1,11 +1,12 @@
 package sideload
 
 import (
-	"code.smartsheep.studio/goatworks/roadsign/pkg/sideload/view"
 	"fmt"
+	"net/http"
+
+	"code.smartsheep.studio/goatworks/roadsign/pkg/sideload/view"
 	"github.com/gofiber/fiber/v2/middleware/filesystem"
 	jsoniter "github.com/json-iterator/go"
-	"net/http"
 
 	roadsign "code.smartsheep.studio/goatworks/roadsign/pkg"
 	"github.com/gofiber/fiber/v2"
@@ -51,18 +52,18 @@ func InitSideload() *fiber.App {
 
 	cgi := app.Group("/cgi").Name("CGI")
 	{
-		cgi.All("/connectivity", responseConnectivity)
+		cgi.Get("/metadata", getMetadata)
 		cgi.Get("/statistics", getStatistics)
-		cgi.Get("/sites", getSites)
-		cgi.Get("/sites/cfg/:id", getSiteConfig)
-		cgi.Get("/processes", getProcesses)
-		cgi.Get("/processes/logs/:id", getProcessLog)
+		cgi.Get("/sites", getRegions)
+		cgi.Get("/sites/cfg/:id", getRegionConfig)
+		cgi.Get("/processes", getApplications)
+		cgi.Get("/processes/logs/:id", getApplicationLogs)
 	}
 
 	webhooks := app.Group("/webhooks").Name("WebHooks")
 	{
 		webhooks.Put("/publish/:site/:slug", doPublish)
-		webhooks.Put("/sync/:slug", doSyncSite)
+		webhooks.Put("/sync/:slug", doSync)
 	}
 
 	return app

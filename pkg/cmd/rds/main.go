@@ -21,7 +21,7 @@ func main() {
 	// Configure settings
 	viper.AddConfigPath("$HOME")
 	viper.SetConfigName(".roadsignrc")
-	viper.SetConfigType("yaml")
+	viper.SetConfigType("toml")
 
 	// Load settings
 	if err := viper.ReadInConfig(); err != nil {

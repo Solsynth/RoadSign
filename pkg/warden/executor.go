@@ -11,6 +11,25 @@ import (
 	"github.com/samber/lo"
 )
 
+var InstancePool []*AppInstance
+
+func GetFromPool(id string) *AppInstance {
+	val, ok := lo.Find(InstancePool, func(item *AppInstance) bool {
+		return item.Manifest.ID == id
+	})
+	return lo.Ternary(ok, val, nil)
+}
+
+func StartPool() []error {
+	var errors []error
+	for _, instance := range InstancePool {
+		if err := instance.Wake(); err != nil {
+			errors = append(errors, err)
+		}
+	}
+	return errors
+}
+
 type AppStatus = int8
 
 const (
@@ -21,8 +40,8 @@ const (
 	AppFailure
 )
 
-type WardenInstance struct {
-	Manifest WardenApplication `json:"manifest"`
+type AppInstance struct {
+	Manifest Application `json:"manifest"`
 
 	Cmd    *exec.Cmd       `json:"-"`
 	Logger strings.Builder `json:"-"`
@@ -30,7 +49,7 @@ type WardenInstance struct {
 	Status AppStatus `json:"status"`
 }
 
-func (v *WardenInstance) Wake() error {
+func (v *AppInstance) Wake() error {
 	if v.Cmd != nil {
 		return nil
 	}
@@ -52,7 +71,7 @@ func (v *WardenInstance) Wake() error {
 	}
 }
 
-func (v *WardenInstance) Start() error {
+func (v *AppInstance) Start() error {
 	manifest := v.Manifest
 
 	if len(manifest.Command) <= 0 {
@@ -83,7 +102,7 @@ func (v *WardenInstance) Start() error {
 	return v.Cmd.Start()
 }
 
-func (v *WardenInstance) Stop() error {
+func (v *AppInstance) Stop() error {
 	if v.Cmd != nil && v.Cmd.Process != nil {
 		if err := v.Cmd.Process.Signal(os.Interrupt); err != nil {
 			v.Cmd.Process.Kill()
@@ -96,6 +115,6 @@ func (v *WardenInstance) Stop() error {
 	return nil
 }
 
-func (v *WardenInstance) Logs() string {
+func (v *AppInstance) Logs() string {
 	return v.Logger.String()
 }

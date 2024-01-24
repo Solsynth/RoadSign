@@ -4,34 +4,35 @@ import (
 	"io"
 	"os"
 	"path/filepath"
-	"strings"
 
-	"gopkg.in/yaml.v2"
+	"github.com/pelletier/go-toml/v2"
 )
 
-var App *RoadApp
+var R *RoadApp
 
 func ReadInConfig(root string) error {
 	instance := &RoadApp{
-		Sites: []*SiteConfig{},
+		Regions: make([]*Region, 0),
 	}
 
-	if err := filepath.Walk(root, func(fp string, info os.FileInfo, err error) error {
-		var site SiteConfig
+	if err := filepath.Walk(root, func(fp string, info os.FileInfo, _ error) error {
+		var region Region
 		if info.IsDir() {
 			return nil
 		} else if file, err := os.OpenFile(fp, os.O_RDONLY, 0755); err != nil {
 			return err
 		} else if data, err := io.ReadAll(file); err != nil {
 			return err
-		} else if err := yaml.Unmarshal(data, &site); err != nil {
+		} else if err := toml.Unmarshal(data, &region); err != nil {
 			return err
 		} else {
 			defer file.Close()
 
-			// Extract file name as site id
-			site.ID = strings.SplitN(filepath.Base(fp), ".", 2)[0]
-			instance.Sites = append(instance.Sites, &site)
+			if region.Disabled {
+				return nil
+			}
+			
+			instance.Regions = append(instance.Regions, &region)
 		}
 
 		return nil
@@ -39,7 +40,7 @@ func ReadInConfig(root string) error {
 		return err
 	}
 
-	App = instance
+	R = instance
 
 	return nil
 }

@@ -5,7 +5,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-func responseConnectivity(c *fiber.Ctx) error {
+func getMetadata(c *fiber.Ctx) error {
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{
 		"server":  "RoadSign",
 		"version": roadsign.AppVersion,

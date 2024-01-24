@@ -5,13 +5,13 @@ import (
 	"github.com/valyala/fasthttp"
 )
 
-var CompressResponse = RequestTransformer{
+var CompressResponse = Transformer{
 	ModifyResponse: func(options any, ctx *fiber.Ctx) error {
 		opts := DeserializeOptions[struct {
-			Level int `json:"level" yaml:"level"`
+			Level int `json:"level" toml:"level"`
 		}](options)
 
-		var fctx = func(c *fasthttp.RequestCtx) {}
+		fctx := func(c *fasthttp.RequestCtx) {}
 		var compressor fasthttp.RequestHandler
 		switch opts.Level {
 		// Best Speed Mode
