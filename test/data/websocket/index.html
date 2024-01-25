@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>WebSocket Durability Test</title>
+  </head>
+  <body>
+    <h1>WebSocket Client</h1>
+    <p>
+      This client will send a message every 500ms, or you can send message
+      manually.
+    </p>
+    <div id="messages"></div>
+    <input type="text" id="messageInput" placeholder="Type a message..." />
+    <button onclick="sendMessage()">Send Message</button>
+
+    <script>
+      const socket = new WebSocket("ws://localhost:8000/ws");
+
+      socket.onopen = function (event) {
+        appendMessage("Connection opened");
+
+        setInterval(() => autoSendMessage(), 500)
+      };
+
+      socket.onmessage = function (event) {
+        appendMessage("Received: " + event.data);
+      };
+
+      socket.onclose = function (event) {
+        appendMessage("Connection closed");
+      };
+
+      function sendMessage() {
+        const messageInput = document.getElementById("messageInput");
+        const message = messageInput.value;
+
+        if (message.trim() !== "") {
+          socket.send(message);
+          appendMessage("Sent: " + message);
+          messageInput.value = "";
+        }
+      }
+
+      function autoSendMessage() {
+        const message = `[AutoSend] A new message has been sent at ${new Date().toUTCString()}`;
+        socket.send(message);
+      }
+
+      function appendMessage(message) {
+        const messagesDiv = document.getElementById("messages");
+        messagesDiv.innerHTML += `<p>${message}</p>`;
+      }
+    </script>
+  </body>
+</html>
