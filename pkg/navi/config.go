@@ -1,6 +1,7 @@
 package navi
 
 import (
+	"github.com/spf13/viper"
 	"io"
 	"os"
 	"path/filepath"
@@ -13,6 +14,7 @@ var R *RoadApp
 func ReadInConfig(root string) error {
 	instance := &RoadApp{
 		Regions: make([]*Region, 0),
+		Traces: make([]RoadTrace, 0, viper.GetInt("performance.traces_limit")),
 	}
 
 	if err := filepath.Walk(root, func(fp string, info os.FileInfo, _ error) error {

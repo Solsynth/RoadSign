@@ -1,6 +1,7 @@
 package hypertext
 
 import (
+	"github.com/spf13/viper"
 	"math/rand"
 	"regexp"
 
@@ -82,7 +83,7 @@ func UseProxies(app *fiber.App) {
 
 				// Passing all the rules means the site is what we are looking for.
 				// Let us respond to our client!
-				return makeResponse(ctx, &dest)
+				return makeResponse(ctx, region, &location, &dest)
 			}
 		}
 
@@ -93,7 +94,7 @@ func UseProxies(app *fiber.App) {
 	})
 }
 
-func makeResponse(ctx *fiber.Ctx, dest *navi.Destination) error {
+func makeResponse(ctx *fiber.Ctx, region *navi.Region, location *navi.Location, dest *navi.Destination) error {
 	// Modify request
 	for _, transformer := range dest.Transformers {
 		if err := transformer.TransformRequest(ctx); err != nil {
@@ -109,6 +110,27 @@ func makeResponse(ctx *fiber.Ctx, dest *navi.Destination) error {
 		if err := transformer.TransformResponse(ctx); err != nil {
 			return err
 		}
+	}
+
+	// Collect trace
+	if viper.GetBool("telemetry.capture_traces") {
+		var message string
+		if err != nil {
+			message = err.Error()
+		}
+
+		go navi.R.AddTrace(navi.RoadTrace{
+			Region:      region.ID,
+			Location:    location.ID,
+			Destination: dest.ID,
+			Uri:         ctx.OriginalURL(),
+			IpAddress:   ctx.IP(),
+			UserAgent:   ctx.Get(fiber.HeaderUserAgent),
+			Error:       navi.RoadTraceError{
+				IsNull: err == nil,
+				Message: message,
+			},
+		})
 	}
 
 	return err

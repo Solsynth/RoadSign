@@ -7,7 +7,8 @@ import (
 )
 
 type RoadApp struct {
-	Regions []*Region `json:"regions"`
+	Regions []*Region    `json:"regions"`
+	Traces  []RoadTrace `json:"traces"`
 }
 
 func (v *RoadApp) Forward(ctx *fiber.Ctx, dest *Destination) error {
