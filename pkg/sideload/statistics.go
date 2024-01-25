@@ -7,7 +7,7 @@ import (
 	"github.com/samber/lo"
 )
 
-func getStatistics(c *fiber.Ctx) error {
+func getStats(c *fiber.Ctx) error {
 	locations := lo.FlatMap(navi.R.Regions, func(item *navi.Region, idx int) []navi.Location {
 		return item.Locations
 	})
@@ -19,8 +19,8 @@ func getStatistics(c *fiber.Ctx) error {
 	})
 
 	return c.JSON(fiber.Map{
-		"regions": len(navi.R.Regions),
-		"locations": len(locations),
+		"regions":      len(navi.R.Regions),
+		"locations":    len(locations),
 		"destinations": len(destinations),
 		"applications": len(applications),
 	})

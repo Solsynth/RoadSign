@@ -43,7 +43,7 @@ func main() {
 		log.Warn().Msgf("RoadSign auto generated api credential is %s", credential)
 	}
 
-	// Load & init navi
+	// Load & init navigator
 	if err := navi.ReadInConfig(viper.GetString("paths.configs")); err != nil {
 		log.Panic().Err(err).Msg("An error occurred when loading configurations.")
 	} else {

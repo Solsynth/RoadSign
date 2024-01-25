@@ -1,10 +1,12 @@
 package navi
 
 import (
-	"github.com/spf13/viper"
 	"io"
 	"os"
 	"path/filepath"
+	"strings"
+
+	"github.com/spf13/viper"
 
 	"github.com/pelletier/go-toml/v2"
 )
@@ -14,12 +16,14 @@ var R *RoadApp
 func ReadInConfig(root string) error {
 	instance := &RoadApp{
 		Regions: make([]*Region, 0),
-		Traces: make([]RoadTrace, 0, viper.GetInt("performance.traces_limit")),
+		Traces:  make([]RoadTrace, 0, viper.GetInt("performance.traces_limit")),
 	}
 
 	if err := filepath.Walk(root, func(fp string, info os.FileInfo, _ error) error {
 		var region Region
 		if info.IsDir() {
+			return nil
+		} else if !strings.HasSuffix(info.Name(), ".toml") {
 			return nil
 		} else if file, err := os.OpenFile(fp, os.O_RDONLY, 0755); err != nil {
 			return err
@@ -33,7 +37,7 @@ func ReadInConfig(root string) error {
 			if region.Disabled {
 				return nil
 			}
-			
+
 			instance.Regions = append(instance.Regions, &region)
 		}
 

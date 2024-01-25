@@ -54,11 +54,11 @@ func InitSideload() *fiber.App {
 	{
 		cgi.Get("/metadata", getMetadata)
 		cgi.Get("/traces", getTraces)
-		cgi.Get("/statistics", getStatistics)
-		cgi.Get("/sites", getRegions)
-		cgi.Get("/sites/cfg/:id", getRegionConfig)
-		cgi.Get("/processes", getApplications)
-		cgi.Get("/processes/logs/:id", getApplicationLogs)
+		cgi.Get("/stats", getStats)
+		cgi.Get("/regions", getRegions)
+		cgi.Get("/regions/cfg/:id", getRegionConfig)
+		cgi.Get("/applications", getApplications)
+		cgi.Get("/applications/logs/:id", getApplicationLogs)
 	}
 
 	webhooks := app.Group("/webhooks").Name("WebHooks")

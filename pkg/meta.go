@@ -14,4 +14,4 @@ func init() {
 	}
 }
 
-var AppVersion = "1.2.1"
+var AppVersion = "2.0.0-delta1"
