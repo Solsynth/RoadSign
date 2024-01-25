@@ -95,6 +95,8 @@ func UseProxies(app *fiber.App) {
 }
 
 func makeResponse(ctx *fiber.Ctx, region *navi.Region, location *navi.Location, dest *navi.Destination) error {
+	uri := ctx.Request().URI().String()
+
 	// Modify request
 	for _, transformer := range dest.Transformers {
 		if err := transformer.TransformRequest(ctx); err != nil {
@@ -123,7 +125,7 @@ func makeResponse(ctx *fiber.Ctx, region *navi.Region, location *navi.Location, 
 			Region:      region.ID,
 			Location:    location.ID,
 			Destination: dest.ID,
-			Uri:         ctx.OriginalURL(),
+			Uri:         uri,
 			IpAddress:   ctx.IP(),
 			UserAgent:   ctx.Get(fiber.HeaderUserAgent),
 			Error:       navi.RoadTraceError{
