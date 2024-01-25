@@ -59,7 +59,7 @@ After that, you can manage your roadsign instance with RoadSign CLI aka. RDS CLI
 To install it, run this command. (Make sure you have golang toolchain on your computer)
 
 ```shell
-go install -buildvcs code.smartsheep.studio/goatworks/roadsign/pkg/cmd/rds@latest
+go install -buildvcs code.smartsheep.studio/goatworks/roadsign/pkg/cmd/rdc@latest
 # Tips: Add `buildvsc` flag to provide more detail compatibility check.
 ```
 

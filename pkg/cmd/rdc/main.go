@@ -4,8 +4,8 @@ import (
 	"os"
 
 	roadsign "code.smartsheep.studio/goatworks/roadsign/pkg"
-	"code.smartsheep.studio/goatworks/roadsign/pkg/cmd/rds/conn"
-	"code.smartsheep.studio/goatworks/roadsign/pkg/cmd/rds/deploy"
+	"code.smartsheep.studio/goatworks/roadsign/pkg/cmd/rdc/conn"
+	"code.smartsheep.studio/goatworks/roadsign/pkg/cmd/rdc/deploy"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 	"github.com/spf13/viper"

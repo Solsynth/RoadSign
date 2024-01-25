@@ -8,10 +8,8 @@ import (
 
 	jsoniter "github.com/json-iterator/go"
 
-	"code.smartsheep.studio/goatworks/roadsign/pkg/cmd/rds/conn"
-	"code.smartsheep.studio/goatworks/roadsign/pkg/navi"
+	"code.smartsheep.studio/goatworks/roadsign/pkg/cmd/rdc/conn"
 	"github.com/gofiber/fiber/v2"
-	"github.com/pelletier/go-toml/v2"
 	"github.com/rs/zerolog/log"
 	"github.com/urfave/cli/v2"
 )
@@ -59,7 +57,6 @@ var DeployCommands = []*cli.Command{
 	},
 	{
 		Name:      "sync",
-		Aliases:   []string{"sc"},
 		ArgsUsage: "<server> <site> <configuration path>",
 		Action: func(ctx *cli.Context) error {
 			if ctx.Args().Len() < 3 {
@@ -73,19 +70,18 @@ var DeployCommands = []*cli.Command{
 				return fmt.Errorf("couldn't connect server: %s", err.Error())
 			}
 
-			var site navi.SiteConfig
+			var raw []byte
 			if file, err := os.Open(ctx.Args().Get(2)); err != nil {
 				return err
 			} else {
-				raw, _ := io.ReadAll(file)
-				toml.Unmarshal(raw, &site)
+				raw, _ = io.ReadAll(file)
 			}
 
 			url := fmt.Sprintf("/webhooks/sync/%s", ctx.Args().Get(1))
 			client := fiber.Put(server.Url+url).
 				JSONEncoder(jsoniter.ConfigCompatibleWithStandardLibrary.Marshal).
 				JSONDecoder(jsoniter.ConfigCompatibleWithStandardLibrary.Unmarshal).
-				JSON(site).
+				Body(raw).
 				BasicAuth("RoadSign CLI", server.Credential)
 
 			if status, data, err := client.Bytes(); len(err) > 0 {
