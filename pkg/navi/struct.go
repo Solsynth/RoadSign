@@ -76,3 +76,7 @@ func (v *Destination) MakeUri(ctx *fiber.Ctx) string {
 		lo.Ternary(len(queries) > 0, "?"+strings.Join(queries, "&"), "") +
 		lo.Ternary(len(hash) > 0, "#"+hash, "")
 }
+
+func (v *Destination) MakeWebsocketUri(ctx *fiber.Ctx) string {
+	return strings.Replace(v.MakeUri(ctx), "http", "ws", 1)
+}

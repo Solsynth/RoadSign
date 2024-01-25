@@ -10,6 +10,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/fasthttp/websocket"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/proxy"
 	"github.com/gofiber/fiber/v2/utils"
@@ -19,10 +20,71 @@ import (
 )
 
 func makeHypertextResponse(c *fiber.Ctx, dest *Destination) error {
-	timeout := time.Duration(viper.GetInt64("performance.network_timeout")) * time.Millisecond
-	return proxy.Do(c, dest.MakeUri(c), &fasthttp.Client{
-		ReadTimeout:  timeout,
-		WriteTimeout: timeout,
+	if websocket.FastHTTPIsWebSocketUpgrade(c.Context()) {
+		// Handle websocket
+		return makeWebsocketResponse(c, dest)
+	} else {
+		// Handle normal request
+		timeout := time.Duration(viper.GetInt64("performance.network_timeout")) * time.Millisecond
+		return proxy.Do(c, dest.MakeUri(c), &fasthttp.Client{
+			ReadTimeout:  timeout,
+			WriteTimeout: timeout,
+		})
+	}
+}
+
+var wsUpgrader = websocket.FastHTTPUpgrader{}
+
+func makeWebsocketResponse(c *fiber.Ctx, dest *Destination) error {
+	uri := dest.MakeWebsocketUri(c)
+
+	// Upgrade connection
+	return wsUpgrader.Upgrade(c.Context(), func(conn *websocket.Conn) {
+		// Dial the destination
+		remote, _, err := websocket.DefaultDialer.Dial(uri, nil)
+		if err != nil {
+			return
+		}
+		defer remote.Close()
+
+		// Read messages from remote
+		disconnect := make(chan struct{})
+		signal := make(chan struct {
+			head int
+			data []byte
+		})
+		go func() {
+			defer close(disconnect)
+			for {
+				mode, message, err := remote.ReadMessage()
+				if err != nil {
+					fmt.Println(err)
+					return
+				} else {
+					signal <- struct {
+						head int
+						data []byte
+					}{head: mode, data: message}
+				}
+			}
+		}()
+
+		// Relay the destination websocket to client
+		for {
+			select {
+			case <-disconnect:
+			case val := <-signal:
+				if err := conn.WriteMessage(val.head, val.data); err != nil {
+					return
+				}
+			default:
+				if head, data, err := conn.ReadMessage(); err != nil {
+					return
+				} else {
+					remote.WriteMessage(head, data)
+				}
+			}
+		}
 	})
 }
 
