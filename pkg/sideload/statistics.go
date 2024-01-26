@@ -1,28 +1,27 @@
 package sideload
 
 import (
-	"code.smartsheep.studio/goatworks/roadsign/pkg/sign"
+	"code.smartsheep.studio/goatworks/roadsign/pkg/navi"
+	"code.smartsheep.studio/goatworks/roadsign/pkg/warden"
 	"github.com/gofiber/fiber/v2"
 	"github.com/samber/lo"
 )
 
-func getStatistics(c *fiber.Ctx) error {
-	upstreams := lo.FlatMap(sign.App.Sites, func(item *sign.SiteConfig, idx int) []*sign.UpstreamInstance {
-		return item.Upstreams
+func getStats(c *fiber.Ctx) error {
+	locations := lo.FlatMap(navi.R.Regions, func(item *navi.Region, idx int) []navi.Location {
+		return item.Locations
 	})
-	processes := lo.FlatMap(sign.App.Sites, func(item *sign.SiteConfig, idx int) []*sign.ProcessInstance {
-		return item.Processes
+	destinations := lo.FlatMap(locations, func(item navi.Location, idx int) []navi.Destination {
+		return item.Destinations
 	})
-	unhealthy := lo.FlatMap(sign.App.Sites, func(item *sign.SiteConfig, idx int) []*sign.ProcessInstance {
-		return lo.Filter(item.Processes, func(item *sign.ProcessInstance, idx int) bool {
-			return item.Status != sign.ProcessStarted
-		})
+	applications := lo.FlatMap(navi.R.Regions, func(item *navi.Region, idx int) []warden.Application {
+		return item.Applications
 	})
 
 	return c.JSON(fiber.Map{
-		"sites":     len(sign.App.Sites),
-		"upstreams": len(upstreams),
-		"processes": len(processes),
-		"status":    len(unhealthy) == 0,
+		"regions":      len(navi.R.Regions),
+		"locations":    len(locations),
+		"destinations": len(destinations),
+		"applications": len(applications),
 	})
 }

@@ -1,0 +1,35 @@
+[debug]
+print_routes = false
+
+[hypertext]
+sideload_ports = [":81"]
+sideload_secured_ports = []
+ports = [":8000"]
+secured_ports = []
+
+[hypertext.certificate]
+redirect = false
+sideload_key = "./cert.key"
+sideload_pem = "./cert.pem"
+key = "./cert.key"
+pem = "./cert.pem"
+
+[hypertext.limitation]
+max_body_size = 549_755_813_888 # 512 GiB
+max_qps = -1
+
+[paths]
+configs = "./config"
+
+[telemetry]
+request_logging = true
+capture_traces = true
+
+[performance]
+traces_limit = 256
+network_timeout = 3_000
+prefork = false
+
+[security]
+sideload_trusted_proxies = ["localhost"]
+credential = "e81f43f32d934271af6322e5376f5f59"

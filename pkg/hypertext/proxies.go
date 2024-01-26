@@ -1,9 +1,11 @@
 package hypertext
 
 import (
+	"github.com/spf13/viper"
+	"math/rand"
 	"regexp"
 
-	"code.smartsheep.studio/goatworks/roadsign/pkg/sign"
+	"code.smartsheep.studio/goatworks/roadsign/pkg/navi"
 	"github.com/gofiber/fiber/v2"
 	"github.com/samber/lo"
 )
@@ -16,16 +18,16 @@ func UseProxies(app *fiber.App) {
 		headers := ctx.GetReqHeaders()
 
 		// Filtering sites
-		for _, site := range sign.App.Sites {
+		for _, region := range navi.R.Regions {
 			// Matching rules
-			for _, rule := range site.Rules {
-				if !lo.Contains(rule.Host, host) {
+			for _, location := range region.Locations {
+				if !lo.Contains(location.Host, host) {
 					continue
 				}
 
 				if !func() bool {
 					flag := false
-					for _, pattern := range rule.Path {
+					for _, pattern := range location.Path {
 						if ok, _ := regexp.MatchString(pattern, path); ok {
 							flag = true
 							break
@@ -38,7 +40,7 @@ func UseProxies(app *fiber.App) {
 
 				// Filter query strings
 				flag := true
-				for rk, rv := range rule.Queries {
+				for rk, rv := range location.Queries {
 					for ik, iv := range queries {
 						if rk != ik && rv != iv {
 							flag = false
@@ -54,7 +56,7 @@ func UseProxies(app *fiber.App) {
 				}
 
 				// Filter headers
-				for rk, rv := range rule.Headers {
+				for rk, rv := range location.Headers {
 					for ik, iv := range headers {
 						if rk == ik {
 							for _, ov := range iv {
@@ -76,9 +78,12 @@ func UseProxies(app *fiber.App) {
 					continue
 				}
 
+				idx := rand.Intn(len(location.Destinations))
+				dest := location.Destinations[idx]
+
 				// Passing all the rules means the site is what we are looking for.
 				// Let us respond to our client!
-				return makeResponse(ctx, site)
+				return makeResponse(ctx, region, &location, &dest)
 			}
 		}
 
@@ -89,22 +94,45 @@ func UseProxies(app *fiber.App) {
 	})
 }
 
-func makeResponse(ctx *fiber.Ctx, site *sign.SiteConfig) error {
+func makeResponse(ctx *fiber.Ctx, region *navi.Region, location *navi.Location, dest *navi.Destination) error {
+	uri := ctx.Request().URI().String()
+
 	// Modify request
-	for _, transformer := range site.Transformers {
+	for _, transformer := range dest.Transformers {
 		if err := transformer.TransformRequest(ctx); err != nil {
 			return err
 		}
 	}
 
 	// Forward
-	err := sign.App.Forward(ctx, site)
+	err := navi.R.Forward(ctx, dest)
 
 	// Modify response
-	for _, transformer := range site.Transformers {
+	for _, transformer := range dest.Transformers {
 		if err := transformer.TransformResponse(ctx); err != nil {
 			return err
 		}
+	}
+
+	// Collect trace
+	if viper.GetBool("telemetry.capture_traces") {
+		var message string
+		if err != nil {
+			message = err.Error()
+		}
+
+		go navi.R.AddTrace(navi.RoadTrace{
+			Region:      region.ID,
+			Location:    location.ID,
+			Destination: dest.ID,
+			Uri:         uri,
+			IpAddress:   ctx.IP(),
+			UserAgent:   ctx.Get(fiber.HeaderUserAgent),
+			Error:       navi.RoadTraceError{
+				IsNull: err == nil,
+				Message: message,
+			},
+		})
 	}
 
 	return err

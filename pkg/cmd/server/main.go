@@ -8,8 +8,8 @@ import (
 
 	roadsign "code.smartsheep.studio/goatworks/roadsign/pkg"
 	"code.smartsheep.studio/goatworks/roadsign/pkg/hypertext"
+	"code.smartsheep.studio/goatworks/roadsign/pkg/navi"
 	"code.smartsheep.studio/goatworks/roadsign/pkg/sideload"
-	"code.smartsheep.studio/goatworks/roadsign/pkg/sign"
 	"github.com/google/uuid"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
@@ -26,7 +26,7 @@ func main() {
 	viper.AddConfigPath(".")
 	viper.AddConfigPath("..")
 	viper.SetConfigName("settings")
-	viper.SetConfigType("yaml")
+	viper.SetConfigType("toml")
 
 	// Load settings
 	if err := viper.ReadInConfig(); err != nil {
@@ -43,20 +43,15 @@ func main() {
 		log.Warn().Msgf("RoadSign auto generated api credential is %s", credential)
 	}
 
-	// Load & init sign
-	if err := sign.ReadInConfig(viper.GetString("paths.configs")); err != nil {
+	// Load & init navigator
+	if err := navi.ReadInConfig(viper.GetString("paths.configs")); err != nil {
 		log.Panic().Err(err).Msg("An error occurred when loading configurations.")
 	} else {
-		log.Info().Int("count", len(sign.App.Sites)).Msg("All configuration has been loaded.")
+		log.Info().Int("count", len(navi.R.Regions)).Msg("All configuration has been loaded.")
 	}
 
-	// Preheat processes
-	go func() {
-		log.Info().Msg("Preheating processes...")
-		sign.App.PreheatProcesses(func(total int, success int) {
-			log.Info().Int("requested", total).Int("succeed", success).Msgf("Preheat processes completed!")
-		})
-	}()
+	// Init warden
+	navi.InitializeWarden(navi.R.Regions)
 
 	// Init hypertext server
 	hypertext.RunServer(
