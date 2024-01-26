@@ -41,8 +41,12 @@ type Destination struct {
 	Transformers []transformers.TransformerConfig `json:"transformers" toml:"transformers"`
 }
 
+func (v *Destination) GetProtocol() string {
+	return strings.SplitN(v.Uri, "://", 2)[0]
+}
+
 func (v *Destination) GetType() DestinationType {
-	protocol := strings.SplitN(v.Uri, "://", 2)[0]
+	protocol := v.GetProtocol()
 	switch protocol {
 	case "http", "https":
 		return DestinationHypertext
@@ -56,7 +60,7 @@ func (v *Destination) GetRawUri() (string, url.Values) {
 	uri := strings.SplitN(v.Uri, "://", 2)[1]
 	data := strings.SplitN(uri, "?", 2)
 	data = append(data, " ") // Make data array least have two element
-	qs, _ := url.ParseQuery(data[0])
+	qs, _ := url.ParseQuery(data[1])
 
 	return data[0], qs
 }
@@ -71,8 +75,9 @@ func (v *Destination) MakeUri(ctx *fiber.Ctx) string {
 
 	path := string(ctx.Request().URI().Path())
 	hash := string(ctx.Request().URI().Hash())
+	uri, _ := v.GetRawUri()
 
-	return v.Uri + path +
+	return uri + path +
 		lo.Ternary(len(queries) > 0, "?"+strings.Join(queries, "&"), "") +
 		lo.Ternary(len(hash) > 0, "#"+hash, "")
 }

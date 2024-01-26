@@ -3,34 +3,44 @@ package navi
 import (
 	"errors"
 	"fmt"
+	"github.com/fasthttp/websocket"
+	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/proxy"
+	"github.com/gofiber/fiber/v2/utils"
+	"github.com/rs/zerolog/log"
+	"github.com/samber/lo"
+	"github.com/spf13/viper"
+	"github.com/valyala/fasthttp"
 	"io/fs"
 	"net/http"
 	"path/filepath"
 	"strconv"
 	"strings"
 	"time"
-
-	"github.com/fasthttp/websocket"
-	"github.com/gofiber/fiber/v2"
-	"github.com/gofiber/fiber/v2/middleware/proxy"
-	"github.com/gofiber/fiber/v2/utils"
-	"github.com/samber/lo"
-	"github.com/spf13/viper"
-	"github.com/valyala/fasthttp"
 )
 
-func makeHypertextResponse(c *fiber.Ctx, dest *Destination) error {
+func makeUnifiedResponse(c *fiber.Ctx, dest *Destination) error {
 	if websocket.FastHTTPIsWebSocketUpgrade(c.Context()) {
 		// Handle websocket
 		return makeWebsocketResponse(c, dest)
 	} else {
-		// Handle normal request
-		timeout := time.Duration(viper.GetInt64("performance.network_timeout")) * time.Millisecond
-		return proxy.Do(c, dest.MakeUri(c), &fasthttp.Client{
-			ReadTimeout:  timeout,
-			WriteTimeout: timeout,
-		})
+		_, queries := dest.GetRawUri()
+		if len(queries.Get("sse")) > 0 {
+			// Handle server-side event
+			return makeSeverSideEventResponse(c, dest)
+		} else {
+			// Handle normal http request
+			return makeHypertextResponse(c, dest)
+		}
 	}
+}
+
+func makeHypertextResponse(c *fiber.Ctx, dest *Destination) error {
+	timeout := time.Duration(viper.GetInt64("performance.network_timeout")) * time.Millisecond
+	return proxy.Do(c, dest.MakeUri(c), &fasthttp.Client{
+		ReadTimeout:  timeout,
+		WriteTimeout: timeout,
+	})
 }
 
 var wsUpgrader = websocket.FastHTTPUpgrader{}
@@ -58,7 +68,7 @@ func makeWebsocketResponse(c *fiber.Ctx, dest *Destination) error {
 			for {
 				mode, message, err := remote.ReadMessage()
 				if err != nil {
-					fmt.Println(err)
+					log.Warn().Err(err).Msg("An error occurred during the websocket proxying...")
 					return
 				} else {
 					signal <- struct {
@@ -86,6 +96,11 @@ func makeWebsocketResponse(c *fiber.Ctx, dest *Destination) error {
 			}
 		}
 	})
+}
+
+func makeSeverSideEventResponse(c *fiber.Ctx, dest *Destination) error {
+	// TODO Impl SSE with https://github.com/gofiber/recipes/blob/master/sse/main.go
+	return fiber.NewError(fiber.StatusNotImplemented, "Server-side-events was not available now.")
 }
 
 func makeFileResponse(c *fiber.Ctx, dest *Destination) error {
