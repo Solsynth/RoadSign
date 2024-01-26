@@ -24,14 +24,10 @@ func makeUnifiedResponse(c *fiber.Ctx, dest *Destination) error {
 		// Handle websocket
 		return makeWebsocketResponse(c, dest)
 	} else {
-		_, queries := dest.GetRawUri()
-		if len(queries.Get("sse")) > 0 {
-			// Handle server-side event
-			return makeSeverSideEventResponse(c, dest)
-		} else {
-			// Handle normal http request
-			return makeHypertextResponse(c, dest)
-		}
+		// TODO Impl SSE with https://github.com/gofiber/recipes/blob/master/sse/main.go
+
+		// Handle normal http request
+		return makeHypertextResponse(c, dest)
 	}
 }
 
@@ -96,11 +92,6 @@ func makeWebsocketResponse(c *fiber.Ctx, dest *Destination) error {
 			}
 		}
 	})
-}
-
-func makeSeverSideEventResponse(c *fiber.Ctx, dest *Destination) error {
-	// TODO Impl SSE with https://github.com/gofiber/recipes/blob/master/sse/main.go
-	return fiber.NewError(fiber.StatusNotImplemented, "Server-side-events was not available now.")
 }
 
 func makeFileResponse(c *fiber.Ctx, dest *Destination) error {

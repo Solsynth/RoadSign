@@ -29,7 +29,7 @@ func InitSideload() *fiber.App {
 		BodyLimit:             viper.GetInt("hypertext.limitation.max_body_size"),
 	})
 
-	if viper.GetBool("performance.request_logging") {
+	if viper.GetBool("telemetry.request_logging") {
 		app.Use(logger.New(logger.Config{
 			Output: log.Logger,
 			Format: "[Sideload] [${time}] ${status} - ${latency} ${method} ${path}\n",

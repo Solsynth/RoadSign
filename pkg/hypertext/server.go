@@ -24,7 +24,7 @@ func InitServer() *fiber.App {
 		BodyLimit:             viper.GetInt("hypertext.limitation.max_body_size"),
 	})
 
-	if viper.GetBool("performance.request_logging") {
+	if viper.GetBool("telemetry.request_logging") {
 		app.Use(logger.New(logger.Config{
 			Output: log.Logger,
 			Format: "[Proxies] [${time}] ${status} - ${latency} ${method} ${path}\n",
@@ -47,7 +47,7 @@ func RunServer(app *fiber.App, ports []string, securedPorts []string, pem string
 	for _, port := range ports {
 		port := port
 		go func() {
-			if viper.GetBool("hypertext.certificate.redirect") {
+			if viper.GetBool("hypertext.redirect_to_https") {
 				redirector := fiber.New(fiber.Config{
 					AppName:               "RoadSign",
 					ServerHeader:          "RoadSign",
