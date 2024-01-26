@@ -5,15 +5,19 @@ A blazing fast reverse proxy with a lot of shining features.
 ## Features
 
 1. Reverse proxy
-2. Static file hosting
-3. ~~Analytics and Metrics~~
-4. Integrate with CI/CD
-5. Webhook integration
-6. ~~Web management panel~~
-7. One-liner CLI
-8. **Blazing fast ⚡**
+2. HTTP2 Support
+3. WebSocket Support
+4. Static File Hosting
+5. Low Configuration
+6. Analytics and Metrics
+7. Integrate with CI/CD
+8. Web management panel (Work in progres for v2, available in v1)
+9. One-liner CLI
+10. Open-source and free
+11. **Blazing fast ⚡**
 
-> Deleted item means under construction, check out our roadmap!
+> [!IMPORTANT]
+> Currently roadsign haven't supported for server-side events. We are working on it.
 
 ### How fast is it?
 
@@ -42,7 +46,7 @@ We strongly recommend you install RoadSign via docker compose.
 version: "3"
 services:
   roadsign:
-    image: code.smartsheep.studio/goatworks/roadsign:nightly
+    image: xsheep2010/roadsign:nightly
     restart: always
     volumes:
       - "./certs:/certs" # Optional, use for storage certificates
@@ -55,12 +59,11 @@ services:
       - "81:81"
 ```
 
-After that, you can manage your roadsign instance with RoadSign CLI aka. RDS CLI.
+After that, you can manage your roadsign instance with RoadSign CLI aka. RDC.
 To install it, run this command. (Make sure you have golang toolchain on your computer)
 
 ```shell
-go install -buildvcs code.smartsheep.studio/goatworks/roadsign/pkg/cmd/rdc@latest
-# Tips: Add `buildvsc` flag to provide more detail compatibility check.
+go install code.smartsheep.studio/goatworks/roadsign/pkg/cmd/rdc@latest
 ```
 
 ## Usage
@@ -73,7 +76,7 @@ After configure, you need sync your config to remote server. Before that, add a 
 rds cli with this command.
 
 ```shell
-rds connect <id> <url> <password>
+rdc connect <id> <url> <password>
 # ID will allow you find this server in after commands.
 # URL is to your roadsign server sideload api.
 # Password is your roadsign server credential.
@@ -85,7 +88,7 @@ rds connect <id> <url> <password>
 Then, sync your local config to remote.
 
 ```shell
-rds sync <server id> <site id> <config file>
+rdc sync <server id> <region id> <config file>
 # Server ID is your server added by last command.
 # Site ID is your new site id or old site id if you need update it.
 # Config File is your local config file path.
