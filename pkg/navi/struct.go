@@ -75,9 +75,10 @@ func (v *Destination) MakeUri(ctx *fiber.Ctx) string {
 
 	path := string(ctx.Request().URI().Path())
 	hash := string(ctx.Request().URI().Hash())
+	protocol := v.GetProtocol()
 	uri, _ := v.GetRawUri()
 
-	return uri + path +
+	return protocol + "://" + uri + path +
 		lo.Ternary(len(queries) > 0, "?"+strings.Join(queries, "&"), "") +
 		lo.Ternary(len(hash) > 0, "#"+hash, "")
 }

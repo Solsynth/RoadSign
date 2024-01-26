@@ -1,12 +1,12 @@
 id = "example-region"
 
-[[locations]]
-id = "example-websocket"
-host = ["localhost:8000"]
-path = ["/ws"]
-[[locations.destinations]]
-id = "example-websocket-destination"
-uri = "http://localhost:8765"
+# [[locations]]
+# id = "example-websocket"
+# host = ["localhost:8000"]
+# path = ["/ws"]
+# [[locations.destinations]]
+# id = "example-websocket-destination"
+# uri = "http://localhost:8765"
 
 # [[locations]]
 # id = "example-warden"
@@ -23,9 +23,9 @@ uri = "http://localhost:8765"
 # environment = ["PUBLIC_CMS=https://smartsheep.studio"]
 
 [[locations]]
-id = "example-static"
+id = "example"
 host = ["localhost:8000"]
 path = ["/"]
 [[locations.destinations]]
-id = "example-static-destination"
-uri = "files://test/data"
+id = "example-destination"
+uri = "http://protocol.smartsheep.studio:20004"

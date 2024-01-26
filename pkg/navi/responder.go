@@ -9,7 +9,6 @@ import (
 	"github.com/gofiber/fiber/v2/utils"
 	"github.com/rs/zerolog/log"
 	"github.com/samber/lo"
-	"github.com/spf13/viper"
 	"github.com/valyala/fasthttp"
 	"io/fs"
 	"net/http"
@@ -32,10 +31,11 @@ func makeUnifiedResponse(c *fiber.Ctx, dest *Destination) error {
 }
 
 func makeHypertextResponse(c *fiber.Ctx, dest *Destination) error {
-	timeout := time.Duration(viper.GetInt64("performance.network_timeout")) * time.Millisecond
-	return proxy.Do(c, dest.MakeUri(c), &fasthttp.Client{
-		ReadTimeout:  timeout,
-		WriteTimeout: timeout,
+	limit := 60 * time.Millisecond
+	uri := dest.MakeUri(c)
+	return proxy.Do(c, uri, &fasthttp.Client{
+		ReadTimeout:  limit,
+		WriteTimeout: limit,
 	})
 }
 
