@@ -31,7 +31,14 @@ func makeUnifiedResponse(c *fiber.Ctx, dest *Destination) error {
 }
 
 func makeHypertextResponse(c *fiber.Ctx, dest *Destination) error {
-	limit := 60 * time.Millisecond
+	_, queries := dest.GetRawUri()
+	raw := lo.Ternary(len(queries.Get("timeout")) > 0, queries.Get("timeout"), "5000")
+	num, err := strconv.Atoi(raw)
+	if err != nil {
+		num = 5000
+	}
+
+	limit := time.Duration(num) * time.Millisecond
 	uri := dest.MakeUri(c)
 	return proxy.Do(c, uri, &fasthttp.Client{
 		ReadTimeout:  limit,
