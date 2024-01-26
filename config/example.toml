@@ -14,6 +14,7 @@ host = ["localhost:4321"]
 path = ["/"]
 [[locations.destinations]]
 id = "example-warden-destination"
+uri = "http://localhost:4321"
 
 [[applications]]
 id = "example-warden-app"
@@ -21,10 +22,10 @@ workdir = "test/data/warden"
 command = ["node", "dist/server/entry.mjs"]
 environment = ["PUBLIC_CMS=https://smartsheep.studio"]
 
-# [[locations]]
-# id = "example-location"
-# host = ["localhost:8000"]
-# path = ["/"]
-# [[locations.destinations]]
-# id = "example-destination"
-# uri = "files://test/data"
+[[locations]]
+id = "example-static"
+host = ["localhost:8000"]
+path = ["/roadsign"]
+[[locations.destinations]]
+id = "example-static-destination"
+uri = "files://test/data"

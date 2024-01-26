@@ -1,0 +1,9 @@
+id = "example"
+
+[[locations]]
+id = "example-location"
+host = ["localhost:8000"]
+path = ["/"]
+[[locations.destinations]]
+id = "example-destination"
+uri = "files://../data/spa?fallback=index.html"
