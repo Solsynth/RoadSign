@@ -1,17 +1,6 @@
 id = "example-region"
 
 [[locations]]
-id = "example-sse"
-host = ["localhost:8000"]
-path = ["/sse"]
-[[locations.destinations]]
-id = "example-sse-destination"
-uri = "http://localhost:5000?sse=enable"
-[[locations.transformers]]
-type = "replacePath"
-options = { pattern = "/sse", value = "" }
-
-[[locations]]
 id = "example-websocket"
 host = ["localhost:8000"]
 path = ["/ws"]
@@ -20,9 +9,22 @@ id = "example-websocket-destination"
 uri = "http://localhost:8765"
 
 [[locations]]
-id = "example-location"
-host = ["localhost:8000"]
+id = "example-warden"
+host = ["localhost:4321"]
 path = ["/"]
 [[locations.destinations]]
-id = "example-destination"
-uri = "files://test/data"
+id = "example-warden-destination"
+
+[[applications]]
+id = "example-warden-app"
+workdir = "test/data/warden"
+command = ["node", "dist/server/entry.mjs"]
+environment = ["PUBLIC_CMS=https://smartsheep.studio"]
+
+# [[locations]]
+# id = "example-location"
+# host = ["localhost:8000"]
+# path = ["/"]
+# [[locations.destinations]]
+# id = "example-destination"
+# uri = "files://test/data"
