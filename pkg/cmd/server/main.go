@@ -58,17 +58,13 @@ func main() {
 		hypertext.InitServer(),
 		viper.GetStringSlice("hypertext.ports"),
 		viper.GetStringSlice("hypertext.secured_ports"),
-		viper.GetString("hypertext.certificate.pem"),
-		viper.GetString("hypertext.certificate.key"),
 	)
 
 	// Init sideload server
 	hypertext.RunServer(
 		sideload.InitSideload(),
 		viper.GetStringSlice("hypertext.sideload_ports"),
-		viper.GetStringSlice("hypertext.sideload_secured_ports"),
-		viper.GetString("hypertext.certificate.sideload_pem"),
-		viper.GetString("hypertext.certificate.sideload_key"),
+		[]string{},
 	)
 
 	log.Info().Msgf("RoadSign v%s is started...", roadsign.AppVersion)

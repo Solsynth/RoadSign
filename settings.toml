@@ -5,14 +5,12 @@ print_routes = false
 sideload_ports = [":81"]
 sideload_secured_ports = []
 ports = [":8000"]
-secured_ports = []
+secured_ports = [":8443"]
+force_https = false
 
-[hypertext.certificate]
-redirect = false
-sideload_key = "./cert.key"
-sideload_pem = "./cert.pem"
-key = "./cert.key"
-pem = "./cert.pem"
+[[hypertext.certificate]]
+key = "./certs/privkey.pem"
+pem = "./certs/fullchain.pem"
 
 [hypertext.limitation]
 max_body_size = 549_755_813_888 # 512 GiB

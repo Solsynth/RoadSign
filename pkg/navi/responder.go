@@ -24,7 +24,6 @@ func makeUnifiedResponse(c *fiber.Ctx, dest *Destination) error {
 		return makeWebsocketResponse(c, dest)
 	} else {
 		// TODO Impl SSE with https://github.com/gofiber/recipes/blob/master/sse/main.go
-
 		// Handle normal http request
 		return makeHypertextResponse(c, dest)
 	}
