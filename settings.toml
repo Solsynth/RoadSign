@@ -25,7 +25,6 @@ capture_traces = true
 
 [performance]
 traces_limit = 256
-network_timeout = 3_000
 prefork = false
 
 [security]

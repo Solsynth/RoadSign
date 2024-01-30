@@ -1,12 +1,11 @@
 package sideload
 
 import (
-	"fmt"
-	"net/http"
-
 	"code.smartsheep.studio/goatworks/roadsign/pkg/sideload/view"
+	"fmt"
 	"github.com/gofiber/fiber/v2/middleware/filesystem"
 	jsoniter "github.com/json-iterator/go"
+	"net/http"
 
 	roadsign "code.smartsheep.studio/goatworks/roadsign/pkg"
 	"github.com/gofiber/fiber/v2"
@@ -43,13 +42,6 @@ func InitSideload() *fiber.App {
 		},
 	}))
 
-	app.Use("/", filesystem.New(filesystem.Config{
-		Root:         http.FS(view.FS),
-		PathPrefix:   "dist",
-		Index:        "index.html",
-		NotFoundFile: "index.html",
-	}))
-
 	cgi := app.Group("/cgi").Name("CGI")
 	{
 		cgi.Get("/metadata", getMetadata)
@@ -66,6 +58,13 @@ func InitSideload() *fiber.App {
 		webhooks.Put("/publish/:site/:slug", doPublish)
 		webhooks.Put("/sync/:slug", doSync)
 	}
+
+	app.Use("/", filesystem.New(filesystem.Config{
+		Root:         http.FS(view.FS),
+		PathPrefix:   "dist",
+		Index:        "index.html",
+		NotFoundFile: "dist/index.html",
+	}))
 
 	return app
 }
