@@ -38,6 +38,7 @@ const (
 type Destination struct {
 	ID           string                           `json:"id" toml:"id"`
 	Uri          string                           `json:"uri" toml:"uri"`
+	Helmet       *HelmetConfig                    `json:"helmet" toml:"helmet"`
 	Transformers []transformers.TransformerConfig `json:"transformers" toml:"transformers"`
 }
 

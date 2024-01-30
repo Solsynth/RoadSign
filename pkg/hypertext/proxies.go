@@ -1,7 +1,6 @@
 package hypertext
 
 import (
-	"fmt"
 	"github.com/spf13/viper"
 	"math/rand"
 	"regexp"
@@ -104,22 +103,6 @@ func makeResponse(c *fiber.Ctx, region *navi.Region, location *navi.Location, de
 			return err
 		}
 	}
-
-	// Add reserve proxy headers
-	ip := c.IP()
-	scheme := c.Protocol()
-	protocol := string(c.Request().Header.Protocol())
-	c.Request().Header.Set(fiber.HeaderXForwardedFor, ip)
-	c.Request().Header.Set(fiber.HeaderXForwardedHost, ip)
-	c.Request().Header.Set(fiber.HeaderXForwardedProto, scheme)
-	c.Request().Header.Set(
-		fiber.HeaderVia,
-		fmt.Sprintf("%s %s", protocol, viper.GetString("central")),
-	)
-	c.Request().Header.Set(
-		fiber.HeaderForwarded,
-		fmt.Sprintf("by=%s; for=%s; host=%s; proto=%s", c.IP(), c.IP(), c.Get(fiber.HeaderHost), scheme),
-	)
 
 	// Forward
 	err := navi.R.Forward(c, dest)
