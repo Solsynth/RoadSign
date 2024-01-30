@@ -26,6 +26,19 @@ func InitServer() *fiber.App {
 		BodyLimit:             viper.GetInt("hypertext.limitation.max_body_size"),
 	})
 
+	if viper.GetBool("hypertext.force_https") {
+		app.Use(func(c *fiber.Ctx) error {
+			if !c.Secure() {
+				return c.Redirect(
+					strings.Replace(c.Request().URI().String(), "http", "https", 1),
+					fiber.StatusMovedPermanently,
+				)
+			}
+
+			return c.Next()
+		})
+	}
+
 	if viper.GetBool("telemetry.request_logging") {
 		app.Use(logger.New(logger.Config{
 			Output: log.Logger,
