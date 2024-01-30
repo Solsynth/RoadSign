@@ -1,6 +1,7 @@
 package hypertext
 
 import (
+	"fmt"
 	"github.com/spf13/viper"
 	"math/rand"
 	"regexp"
@@ -94,22 +95,38 @@ func UseProxies(app *fiber.App) {
 	})
 }
 
-func makeResponse(ctx *fiber.Ctx, region *navi.Region, location *navi.Location, dest *navi.Destination) error {
-	uri := ctx.Request().URI().String()
+func makeResponse(c *fiber.Ctx, region *navi.Region, location *navi.Location, dest *navi.Destination) error {
+	uri := c.Request().URI().String()
 
 	// Modify request
 	for _, transformer := range dest.Transformers {
-		if err := transformer.TransformRequest(ctx); err != nil {
+		if err := transformer.TransformRequest(c); err != nil {
 			return err
 		}
 	}
 
+	// Add reserve proxy headers
+	ip := c.IP()
+	scheme := c.Protocol()
+	protocol := string(c.Request().Header.Protocol())
+	c.Request().Header.Set(fiber.HeaderXForwardedFor, ip)
+	c.Request().Header.Set(fiber.HeaderXForwardedHost, ip)
+	c.Request().Header.Set(fiber.HeaderXForwardedProto, scheme)
+	c.Request().Header.Set(
+		fiber.HeaderVia,
+		fmt.Sprintf("%s %s", protocol, viper.GetString("central")),
+	)
+	c.Request().Header.Set(
+		fiber.HeaderForwarded,
+		fmt.Sprintf("by=%s; for=%s; host=%s; proto=%s", c.IP(), c.IP(), c.Get(fiber.HeaderHost), scheme),
+	)
+
 	// Forward
-	err := navi.R.Forward(ctx, dest)
+	err := navi.R.Forward(c, dest)
 
 	// Modify response
 	for _, transformer := range dest.Transformers {
-		if err := transformer.TransformResponse(ctx); err != nil {
+		if err := transformer.TransformResponse(c); err != nil {
 			return err
 		}
 	}
@@ -126,10 +143,10 @@ func makeResponse(ctx *fiber.Ctx, region *navi.Region, location *navi.Location, 
 			Location:    location.ID,
 			Destination: dest.ID,
 			Uri:         uri,
-			IpAddress:   ctx.IP(),
-			UserAgent:   ctx.Get(fiber.HeaderUserAgent),
-			Error:       navi.RoadTraceError{
-				IsNull: err == nil,
+			IpAddress:   c.IP(),
+			UserAgent:   c.Get(fiber.HeaderUserAgent),
+			Error: navi.RoadTraceError{
+				IsNull:  err == nil,
 				Message: message,
 			},
 		})

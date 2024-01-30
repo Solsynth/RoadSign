@@ -1,3 +1,5 @@
+id = "central"
+
 [debug]
 print_routes = false
 

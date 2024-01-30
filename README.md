@@ -5,19 +5,19 @@ A blazing fast reverse proxy with a lot of shining features.
 ## Features
 
 1. Reverse proxy
-2. HTTP2 Support
-3. WebSocket Support
-4. Static File Hosting
-5. Low Configuration
-6. Analytics and Metrics
-7. Integrate with CI/CD
-8. Web management panel (Work in progres for v2, available in v1)
-9. One-liner CLI
-10. Open-source and free
-11. **Blazing fast ⚡**
+2. WebSocket Support
+3. Static File Hosting
+4. Low Configuration
+5. Analytics and Metrics
+6. Integrate with CI/CD
+7. Web management panel (Work in progres for v2, available in v1)
+8. One-liner CLI
+9. Open-source and free
+10. **Blazing fast ⚡**
 
 > [!IMPORTANT]
 > Currently roadsign haven't supported for server-side events. We are working on it.
+> At the same time, we don't support HTTP/2.0, [here's](https://github.com/gofiber/fiber/issues/262) the reason
 
 ### How fast is it?
 
