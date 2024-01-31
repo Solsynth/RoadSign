@@ -52,6 +52,8 @@ func InitSideload() *fiber.App {
 		cgi.Get("/regions/cfg/:id", getRegionConfig)
 		cgi.Get("/applications", getApplications)
 		cgi.Get("/applications/logs/:id", getApplicationLogs)
+
+		cgi.Post("/reload", doReload)
 	}
 
 	webhooks := app.Group("/webhooks").Name("WebHooks")

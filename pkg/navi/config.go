@@ -49,6 +49,7 @@ func ReadInConfig(root string) error {
 		return err
 	}
 
+	// Hot swap
 	R = instance
 
 	return nil
