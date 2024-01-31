@@ -17,6 +17,9 @@ require (
 
 require (
 	github.com/cpuguy83/go-md2man/v2 v2.0.2 // indirect
+	github.com/gofiber/template v1.8.2 // indirect
+	github.com/gofiber/template/html/v2 v2.1.0 // indirect
+	github.com/gofiber/utils v1.1.0 // indirect
 	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
 	github.com/modern-go/reflect2 v1.0.2 // indirect
 	github.com/russross/blackfriday/v2 v2.1.0 // indirect

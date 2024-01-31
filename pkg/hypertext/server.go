@@ -1,25 +1,32 @@
 package hypertext
 
 import (
+	"code.smartsheep.studio/goatworks/roadsign/pkg/hypertext/status"
 	"crypto/tls"
 	jsoniter "github.com/json-iterator/go"
 	"net"
+	"net/http"
 	"strings"
 	"time"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/limiter"
 	"github.com/gofiber/fiber/v2/middleware/logger"
+	"github.com/gofiber/template/html/v2"
 	"github.com/rs/zerolog/log"
 	"github.com/spf13/viper"
 )
 
 func InitServer() *fiber.App {
+	views := html.NewFileSystem(http.FS(status.FS), ".gohtml")
 	app := fiber.New(fiber.Config{
+		ViewsLayout:           "views/index",
 		AppName:               "RoadSign",
 		ServerHeader:          "RoadSign",
 		DisableStartupMessage: true,
 		EnableIPValidation:    true,
+		Views:                 views,
+		ErrorHandler:          status.StatusPageHandler,
 		JSONDecoder:           jsoniter.ConfigCompatibleWithStandardLibrary.Unmarshal,
 		JSONEncoder:           jsoniter.ConfigCompatibleWithStandardLibrary.Marshal,
 		Prefork:               viper.GetBool("performance.prefork"),
@@ -50,10 +57,13 @@ func InitServer() *fiber.App {
 		app.Use(limiter.New(limiter.Config{
 			Max:        viper.GetInt("hypertext.limitation.max_qps"),
 			Expiration: 1 * time.Second,
+			LimitReached: func(c *fiber.Ctx) error {
+				return fiber.ErrTooManyRequests
+			},
 		}))
 	}
 
-	UseProxies(app)
+	app.All("/*", ProxiesHandler)
 
 	return app
 }
