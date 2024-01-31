@@ -2,6 +2,14 @@ package navi
 
 import "github.com/spf13/viper"
 
+type RoadMetrics struct {
+	Traces []RoadTrace `json:"-"`
+
+	Traffic      map[string]int64 `json:"traffic"`
+	TrafficFrom  map[string]int64 `json:"traffic_from"`
+	TotalTraffic int64            `json:"total_traffic"`
+}
+
 type RoadTrace struct {
 	Region      string         `json:"region"`
 	Location    string         `json:"location"`
@@ -17,8 +25,28 @@ type RoadTraceError struct {
 	Message string `json:"message"`
 }
 
-func (v *RoadApp) AddTrace(trace RoadTrace) {
+func (v *RoadMetrics) AddTrace(trace RoadTrace) {
+	v.TotalTraffic++
+	if _, ok := v.Traffic[trace.Region]; !ok {
+		v.Traffic[trace.Region] = 0
+	} else {
+		v.Traffic[trace.Region]++
+	}
+	if _, ok := v.TrafficFrom[trace.IpAddress]; !ok {
+		v.TrafficFrom[trace.IpAddress] = 0
+	} else {
+		v.TrafficFrom[trace.IpAddress]++
+	}
+
 	v.Traces = append(v.Traces, trace)
+
+	// Garbage recycle
+	if len(v.Traffic) > viper.GetInt("performance.traces_limit") {
+		v.Traffic = make(map[string]int64)
+	}
+	if len(v.TrafficFrom) > viper.GetInt("performance.traces_limit") {
+		v.TrafficFrom = make(map[string]int64)
+	}
 	if len(v.Traces) > viper.GetInt("performance.traces_limit") {
 		v.Traces = v.Traces[1:]
 	}

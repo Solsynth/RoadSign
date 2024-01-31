@@ -121,7 +121,7 @@ func makeResponse(c *fiber.Ctx, region *navi.Region, location *navi.Location, de
 			message = err.Error()
 		}
 
-		go navi.R.AddTrace(navi.RoadTrace{
+		go navi.R.Metrics.AddTrace(navi.RoadTrace{
 			Region:      region.ID,
 			Location:    location.ID,
 			Destination: dest.ID,

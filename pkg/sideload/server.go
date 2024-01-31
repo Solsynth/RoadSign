@@ -45,6 +45,7 @@ func InitSideload() *fiber.App {
 	cgi := app.Group("/cgi").Name("CGI")
 	{
 		cgi.Get("/metadata", getMetadata)
+		cgi.Get("/traffic", getTraffic)
 		cgi.Get("/traces", getTraces)
 		cgi.Get("/stats", getStats)
 		cgi.Get("/regions", getRegions)

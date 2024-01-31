@@ -6,8 +6,6 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/spf13/viper"
-
 	"github.com/pelletier/go-toml/v2"
 )
 
@@ -16,7 +14,12 @@ var R *RoadApp
 func ReadInConfig(root string) error {
 	instance := &RoadApp{
 		Regions: make([]*Region, 0),
-		Traces:  make([]RoadTrace, 0, viper.GetInt("performance.traces_limit")),
+		Metrics: &RoadMetrics{
+			Traces:       make([]RoadTrace, 0),
+			Traffic:      make(map[string]int64),
+			TrafficFrom:  make(map[string]int64),
+			TotalTraffic: 0,
+		},
 	}
 
 	if err := filepath.Walk(root, func(fp string, info os.FileInfo, _ error) error {
