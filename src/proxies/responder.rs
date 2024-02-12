@@ -1,4 +1,3 @@
-use futures_util::{SinkExt};
 use std::{
     ffi::OsStr,
     path::{Path, PathBuf},

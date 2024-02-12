@@ -1,6 +1,7 @@
 pub mod auth;
 mod config;
 mod proxies;
+mod sideload;
 pub mod warden;
 
 use actix_web::{App, HttpServer, web};
@@ -51,6 +52,17 @@ async fn main() -> Result<(), std::io::Error> {
             .unwrap_or("0.0.0.0:80".to_string())
     )?.run();
 
+    // Sideload
+    let sideload_server = HttpServer::new(|| {
+        App::new().service(sideload::service())
+    }).bind(
+        config::C
+            .read()
+            .await
+            .get_string("listen.sideload")
+            .unwrap_or("0.0.0.0:81".to_string())
+    )?.run();
+
     // Process manager
     {
         let mut app = ROAD.lock().await;
@@ -61,7 +73,7 @@ async fn main() -> Result<(), std::io::Error> {
         app.warden.start().await;
     }
 
-    tokio::try_join!(proxies_server)?;
+    tokio::try_join!(proxies_server, sideload_server)?;
 
     Ok(())
 }
