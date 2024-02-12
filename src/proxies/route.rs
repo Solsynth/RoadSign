@@ -1,4 +1,4 @@
-use actix_web::{HttpRequest, HttpResponse, web};
+use actix_web::{HttpRequest, HttpResponse, ResponseError, web};
 use actix_web::http::header;
 use awc::Client;
 use rand::seq::SliceRandom;
@@ -10,14 +10,14 @@ use crate::{
     },
     ROAD,
 };
+use crate::proxies::ProxyError;
 
 pub async fn handle(req: HttpRequest, client: web::Data<Client>) -> HttpResponse {
     let readable_app = ROAD.lock().await;
     let (region, location) = match readable_app.filter(req.uri(), req.method(), req.headers()) {
         Some(val) => val,
         None => {
-            return HttpResponse::NotFound()
-                .body("There are no region be able to respone this request.");
+            return ProxyError::NoGateway.error_response();
         }
     };
 
@@ -30,29 +30,24 @@ pub async fn handle(req: HttpRequest, client: web::Data<Client>) -> HttpResponse
         end: &Destination,
         req: HttpRequest,
         client: web::Data<Client>,
-    ) -> Result<HttpResponse, HttpResponse> {
+    ) -> Result<HttpResponse, ProxyError> {
         // Handle normal web request
         match end.get_type() {
             DestinationType::Hypertext => {
                 let Ok(uri) = end.get_hypertext_uri() else {
-                    return Err(HttpResponse::NotImplemented()
-                        .body("This destination was not support web requests."));
+                    return Err(ProxyError::NotImplemented);
                 };
 
                 responder::respond_hypertext(uri, req, client).await
             }
             DestinationType::StaticFiles => {
                 let Ok(cfg) = end.get_static_config() else {
-                    return Err(HttpResponse::NotImplemented()
-                        .body("This destination was not support static files."));
+                    return Err(ProxyError::NotImplemented);
                 };
 
                 responder::respond_static(cfg, req).await
             }
-            _ => {
-                return Err(HttpResponse::NotImplemented()
-                    .body("Unsupported destination protocol."));
-            }
+            _ => Err(ProxyError::NotImplemented)
         }
     }
 
@@ -78,13 +73,14 @@ pub async fn handle(req: HttpRequest, client: web::Data<Client>) -> HttpResponse
             resp
         }
         Err(resp) => {
+            let message = resp.to_string();
             tokio::spawn(async move {
                 let writable_app = &mut ROAD.lock().await;
                 writable_app
                     .metrics
-                    .add_failure_request(ip, ua, reg, loc, end, "TODO".to_owned());
+                    .add_failure_request(ip, ua, reg, loc, end, message);
             });
-            resp
+            resp.error_response()
         }
     }
 }

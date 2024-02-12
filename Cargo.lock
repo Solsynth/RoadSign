@@ -1277,6 +1277,7 @@ dependencies = [
  "actix-web-httpauth",
  "awc",
  "config",
+ "derive_more",
  "lazy_static",
  "mime",
  "percent-encoding",

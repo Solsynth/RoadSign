@@ -7,12 +7,14 @@ use actix_proxy::IntoHttpResponse;
 use actix_web::{HttpRequest, HttpResponse, web};
 use actix_web::http::Method;
 use awc::Client;
+use tracing::log::warn;
+use crate::proxies::ProxyError;
 
 pub async fn respond_hypertext(
     uri: String,
     req: HttpRequest,
     client: web::Data<Client>,
-) -> Result<HttpResponse, HttpResponse> {
+) -> Result<HttpResponse, ProxyError> {
     let ip = req.peer_addr().unwrap().ip().to_string();
     let proto = req.uri().scheme_str().unwrap();
     let host = req.uri().host().unwrap();
@@ -40,8 +42,8 @@ pub async fn respond_hypertext(
         }
 
         Err(error) => {
-            Err(HttpResponse::BadGateway()
-                .body(format!("Something went wrong... {:}", error)))
+            warn!("Proxy got a upstream issue... {:?}", error);
+            Err(ProxyError::BadGateway)
         }
     };
 }
@@ -59,10 +61,9 @@ pub struct StaticResponderConfig {
 pub async fn respond_static(
     cfg: StaticResponderConfig,
     req: HttpRequest,
-) -> Result<HttpResponse, HttpResponse> {
+) -> Result<HttpResponse, ProxyError> {
     if req.method() != Method::GET {
-        return Err(HttpResponse::MethodNotAllowed()
-            .body("This destination only support GET request."));
+        return Err(ProxyError::MethodGetOnly);
     }
 
     let path = req
@@ -74,7 +75,7 @@ pub async fn respond_static(
     let path = match percent_encoding::percent_decode_str(path).decode_utf8() {
         Ok(val) => val,
         Err(_) => {
-            return Err(HttpResponse::NotFound().body("Not found."));
+            return Err(ProxyError::NotFound);
         }
     };
 
@@ -91,8 +92,7 @@ pub async fn respond_static(
     }
 
     if !file_path.starts_with(cfg.uri) {
-        return Err(HttpResponse::Forbidden()
-            .body("Unexpected path."));
+        return Err(ProxyError::InvalidRequestPath);
     }
 
     if !file_path.exists() {
@@ -116,7 +116,7 @@ pub async fn respond_static(
             }
         }
 
-        return Err(HttpResponse::NotFound().body("Not found."));
+        return Err(ProxyError::NotFound);
     }
 
     return if file_path.is_file() {
@@ -129,6 +129,6 @@ pub async fn respond_static(
             }
         }
 
-        Err(HttpResponse::NotFound().body("Not found."))
+        return Err(ProxyError::NotFound);
     };
 }
