@@ -4,6 +4,7 @@ mod sideload;
 pub mod warden;
 
 use actix_web::{App, HttpServer, web};
+use actix_web::middleware::Logger;
 use actix_web_httpauth::extractors::AuthenticationError;
 use actix_web_httpauth::headers::www_authenticate::basic::Basic;
 use actix_web_httpauth::middleware::HttpAuthentication;
@@ -44,6 +45,7 @@ async fn main() -> Result<(), std::io::Error> {
     // Proxies
     let proxies_server = HttpServer::new(|| {
         App::new()
+            .wrap(Logger::default())
             .app_data(web::Data::new(Client::default()))
             .route("/", web::to(route::handle))
     }).bind(

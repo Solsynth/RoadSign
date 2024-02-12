@@ -1,4 +1,5 @@
 use actix_web::{HttpRequest, HttpResponse, web};
+use actix_web::http::header;
 use awc::Client;
 use rand::seq::SliceRandom;
 
@@ -59,11 +60,20 @@ pub async fn handle(req: HttpRequest, client: web::Data<Client>) -> HttpResponse
     let loc = location.clone();
     let end = destination.clone();
 
-    return match forward(&end, req, client).await {
+    let ip = match req.peer_addr() {
+        None => "unknown".to_string(),
+        Some(val) => val.ip().to_string()
+    };
+    let ua = match req.headers().get(header::USER_AGENT) {
+        None => "unknown".to_string(),
+        Some(val) => val.to_str().unwrap().to_string(),
+    };
+
+    match forward(&end, req, client).await {
         Ok(resp) => {
             tokio::spawn(async move {
                 let writable_app = &mut ROAD.lock().await;
-                writable_app.metrics.add_success_request(reg, loc, end);
+                writable_app.metrics.add_success_request(ip, ua, reg, loc, end);
             });
             resp
         }
@@ -72,7 +82,7 @@ pub async fn handle(req: HttpRequest, client: web::Data<Client>) -> HttpResponse
                 let writable_app = &mut ROAD.lock().await;
                 writable_app
                     .metrics
-                    .add_faliure_request(reg, loc, end, "TODO".to_owned());
+                    .add_failure_request(ip, ua, reg, loc, end, "TODO".to_owned());
             });
             resp
         }
