@@ -1,11 +1,10 @@
 use std::collections::VecDeque;
 
-use poem_openapi::Object;
 use serde::{Deserialize, Serialize};
 
 use super::config::{Destination, Location, Region};
 
-#[derive(Debug, Object, Clone, Serialize, Deserialize, PartialEq)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct RoadTrace {
     pub region: String,
     pub location: String,

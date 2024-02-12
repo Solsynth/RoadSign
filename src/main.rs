@@ -1,10 +1,12 @@
-pub mod auth;
 mod config;
 mod proxies;
 mod sideload;
 pub mod warden;
 
 use actix_web::{App, HttpServer, web};
+use actix_web_httpauth::extractors::AuthenticationError;
+use actix_web_httpauth::headers::www_authenticate::basic::Basic;
+use actix_web_httpauth::middleware::HttpAuthentication;
 use awc::Client;
 use lazy_static::lazy_static;
 use proxies::RoadInstance;
@@ -54,7 +56,20 @@ async fn main() -> Result<(), std::io::Error> {
 
     // Sideload
     let sideload_server = HttpServer::new(|| {
-        App::new().service(sideload::service())
+        App::new()
+            .wrap(HttpAuthentication::basic(|req, credentials| async move {
+                let password = config::C
+                    .read()
+                    .await
+                    .get_string("secret")
+                    .unwrap_or("".to_string());
+                if credentials.password().unwrap_or("") != password {
+                    Err((AuthenticationError::new(Basic::new()).into(), req))
+                } else {
+                    Ok(req)
+                }
+            }))
+            .service(sideload::service())
     }).bind(
         config::C
             .read()
