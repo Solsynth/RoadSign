@@ -75,15 +75,6 @@ impl Destination {
         .collect::<Vec<_>>()[0]
     }
 
-    pub fn get_websocket_uri(&self) -> Result<String, ()> {
-        let parts = self.uri.as_str().splitn(2, "://").collect::<Vec<_>>();
-        let url = parts.get(1).unwrap_or(&"");
-        match self.get_protocol() {
-            "http" | "https" => Ok(url.replace("http", "ws")),
-            _ => Err(()),
-        }
-    }
-
     pub fn get_hypertext_uri(&self) -> Result<String, ()> {
         match self.get_protocol() {
             "http" => Ok("http://".to_string() + self.get_host()),

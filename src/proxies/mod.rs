@@ -1,5 +1,5 @@
-use http::Method;
-use poem::http::{HeaderMap, Uri};
+use actix_web::http::header::HeaderMap;
+use actix_web::http::{Method, Uri};
 use regex::Regex;
 use wildmatch::WildMatch;
 
@@ -10,7 +10,6 @@ use self::{
     metrics::RoadMetrics,
 };
 
-pub mod browser;
 pub mod config;
 pub mod loader;
 pub mod metrics;
@@ -38,7 +37,7 @@ impl RoadInstance {
     pub fn filter(
         &self,
         uri: &Uri,
-        method: Method,
+        method: &Method,
         headers: &HeaderMap,
     ) -> Option<(&Region, &Location)> {
         self.regions.iter().find_map(|region| {
