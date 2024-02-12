@@ -29,6 +29,7 @@ func InitServer() *fiber.App {
 		ErrorHandler:          status.StatusPageHandler,
 		JSONDecoder:           jsoniter.ConfigCompatibleWithStandardLibrary.Unmarshal,
 		JSONEncoder:           jsoniter.ConfigCompatibleWithStandardLibrary.Marshal,
+		ProxyHeader:           fiber.HeaderXForwardedFor,
 		Prefork:               viper.GetBool("performance.prefork"),
 		BodyLimit:             viper.GetInt("hypertext.limitation.max_body_size"),
 	})

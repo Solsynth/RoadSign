@@ -23,6 +23,7 @@ func InitSideload() *fiber.App {
 		EnableIPValidation:    true,
 		JSONDecoder:           jsoniter.ConfigCompatibleWithStandardLibrary.Unmarshal,
 		JSONEncoder:           jsoniter.ConfigCompatibleWithStandardLibrary.Marshal,
+		ProxyHeader:           fiber.HeaderXForwardedFor,
 		EnablePrintRoutes:     viper.GetBool("debug.print_routes"),
 		TrustedProxies:        viper.GetStringSlice("security.sideload_trusted_proxies"),
 		BodyLimit:             viper.GetInt("hypertext.limitation.max_body_size"),
