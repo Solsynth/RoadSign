@@ -4,6 +4,7 @@ use crate::sideload::regions::list_region;
 
 mod overview;
 mod regions;
+pub mod server;
 
 static ROOT: &str = "";
 

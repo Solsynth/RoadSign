@@ -17,6 +17,7 @@ pub mod loader;
 pub mod metrics;
 pub mod responder;
 pub mod route;
+pub mod server;
 
 #[derive(Debug, Display)]
 pub enum ProxyError {

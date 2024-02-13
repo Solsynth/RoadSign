@@ -10,7 +10,7 @@ const ClientAddressNotAvailable = {
 const StaticClientAddressNotAvailable = {
   name: "StaticClientAddressNotAvailable",
   title: "`Astro.clientAddress` is not available in static mode.",
-  message: "`Astro.clientAddress` is only available when using `output: 'server'` or `output: 'hybrid'`. Update your Astro config if you need SSR features.",
+  message: "`Astro.clientAddress` is only available when using `output: 'server.rs'` or `output: 'hybrid'`. Update your Astro config if you need SSR features.",
   hint: "See https://docs.astro.build/en/guides/server-side-rendering/ for more information on how to enable SSR."
 };
 const NoMatchingStaticPathFound = {
@@ -212,7 +212,7 @@ const CantRenderPage = {
   name: "CantRenderPage",
   title: "Astro can't render the route.",
   message: "Astro cannot find any content to render for this route. There is no file or redirect associated with this route.",
-  hint: "If you expect to find a route here, this may be an Astro bug. Please file an issue/restart the dev server"
+  hint: "If you expect to find a route here, this may be an Astro bug. Please file an issue/restart the dev server.rs"
 };
 
 function normalizeLF(code) {
@@ -524,7 +524,7 @@ function extractDirectives(inputProps, clientDirectives) {
     propsWithoutTransitionAttributes: {}
   };
   for (const [key, value] of Object.entries(inputProps)) {
-    if (key.startsWith("server:")) {
+    if (key.startsWith("server.rs:")) {
       if (key === "server:root") {
         extracted.isPage = true;
       }

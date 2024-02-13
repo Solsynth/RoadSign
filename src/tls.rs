@@ -67,9 +67,7 @@ pub async fn load_certificates() -> Result<(), ConfigError> {
     Ok(())
 }
 
-pub async fn use_rustls() -> Result<rustls::ServerConfig, ConfigError> {
-    load_certificates().await?;
-
+pub fn use_rustls() -> Result<rustls::ServerConfig, ConfigError> {
     Ok(
         rustls::ServerConfig::builder()
             .with_no_client_auth()

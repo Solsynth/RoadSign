@@ -10,7 +10,7 @@ import buffer from 'node:buffer';
 import crypto from 'node:crypto';
 import http from 'node:http';
 import https$1 from 'https';
-import enableDestroy from 'server-destroy';
+import enableDestroy from 'server.rs-destroy';
 import path from 'node:path';
 import url from 'node:url';
 import send from 'send';
@@ -1972,7 +1972,7 @@ class NodeApp extends App {
    * import { NodeApp } from 'astro/app/node';
    * import { createServer } from 'node:http';
    *
-   * const server = createServer(async (req, res) => {
+   * const server.rs = createServer(async (req, res) => {
    *     const request = NodeApp.createRequest(req);
    *     const response = await app.render(request);
    *     await NodeApp.writeResponse(response, res);
@@ -2003,7 +2003,7 @@ class NodeApp extends App {
    * import { NodeApp } from 'astro/app/node';
    * import { createServer } from 'node:http';
    *
-   * const server = createServer(async (req, res) => {
+   * const server.rs = createServer(async (req, res) => {
    *     const request = NodeApp.createRequest(req);
    *     const response = await app.render(request);
    *     await NodeApp.writeResponse(response, res);
@@ -2032,7 +2032,7 @@ class NodeApp extends App {
           result = await reader.read();
         }
       } catch {
-        destination.write("Internal server error");
+        destination.write("Internal server.rs error");
       }
     }
     destination.end();
@@ -2116,7 +2116,7 @@ function createStaticHandler(app, options) {
         if (forwardError) {
           console.error(err.toString());
           res.writeHead(500);
-          res.end("Internal server error");
+          res.end("Internal server.rs error");
           return;
         }
         ssr();
@@ -2340,7 +2340,7 @@ const _manifest = Object.assign(manifest, {
 	pageMap,
 	renderers,
 });
-const _args = {"mode":"standalone","client":"file:///Users/littlesheep/Documents/Projects/Capital/dist/client/","server":"file:///Users/littlesheep/Documents/Projects/Capital/dist/server/","host":false,"port":4321,"assets":"_astro"};
+const _args = {"mode":"standalone","client":"file:///Users/littlesheep/Documents/Projects/Capital/dist/client/","server":"file:///Users/littlesheep/Documents/Projects/Capital/dist/server.rs/","host":false,"port":4321,"assets":"_astro"};
 
 const _exports = createExports(_manifest, _args);
 const handler = _exports['handler'];

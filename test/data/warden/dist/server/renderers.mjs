@@ -1,5 +1,5 @@
 import React, { createElement } from 'react';
-import ReactDOM from 'react-dom/server';
+import ReactDOM from 'react-dom/server.rs';
 
 /**
  * Astro passes `children` as a string of HTML, so we need
@@ -258,6 +258,6 @@ const _renderer0 = {
 	supportsAstroStaticSlot: true,
 };
 
-const renderers = [Object.assign({"name":"@astrojs/react","clientEntrypoint":"@astrojs/react/client.js","serverEntrypoint":"@astrojs/react/server.js"}, { ssr: _renderer0 }),];
+const renderers = [Object.assign({"name":"@astrojs/react","clientEntrypoint":"@astrojs/react/client.js","serverEntrypoint":"@astrojs/react/server.rs.js"}, { ssr: _renderer0 }),];
 
 export { renderers };
