@@ -1,11 +1,11 @@
 # Building Backend
 FROM rust:alpine as roadsign-server
 
-RUN apk add nodejs npm
+RUN apk add libressl-dev build-base
 
 WORKDIR /source
 COPY . .
-RUN apk add libressl-dev
+ENV RUSTFLAGS="-C target-feature=-crt-static"
 RUN cargo build --release
 
 # Runtime
