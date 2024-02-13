@@ -1,19 +1,15 @@
-use poem_openapi::OpenApi;
+use actix_web::{Scope, web};
+use crate::sideload::overview::get_overview;
+use crate::sideload::regions::list_region;
 
-pub mod overview;
-pub mod regions;
+mod overview;
+mod regions;
+pub mod server;
 
-pub struct SideloadApi;
+static ROOT: &str = "";
 
-#[OpenApi]
-impl SideloadApi {
-    #[oai(path = "/", method = "get")]
-    async fn index(&self) -> overview::OverviewResponse {
-        overview::index().await
-    }
-
-    #[oai(path = "/regions", method = "get")]
-    async fn regions_index(&self) -> regions::RegionResponse {
-        regions::index().await
-    }
+pub fn service() -> Scope {
+    web::scope("/cgi")
+        .route(ROOT, web::get().to(get_overview))
+        .route("/regions", web::get().to(list_region))
 }

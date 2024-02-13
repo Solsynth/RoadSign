@@ -1,10 +1,6 @@
-use http::Method;
-use poem::{
-    handler,
-    http::{HeaderMap, StatusCode, Uri},
-    web::websocket::WebSocket,
-    Body, Error, FromRequest, IntoResponse, Request, Response, Result,
-};
+use actix_web::{HttpRequest, HttpResponse, ResponseError, web};
+use actix_web::http::header;
+use awc::Client;
 use rand::seq::SliceRandom;
 
 use crate::{
@@ -14,23 +10,14 @@ use crate::{
     },
     ROAD,
 };
+use crate::proxies::ProxyError;
 
-#[handler]
-pub async fn handle(
-    req: &Request,
-    uri: &Uri,
-    headers: &HeaderMap,
-    method: Method,
-    body: Body,
-) -> Result<impl IntoResponse, Error> {
+pub async fn handle(req: HttpRequest, client: web::Data<Client>) -> HttpResponse {
     let readable_app = ROAD.lock().await;
-    let (region, location) = match readable_app.filter(uri, method.clone(), headers) {
+    let (region, location) = match readable_app.filter(req.uri(), req.method(), req.headers()) {
         Some(val) => val,
         None => {
-            return Err(Error::from_string(
-                "There are no region be able to respone this request.",
-                StatusCode::NOT_FOUND,
-            ))
+            return ProxyError::NoGateway.error_response();
         }
     };
 
@@ -41,58 +28,26 @@ pub async fn handle(
 
     async fn forward(
         end: &Destination,
-        req: &Request,
-        ori: &Uri,
-        headers: &HeaderMap,
-        method: Method,
-        body: Body,
-    ) -> Result<Response, Error> {
-        // Handle websocket
-        if let Ok(ws) = WebSocket::from_request_without_body(req).await {
-            // Get uri
-            let Ok(uri) = end.get_websocket_uri() else {
-                return Err(Error::from_string(
-                    "This destination was not support websockets.",
-                    StatusCode::NOT_IMPLEMENTED,
-                ));
-            };
-
-            // Build request
-            let mut ws_req = http::Request::builder().uri(&uri);
-            for (key, value) in headers.iter() {
-                ws_req = ws_req.header(key, value);
-            }
-
-            // Start the websocket connection
-            return Ok(responder::repond_websocket(ws_req, ws).await);
-        }
-
+        req: HttpRequest,
+        client: web::Data<Client>,
+    ) -> Result<HttpResponse, ProxyError> {
         // Handle normal web request
         match end.get_type() {
             DestinationType::Hypertext => {
                 let Ok(uri) = end.get_hypertext_uri() else {
-                    return Err(Error::from_string(
-                        "This destination was not support web requests.",
-                        StatusCode::NOT_IMPLEMENTED,
-                    ));
+                    return Err(ProxyError::NotImplemented);
                 };
 
-                responder::respond_hypertext(uri, ori, req, method, body, headers).await
+                responder::respond_hypertext(uri, req, client).await
             }
             DestinationType::StaticFiles => {
                 let Ok(cfg) = end.get_static_config() else {
-                    return Err(Error::from_string(
-                        "This destination was not support static files.",
-                        StatusCode::NOT_IMPLEMENTED,
-                    ));
+                    return Err(ProxyError::NotImplemented);
                 };
 
-                responder::respond_static(cfg, method, req).await
+                responder::respond_static(cfg, req).await
             }
-            _ => Err(Error::from_string(
-                "Unsupported destination protocol.",
-                StatusCode::NOT_IMPLEMENTED,
-            )),
+            _ => Err(ProxyError::NotImplemented)
         }
     }
 
@@ -100,23 +55,32 @@ pub async fn handle(
     let loc = location.clone();
     let end = destination.clone();
 
-    match forward(&end, req, uri, headers, method, body).await {
+    let ip = match req.peer_addr() {
+        None => "unknown".to_string(),
+        Some(val) => val.ip().to_string()
+    };
+    let ua = match req.headers().get(header::USER_AGENT) {
+        None => "unknown".to_string(),
+        Some(val) => val.to_str().unwrap().to_string(),
+    };
+
+    match forward(&end, req, client).await {
         Ok(resp) => {
             tokio::spawn(async move {
                 let writable_app = &mut ROAD.lock().await;
-                writable_app.metrics.add_success_request(reg, loc, end);
+                writable_app.metrics.add_success_request(ip, ua, reg, loc, end);
             });
-            Ok(resp)
+            resp
         }
-        Err(err) => {
-            let message = format!("{:}", err);
+        Err(resp) => {
+            let message = resp.to_string();
             tokio::spawn(async move {
                 let writable_app = &mut ROAD.lock().await;
                 writable_app
                     .metrics
-                    .add_faliure_request(reg, loc, end, message);
+                    .add_failure_request(ip, ua, reg, loc, end, message);
             });
-            Err(err)
+            resp.error_response()
         }
     }
 }

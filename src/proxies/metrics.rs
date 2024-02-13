@@ -1,21 +1,30 @@
 use std::collections::VecDeque;
 
-use poem_openapi::Object;
 use serde::{Deserialize, Serialize};
 
 use super::config::{Destination, Location, Region};
 
-#[derive(Debug, Object, Clone, Serialize, Deserialize, PartialEq)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct RoadTrace {
     pub region: String,
     pub location: String,
     pub destination: String,
+    pub ip_address: String,
+    pub user_agent: String,
     pub error: Option<String>,
 }
 
 impl RoadTrace {
-    pub fn from_structs(reg: Region, loc: Location, end: Destination) -> RoadTrace {
+    pub fn from_structs(
+        ip: String,
+        ua: String,
+        reg: Region,
+        loc: Location,
+        end: Destination,
+    ) -> RoadTrace {
         RoadTrace {
+            ip_address: ip,
+            user_agent: ua,
             region: reg.id,
             location: loc.id,
             destination: end.id,
@@ -24,17 +33,16 @@ impl RoadTrace {
     }
 
     pub fn from_structs_with_error(
+        ip: String,
+        ua: String,
         reg: Region,
         loc: Location,
         end: Destination,
         err: String,
     ) -> RoadTrace {
-        RoadTrace {
-            region: reg.id,
-            location: loc.id,
-            destination: end.id,
-            error: Some(err),
-        }
+        let mut trace = Self::from_structs(ip, ua, reg, loc, end);
+        trace.error = Some(err);
+        return trace;
     }
 }
 
@@ -47,7 +55,7 @@ pub struct RoadMetrics {
     pub recent_errors: VecDeque<RoadTrace>,
 }
 
-const MAX_TRACE_COUNT: usize = 10;
+const MAX_TRACE_COUNT: usize = 32;
 
 impl RoadMetrics {
     pub fn new() -> RoadMetrics {
@@ -67,26 +75,35 @@ impl RoadMetrics {
         }
     }
 
-    pub fn add_success_request(&mut self, reg: Region, loc: Location, end: Destination) {
+    pub fn add_success_request(
+        &mut self,
+        ip: String,
+        ua: String,
+        reg: Region,
+        loc: Location,
+        end: Destination,
+    ) {
         self.requests_count += 1;
         self.recent_successes
-            .push_back(RoadTrace::from_structs(reg, loc, end));
+            .push_back(RoadTrace::from_structs(ip, ua, reg, loc, end));
         if self.recent_successes.len() > MAX_TRACE_COUNT {
             self.recent_successes.pop_front();
         }
     }
 
-    pub fn add_faliure_request(
+    pub fn add_failure_request(
         &mut self,
+        ip: String,
+        ua: String,
         reg: Region,
         loc: Location,
         end: Destination,
-        err: String, // For some reason error is rarely clonable, so we use preformatted message
+        err: String, // For some reason error is rarely cloneable, so we use preformatted message
     ) {
         self.requests_count += 1;
         self.failures_count += 1;
         self.recent_errors
-            .push_back(RoadTrace::from_structs_with_error(reg, loc, end, err));
+            .push_back(RoadTrace::from_structs_with_error(ip, ua, reg, loc, end, err));
         if self.recent_errors.len() > MAX_TRACE_COUNT {
             self.recent_errors.pop_front();
         }

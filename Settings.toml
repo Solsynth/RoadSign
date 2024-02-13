@@ -1,7 +1,17 @@
 regions = "./regions"
 secret = "aEXcED5xJ3"
 
-[listen]
-proxies = "0.0.0.0:80"
-proxies_tls = "0.0.0.0:443"
-sideload = "0.0.0.0:81"
+[sideload]
+bind_addr = "0.0.0.0:81"
+
+[[proxies.bind]]
+addr = "0.0.0.0:80"
+tls = false
+[[proxies.bind]]
+addr = "0.0.0.0:443"
+tls = false
+
+[[certificates]]
+domain = "localhost"
+certs = "certs/fullchain.pem"
+key = "certs/privkey.pem"

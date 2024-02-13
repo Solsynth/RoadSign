@@ -1,4 +1,5 @@
 /config
+/certs
 /letsencrypt
 
 # Added by cargo

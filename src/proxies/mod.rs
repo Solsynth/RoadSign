@@ -1,7 +1,9 @@
-use http::Method;
-use poem::http::{HeaderMap, Uri};
+use actix_web::http::header::{ContentType, HeaderMap};
+use actix_web::http::{Method, StatusCode, Uri};
 use regex::Regex;
 use wildmatch::WildMatch;
+use actix_web::{error, HttpResponse};
+use derive_more::{Display};
 
 use crate::warden::WardenInstance;
 
@@ -10,12 +12,52 @@ use self::{
     metrics::RoadMetrics,
 };
 
-pub mod browser;
 pub mod config;
 pub mod loader;
 pub mod metrics;
 pub mod responder;
 pub mod route;
+pub mod server;
+
+#[derive(Debug, Display)]
+pub enum ProxyError {
+    #[display(fmt = "Remote gateway issue")]
+    BadGateway,
+
+    #[display(fmt = "No configured able to process this request")]
+    NoGateway,
+
+    #[display(fmt = "Not found")]
+    NotFound,
+
+    #[display(fmt = "Only accepts method GET")]
+    MethodGetOnly,
+
+    #[display(fmt = "Invalid request path")]
+    InvalidRequestPath,
+
+    #[display(fmt = "Upstream does not support protocol you used")]
+    NotImplemented,
+}
+
+impl error::ResponseError for ProxyError {
+    fn status_code(&self) -> StatusCode {
+        match *self {
+            ProxyError::BadGateway => StatusCode::BAD_GATEWAY,
+            ProxyError::NoGateway => StatusCode::NOT_FOUND,
+            ProxyError::NotFound => StatusCode::NOT_FOUND,
+            ProxyError::MethodGetOnly => StatusCode::METHOD_NOT_ALLOWED,
+            ProxyError::InvalidRequestPath => StatusCode::BAD_REQUEST,
+            ProxyError::NotImplemented => StatusCode::NOT_IMPLEMENTED,
+        }
+    }
+
+    fn error_response(&self) -> HttpResponse {
+        HttpResponse::build(self.status_code())
+            .insert_header(ContentType::html())
+            .body(self.to_string())
+    }
+}
 
 #[derive(Debug, Clone)]
 pub struct RoadInstance {
@@ -38,7 +80,7 @@ impl RoadInstance {
     pub fn filter(
         &self,
         uri: &Uri,
-        method: Method,
+        method: &Method,
         headers: &HeaderMap,
     ) -> Option<(&Region, &Location)> {
         self.regions.iter().find_map(|region| {

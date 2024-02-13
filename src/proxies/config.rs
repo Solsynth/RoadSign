@@ -1,6 +1,5 @@
 use std::collections::HashMap;
 
-use poem_openapi::Object;
 use queryst::parse;
 use serde::{Deserialize, Serialize};
 use serde_json::json;
@@ -9,14 +8,14 @@ use crate::warden::Application;
 
 use super::responder::StaticResponderConfig;
 
-#[derive(Debug, Object, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Region {
     pub id: String,
     pub locations: Vec<Location>,
     pub applications: Vec<Application>,
 }
 
-#[derive(Debug, Object, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Location {
     pub id: String,
     pub hosts: Vec<String>,
@@ -27,7 +26,7 @@ pub struct Location {
     pub destinations: Vec<Destination>,
 }
 
-#[derive(Debug, Object, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Destination {
     pub id: String,
     pub uri: String,
@@ -73,15 +72,6 @@ impl Destination {
             .unwrap_or(&""))
         .splitn(2, '?')
         .collect::<Vec<_>>()[0]
-    }
-
-    pub fn get_websocket_uri(&self) -> Result<String, ()> {
-        let parts = self.uri.as_str().splitn(2, "://").collect::<Vec<_>>();
-        let url = parts.get(1).unwrap_or(&"");
-        match self.get_protocol() {
-            "http" | "https" => Ok(url.replace("http", "ws")),
-            _ => Err(()),
-        }
     }
 
     pub fn get_hypertext_uri(&self) -> Result<String, ()> {

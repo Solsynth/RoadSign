@@ -6,24 +6,18 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-config = { version = "0.13.4", features = ["toml"] }
-futures-util = "0.3.30"
-http = "1.0.0"
-hyper-util = { version = "0.1.2", features = ["full"] }
+actix-files = "0.6.5"
+actix-proxy = "0.2.0"
+actix-web = { version = "4.5.1", features = ["rustls-0_22"] }
+actix-web-httpauth = "0.8.1"
+awc = "3.4.0"
+config = { version = "0.14.0", features = ["toml"] }
 lazy_static = "1.4.0"
 mime = "0.3.17"
 percent-encoding = "2.3.1"
-poem = { version = "2.0.0", features = [
-  "tokio-metrics",
-  "websocket",
-  "static-files",
-  "reqwest",
-] }
-poem-openapi = { version = "4.0.0" }
 queryst = "3.0.0"
 rand = "0.8.5"
 regex = "1.10.2"
-reqwest = { git = "https://github.com/seanmonstar/reqwest.git", branch = "hyper-v1", version = "0.11.23" }
 serde = "1.0.195"
 serde_json = "1.0.111"
 tokio = { version = "1.35.1", features = [
@@ -37,3 +31,6 @@ toml = "0.8.8"
 tracing = "0.1.40"
 tracing-subscriber = "0.3.18"
 wildmatch = "2.3.0"
+derive_more = "0.99.17"
+rustls = "0.22.2"
+rustls-pemfile = "2.0.0"

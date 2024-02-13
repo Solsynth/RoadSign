@@ -2,10 +2,9 @@ pub mod runner;
 
 use std::collections::HashMap;
 
-use futures_util::lock::Mutex;
 use lazy_static::lazy_static;
-use poem_openapi::Object;
 use serde::{Deserialize, Serialize};
+use tokio::sync::Mutex;
 use tracing::{debug, warn};
 
 use crate::proxies::config::Region;
@@ -63,7 +62,7 @@ impl Default for WardenInstance {
     }
 }
 
-#[derive(Debug, Object, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Application {
     pub id: String,
     pub exe: String,

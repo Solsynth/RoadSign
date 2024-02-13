@@ -7,5 +7,5 @@ use crate::config::loader::load_settings;
 pub mod loader;
 
 lazy_static! {
-    pub static ref C: RwLock<Config> = RwLock::new(load_settings());
+    pub static ref CFG: RwLock<Config> = RwLock::new(load_settings());
 }

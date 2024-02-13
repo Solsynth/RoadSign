@@ -74,9 +74,9 @@ rds cli with this command.
 
 ```shell
 rds connect <id> <url> <password>
-# ID will allow you find this server in after commands.
-# URL is to your roadsign server sideload api.
-# Password is your roadsign server credential.
+# ID will allow you find this server.rs in after commands.
+# URL is to your roadsign server.rs sideload api.
+# Password is your roadsign server.rs credential.
 # ======================================================================
 # !WARNING! All these things will storage in your $HOME/.roadsignrc.yaml
 # ======================================================================
@@ -85,8 +85,8 @@ rds connect <id> <url> <password>
 Then, sync your local config to remote.
 
 ```shell
-rds sync <server id> <site id> <config file>
-# Server ID is your server added by last command.
+rds sync <server.rs id> <site id> <config file>
+# Server ID is your server.rs added by last command.
 # Site ID is your new site id or old site id if you need update it.
 # Config File is your local config file path.
 ```

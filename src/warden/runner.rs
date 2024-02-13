@@ -1,12 +1,12 @@
 use std::{borrow::BorrowMut, collections::HashMap, io};
 
 use super::Application;
-use futures_util::lock::Mutex;
 use lazy_static::lazy_static;
 use tokio::{
     io::{AsyncBufReadExt, BufReader},
     process::{Child, Command},
 };
+use tokio::sync::Mutex;
 
 lazy_static! {
     static ref STDOUT: Mutex<HashMap<String, String>> = Mutex::new(HashMap::new());

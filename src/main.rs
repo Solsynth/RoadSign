@@ -1,28 +1,28 @@
-pub mod auth;
+extern crate core;
+
 mod config;
 mod proxies;
 mod sideload;
-pub mod warden;
+mod warden;
+mod server;
+pub mod tls;
 
+use std::error;
 use lazy_static::lazy_static;
-use poem::{listener::TcpListener, EndpointExt, Route, Server};
-use poem_openapi::OpenApiService;
 use proxies::RoadInstance;
 use tokio::sync::Mutex;
+use tokio::task::JoinSet;
 use tracing::{error, info, Level};
-
-use crate::proxies::route;
+use crate::proxies::server::build_proxies;
+use crate::sideload::server::build_sideload;
 
 lazy_static! {
     static ref ROAD: Mutex<RoadInstance> = Mutex::new(RoadInstance::new());
 }
 
 #[tokio::main]
-async fn main() -> Result<(), std::io::Error> {
+async fn main() -> Result<(), Box<dyn error::Error>> {
     // Setting up logging
-    if std::env::var_os("RUST_LOG").is_none() {
-        std::env::set_var("RUST_LOG", "poem=debug");
-    }
     tracing_subscriber::fmt()
         .with_max_level(Level::DEBUG)
         .init();
@@ -30,11 +30,10 @@ async fn main() -> Result<(), std::io::Error> {
     // Prepare all the stuff
     info!("Loading proxy regions...");
     match proxies::loader::scan_regions(
-        config::C
+        config::CFG
             .read()
             .await
-            .get_string("regions")
-            .unwrap_or("./regions".to_string()),
+            .get_string("regions")?
     ) {
         Err(_) => error!("Loading proxy regions... failed"),
         Ok((regions, count)) => {
@@ -43,37 +42,15 @@ async fn main() -> Result<(), std::io::Error> {
         }
     };
 
+    let mut server_set = JoinSet::new();
+
     // Proxies
-    let proxies_server = Server::new(TcpListener::bind(
-        config::C
-            .read()
-            .await
-            .get_string("listen.proxies")
-            .unwrap_or("0.0.0.0:80".to_string()),
-    ))
-    .run(route::handle);
+    for server in build_proxies().await? {
+        server_set.spawn(server);
+    }
 
     // Sideload
-    let sideload = OpenApiService::new(sideload::SideloadApi, "Sideload API", "1.0")
-        .server("http://localhost:3000/cgi");
-
-    let sideload_server = Server::new(TcpListener::bind(
-        config::C
-            .read()
-            .await
-            .get_string("listen.sideload")
-            .unwrap_or("0.0.0.0:81".to_string()),
-    ))
-    .run(
-        Route::new().nest("/cgi", sideload).with(auth::BasicAuth {
-            username: "RoadSign".to_string(),
-            password: config::C
-                .read()
-                .await
-                .get_string("secret")
-                .unwrap_or("password".to_string()),
-        }),
-    );
+    server_set.spawn(build_sideload().await?);
 
     // Process manager
     {
@@ -85,7 +62,8 @@ async fn main() -> Result<(), std::io::Error> {
         app.warden.start().await;
     }
 
-    tokio::try_join!(proxies_server, sideload_server)?;
+    // Wait for web servers
+    server_set.join_next().await;
 
     Ok(())
 }
