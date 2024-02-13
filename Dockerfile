@@ -5,6 +5,7 @@ RUN apk add nodejs npm
 
 WORKDIR /source
 COPY . .
+RUN apk add libressl-dev
 RUN cargo build --release
 
 # Runtime
