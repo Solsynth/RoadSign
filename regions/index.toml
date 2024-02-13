@@ -5,10 +5,14 @@ id = "root"
 hosts = ["localhost"]
 paths = ["/"]
 [[locations.destinations]]
-id = "static"
-uri = "files://regions?index=index.html"
+id = "hypertext"
+uri = "https://postman-echo.com/get"
+# [[locations.destinations]]
+# id = "static"
+# uri = "files://regions?index=index.html"
 
-[[applications]]
-id = "script"
-exe = "./script.sh"
-workdir = "regions"
+
+# [[applications]]
+# id = "script"
+# exe = "./script.sh"
+# workdir = "regions"

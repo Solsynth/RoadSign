@@ -10,7 +10,7 @@ actix-files = "0.6.5"
 actix-proxy = "0.2.0"
 actix-web = { version = "4.5.1", features = ["rustls-0_22"] }
 actix-web-httpauth = "0.8.1"
-awc = "3.4.0"
+awc = { version = "3.4.0", features = ["tls-rustls-0_22"] }
 config = { version = "0.14.0", features = ["toml"] }
 lazy_static = "1.4.0"
 mime = "0.3.17"

@@ -12,7 +12,7 @@ use super::responder::StaticResponderConfig;
 pub struct Region {
     pub id: String,
     pub locations: Vec<Location>,
-    pub applications: Vec<Application>,
+    pub applications: Option<Vec<Application>>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

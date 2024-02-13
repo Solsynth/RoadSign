@@ -55,9 +55,9 @@ pub async fn handle(req: HttpRequest, client: web::Data<Client>) -> HttpResponse
     let loc = location.clone();
     let end = destination.clone();
 
-    let ip = match req.peer_addr() {
+    let ip = match req.connection_info().realip_remote_addr() {
         None => "unknown".to_string(),
-        Some(val) => val.ip().to_string()
+        Some(val) => val.to_string(),
     };
     let ua = match req.headers().get(header::USER_AGENT) {
         None => "unknown".to_string(),

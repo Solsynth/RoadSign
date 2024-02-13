@@ -5,7 +5,8 @@ use std::{
 use actix_files::{NamedFile};
 use actix_proxy::IntoHttpResponse;
 use actix_web::{HttpRequest, HttpResponse, web};
-use actix_web::http::Method;
+use actix_web::http::{header, Method};
+use actix_web::http::header::HeaderValue;
 use awc::Client;
 use tracing::log::warn;
 use crate::proxies::ProxyError;
@@ -15,29 +16,32 @@ pub async fn respond_hypertext(
     req: HttpRequest,
     client: web::Data<Client>,
 ) -> Result<HttpResponse, ProxyError> {
-    let ip = req.peer_addr().unwrap().ip().to_string();
-    let proto = req.uri().scheme_str().unwrap();
-    let host = req.uri().host().unwrap();
+    let conn = req.connection_info();
+    let ip = conn.realip_remote_addr().unwrap_or("0.0.0.0");
+    let proto = conn.scheme();
+    let host = conn.host();
 
     let mut headers = req.headers().clone();
-    headers.insert("Server".parse().unwrap(), "RoadSign".parse().unwrap());
-    headers.insert("X-Forward-For".parse().unwrap(), ip.parse().unwrap());
-    headers.insert("X-Forwarded-Proto".parse().unwrap(), proto.parse().unwrap());
-    headers.insert("X-Forwarded-Host".parse().unwrap(), host.parse().unwrap());
-    headers.insert("X-Real-IP".parse().unwrap(), ip.parse().unwrap());
+    headers.insert(header::X_FORWARDED_FOR, ip.parse().unwrap());
+    headers.insert(header::X_FORWARDED_PROTO, proto.parse().unwrap());
+    headers.insert(header::X_FORWARDED_HOST, host.parse().unwrap());
     headers.insert(
-        "Forwarded".parse().unwrap(),
+        header::FORWARDED,
         format!("by={};for={};host={};proto={}", ip, ip, host, proto)
             .parse()
             .unwrap(),
     );
 
-    let res = client.get(uri).send().await;
+    let append_part = req.uri().to_string().chars().skip(1).collect::<String>();
+    let target_url = format!("{}{}", uri, append_part);
+
+    let res = client.request(req.method().clone(), target_url).send().await;
 
     return match res {
         Ok(result) => {
             let mut res = result.into_http_response();
-            res.headers_mut().insert("Server".parse().unwrap(), "RoadSign".parse().unwrap());
+            res.headers_mut().insert(header::SERVER, HeaderValue::from_static("RoadSign"));
+            res.headers_mut().remove(header::CONTENT_ENCODING);
             Ok(res)
         }
 

@@ -1,3 +1,3 @@
 #!/bin/bash
 
-echo "Good morning!"
+echo "Good morning!" > ./kokodayo.txt

@@ -30,7 +30,7 @@ impl WardenInstance {
     pub fn scan(&mut self, regions: Vec<Region>) {
         self.applications = regions
             .iter()
-            .flat_map(|item| item.applications.clone())
+            .flat_map(|item| item.applications.clone().unwrap_or_default())
             .collect::<Vec<Application>>();
         debug!(
             applications = format!("{:?}", self.applications),

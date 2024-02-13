@@ -29,7 +29,7 @@ pub fn build_single_proxy(cfg: ServerBindConfig) -> Result<Server, Box<dyn error
         App::new()
             .wrap(Logger::default())
             .app_data(web::Data::new(Client::default()))
-            .route("/", web::to(route::handle))
+            .default_service(web::to(route::handle))
     });
     if cfg.tls {
         Ok(server.bind_rustls_0_22(cfg.addr, use_rustls()?)?.run())
