@@ -5,3 +5,8 @@ secret = "aEXcED5xJ3"
 proxies = "0.0.0.0:80"
 proxies_tls = "0.0.0.0:443"
 sideload = "0.0.0.0:81"
+
+[[certificates]]
+domain = "localhost"
+certs = "certs/fullchain.pem"
+key = "certs/privkey.pem"

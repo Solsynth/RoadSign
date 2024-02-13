@@ -2,7 +2,9 @@ mod config;
 mod proxies;
 mod sideload;
 pub mod warden;
+mod tls;
 
+use std::error;
 use actix_web::{App, HttpServer, web};
 use actix_web::middleware::Logger;
 use actix_web_httpauth::extractors::AuthenticationError;
@@ -20,7 +22,7 @@ lazy_static! {
 }
 
 #[tokio::main]
-async fn main() -> Result<(), std::io::Error> {
+async fn main() -> Result<(), Box<dyn error::Error>> {
     // Setting up logging
     tracing_subscriber::fmt()
         .with_max_level(Level::DEBUG)
@@ -29,11 +31,10 @@ async fn main() -> Result<(), std::io::Error> {
     // Prepare all the stuff
     info!("Loading proxy regions...");
     match proxies::loader::scan_regions(
-        config::C
+        config::CFG
             .read()
             .await
-            .get_string("regions")
-            .unwrap_or("./regions".to_string()),
+            .get_string("regions")?
     ) {
         Err(_) => error!("Loading proxy regions... failed"),
         Ok((regions, count)) => {
@@ -48,23 +49,30 @@ async fn main() -> Result<(), std::io::Error> {
             .wrap(Logger::default())
             .app_data(web::Data::new(Client::default()))
             .route("/", web::to(route::handle))
-    }).bind(
-        config::C
+    }).bind_rustls_0_22(
+        config::CFG
             .read()
             .await
-            .get_string("listen.proxies")
-            .unwrap_or("0.0.0.0:80".to_string())
+            .get_string("listen.proxies_tls")?,
+        tls::use_rustls().await?,
+    )?.bind(
+        config::CFG
+            .read()
+            .await
+            .get_string("listen.proxies")?
     )?.run();
 
     // Sideload
     let sideload_server = HttpServer::new(|| {
         App::new()
             .wrap(HttpAuthentication::basic(|req, credentials| async move {
-                let password = config::C
+                let password = match config::CFG
                     .read()
                     .await
-                    .get_string("secret")
-                    .unwrap_or("".to_string());
+                    .get_string("secret") {
+                    Ok(val) => val,
+                    Err(_) => return Err((AuthenticationError::new(Basic::new()).into(), req))
+                };
                 if credentials.password().unwrap_or("") != password {
                     Err((AuthenticationError::new(Basic::new()).into(), req))
                 } else {
@@ -73,12 +81,12 @@ async fn main() -> Result<(), std::io::Error> {
             }))
             .service(sideload::service())
     }).bind(
-        config::C
+        config::CFG
             .read()
             .await
             .get_string("listen.sideload")
             .unwrap_or("0.0.0.0:81".to_string())
-    )?.run();
+    )?.workers(1).run();
 
     // Process manager
     {
