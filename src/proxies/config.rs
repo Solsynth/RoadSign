@@ -63,13 +63,13 @@ impl Destination {
     }
 
     pub fn get_host(&self) -> &str {
-        (self
+        self
             .uri
             .as_str()
             .splitn(2, "://")
             .collect::<Vec<_>>()
             .get(1)
-            .unwrap_or(&""))
+            .unwrap_or(&"")
         .splitn(2, '?')
         .collect::<Vec<_>>()[0]
     }

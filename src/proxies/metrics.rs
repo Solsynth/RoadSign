@@ -42,7 +42,7 @@ impl RoadTrace {
     ) -> RoadTrace {
         let mut trace = Self::from_structs(ip, ua, reg, loc, end);
         trace.error = Some(err);
-        return trace;
+        trace
     }
 }
 

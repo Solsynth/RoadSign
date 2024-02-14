@@ -1,7 +1,7 @@
 use std::error;
 use actix_web::{App, HttpServer, web};
 use actix_web::dev::Server;
-use actix_web::middleware::Logger;
+use actix_web::middleware::{Compress, Logger};
 use awc::Client;
 use crate::config::CFG;
 use crate::proxies::route;
@@ -28,6 +28,7 @@ pub fn build_single_proxy(cfg: ServerBindConfig) -> Result<Server, Box<dyn error
     let server = HttpServer::new(|| {
         App::new()
             .wrap(Logger::default())
+            .wrap(Compress::default())
             .app_data(web::Data::new(Client::default()))
             .default_service(web::to(route::handle))
     });

@@ -2,12 +2,12 @@ use crate::proxies::ProxyError;
 use crate::proxies::ProxyError::{BadGateway, UpgradeRequired};
 use actix_files::NamedFile;
 use actix_web::http::{header, Method};
-use actix_web::web::BytesMut;
-use actix_web::{web, Error, HttpRequest, HttpResponse};
+use actix_web::{web, HttpRequest, HttpResponse};
 use awc::error::HeaderValue;
 use awc::http::Uri;
 use awc::Client;
-use futures::{channel::mpsc::unbounded, Sink, sink::SinkExt, stream::StreamExt};
+use futures::Sink;
+use futures::stream::StreamExt;
 use std::str::FromStr;
 use std::time::Duration;
 use std::{
@@ -18,7 +18,6 @@ use actix::io::{SinkWrite, WriteHandler};
 use actix::{Actor, ActorContext, AsyncContext, StreamHandler};
 use actix_web_actors::ws;
 use actix_web_actors::ws::{CloseReason, handshake, ProtocolError, WebsocketContext};
-use tokio::io::{AsyncReadExt, AsyncWriteExt};
 use tracing::log::warn;
 
 pub async fn respond_hypertext(
