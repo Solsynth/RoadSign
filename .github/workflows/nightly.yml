@@ -2,7 +2,7 @@ name: release-nightly
 
 on:
   push:
-    branches: [ master ]
+    branches: [master]
 
 jobs:
   build-image:
@@ -25,4 +25,4 @@ jobs:
           context: .
           push: true
           file: ./Dockerfile
-          tags: xsheep2010/roadsign:nightly
+          tags: xsheep2010/roadsign:delta
