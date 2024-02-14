@@ -12,7 +12,7 @@ use crate::{
 };
 use crate::proxies::ProxyError;
 
-pub async fn handle(req: HttpRequest, client: web::Data<Client>) -> HttpResponse {
+pub async fn handle(req: HttpRequest, payload: web::Payload, client: web::Data<Client>) -> HttpResponse {
     let readable_app = ROAD.lock().await;
     let (region, location) = match readable_app.filter(req.uri(), req.method(), req.headers()) {
         Some(val) => val,
@@ -29,6 +29,7 @@ pub async fn handle(req: HttpRequest, client: web::Data<Client>) -> HttpResponse
     async fn forward(
         end: &Destination,
         req: HttpRequest,
+        payload: web::Payload,
         client: web::Data<Client>,
     ) -> Result<HttpResponse, ProxyError> {
         // Handle normal web request
@@ -38,7 +39,7 @@ pub async fn handle(req: HttpRequest, client: web::Data<Client>) -> HttpResponse
                     return Err(ProxyError::NotImplemented);
                 };
 
-                responder::respond_hypertext(uri, req, client).await
+                responder::respond_hypertext(uri, req, payload, client).await
             }
             DestinationType::StaticFiles => {
                 let Ok(cfg) = end.get_static_config() else {
@@ -64,7 +65,7 @@ pub async fn handle(req: HttpRequest, client: web::Data<Client>) -> HttpResponse
         Some(val) => val.to_str().unwrap().to_string(),
     };
 
-    match forward(&end, req, client).await {
+    match forward(&end, req, payload, client).await {
         Ok(resp) => {
             tokio::spawn(async move {
                 let writable_app = &mut ROAD.lock().await;

@@ -21,6 +21,9 @@ pub mod server;
 
 #[derive(Debug, Display)]
 pub enum ProxyError {
+    #[display(fmt = "Upgrade required for this connection")]
+    UpgradeRequired,
+
     #[display(fmt = "Remote gateway issue")]
     BadGateway,
 
@@ -43,6 +46,7 @@ pub enum ProxyError {
 impl error::ResponseError for ProxyError {
     fn status_code(&self) -> StatusCode {
         match *self {
+            ProxyError::UpgradeRequired => StatusCode::UPGRADE_REQUIRED,
             ProxyError::BadGateway => StatusCode::BAD_GATEWAY,
             ProxyError::NoGateway => StatusCode::NOT_FOUND,
             ProxyError::NotFound => StatusCode::NOT_FOUND,

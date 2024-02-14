@@ -5,8 +5,11 @@ id = "root"
 hosts = ["localhost"]
 paths = ["/"]
 [[locations.destinations]]
-id = "hypertext"
-uri = "https://postman-echo.com/get"
+id = "websocket"
+uri = "http://localhost:8765"
+# [[locations.destinations]]
+# id = "hypertext"
+# uri = "https://example.com"
 # [[locations.destinations]]
 # id = "static"
 # uri = "files://regions?index=index.html"
