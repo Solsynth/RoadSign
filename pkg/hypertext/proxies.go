@@ -1,9 +1,10 @@
 package hypertext
 
 import (
-	"github.com/spf13/viper"
 	"math/rand"
 	"regexp"
+
+	"github.com/spf13/viper"
 
 	"code.smartsheep.studio/goatworks/roadsign/pkg/navi"
 	"github.com/gofiber/fiber/v2"
@@ -20,13 +21,13 @@ func ProxiesHandler(ctx *fiber.Ctx) error {
 	for _, region := range navi.R.Regions {
 		// Matching rules
 		for _, location := range region.Locations {
-			if !lo.Contains(location.Host, host) {
+			if !lo.Contains(location.Hosts, host) {
 				continue
 			}
 
 			if !func() bool {
 				flag := false
-				for _, pattern := range location.Path {
+				for _, pattern := range location.Paths {
 					if ok, _ := regexp.MatchString(pattern, path); ok {
 						flag = true
 						break

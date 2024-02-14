@@ -20,8 +20,8 @@ type Region struct {
 
 type Location struct {
 	ID           string              `json:"id" toml:"id"`
-	Host         []string            `json:"host" toml:"host"`
-	Path         []string            `json:"path" toml:"path"`
+	Hosts        []string            `json:"hosts" toml:"hosts"`
+	Paths        []string            `json:"paths" toml:"paths"`
 	Queries      map[string]string   `json:"queries" toml:"queries"`
 	Headers      map[string][]string `json:"headers" toml:"headers"`
 	Destinations []Destination       `json:"destinations" toml:"destinations"`
