@@ -8,7 +8,7 @@ import (
 
 	jsoniter "github.com/json-iterator/go"
 
-	"code.smartsheep.studio/goatworks/roadsign/pkg/cmd/rdc/conn"
+	"git.solsynth.dev/goatworks/roadsign/pkg/cmd/rdc/conn"
 	"github.com/gofiber/fiber/v2"
 	"github.com/rs/zerolog/log"
 	"github.com/urfave/cli/v2"

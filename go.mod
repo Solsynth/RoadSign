@@ -1,4 +1,4 @@
-module code.smartsheep.studio/goatworks/roadsign
+module git.solsynth.dev/goatworks/roadsign
 
 go 1.21.4
 

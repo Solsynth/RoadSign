@@ -1,8 +1,8 @@
 package sideload
 
 import (
-	"code.smartsheep.studio/goatworks/roadsign/pkg/navi"
-	"code.smartsheep.studio/goatworks/roadsign/pkg/warden"
+	"git.solsynth.dev/goatworks/roadsign/pkg/navi"
+	"git.solsynth.dev/goatworks/roadsign/pkg/warden"
 	"github.com/gofiber/fiber/v2"
 	"github.com/samber/lo"
 )

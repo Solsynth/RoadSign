@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"strings"
 
-	roadsign "code.smartsheep.studio/goatworks/roadsign/pkg"
+	roadsign "git.solsynth.dev/goatworks/roadsign/pkg"
 	"github.com/gofiber/fiber/v2"
 	"github.com/rs/zerolog/log"
 )

@@ -63,7 +63,7 @@ After that, you can manage your roadsign instance with RoadSign CLI aka. RDC.
 To install it, run this command. (Make sure you have golang toolchain on your computer)
 
 ```shell
-go install code.smartsheep.studio/goatworks/roadsign/pkg/cmd/rdc@latest
+go install git.solsynth.dev/goatworks/roadsign/pkg/cmd/rdc@latest
 ```
 
 ## Usage

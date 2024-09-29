@@ -1,9 +1,9 @@
 package status
 
 import (
-	roadsign "code.smartsheep.studio/goatworks/roadsign/pkg"
 	"errors"
 	"fmt"
+	roadsign "git.solsynth.dev/goatworks/roadsign/pkg"
 	"github.com/gofiber/fiber/v2"
 	"github.com/spf13/viper"
 )

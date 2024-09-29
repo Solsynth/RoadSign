@@ -1,12 +1,12 @@
 package sideload
 
 import (
-	"code.smartsheep.studio/goatworks/roadsign/pkg/warden"
 	"context"
+	"git.solsynth.dev/goatworks/roadsign/pkg/warden"
 	"os"
 	"path/filepath"
 
-	"code.smartsheep.studio/goatworks/roadsign/pkg/navi"
+	"git.solsynth.dev/goatworks/roadsign/pkg/navi"
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
 	"github.com/samber/lo"

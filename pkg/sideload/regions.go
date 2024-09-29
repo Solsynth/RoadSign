@@ -5,8 +5,8 @@ import (
 	"os"
 	"path/filepath"
 
-	"code.smartsheep.studio/goatworks/roadsign/pkg/navi"
-	"code.smartsheep.studio/goatworks/roadsign/pkg/warden"
+	"git.solsynth.dev/goatworks/roadsign/pkg/navi"
+	"git.solsynth.dev/goatworks/roadsign/pkg/warden"
 	"github.com/gofiber/fiber/v2"
 	"github.com/pelletier/go-toml/v2"
 	"github.com/samber/lo"
@@ -42,7 +42,7 @@ func doSync(c *fiber.Ctx) error {
 		file.Write(raw)
 		defer file.Close()
 	}
-	
+
 	var rebootQueue []*warden.AppInstance
 	if region, ok := lo.Find(navi.R.Regions, func(item *navi.Region) bool {
 		return item.ID == id
@@ -57,7 +57,7 @@ func doSync(c *fiber.Ctx) error {
 
 	// Reload
 	navi.ReadInConfig(viper.GetString("paths.configs"))
-	
+
 	// Reboot
 	for _, instance := range rebootQueue {
 		instance.Wake()

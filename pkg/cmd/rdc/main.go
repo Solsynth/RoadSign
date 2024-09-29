@@ -3,9 +3,9 @@ package main
 import (
 	"os"
 
-	roadsign "code.smartsheep.studio/goatworks/roadsign/pkg"
-	"code.smartsheep.studio/goatworks/roadsign/pkg/cmd/rdc/conn"
-	"code.smartsheep.studio/goatworks/roadsign/pkg/cmd/rdc/deploy"
+	roadsign "git.solsynth.dev/goatworks/roadsign/pkg"
+	"git.solsynth.dev/goatworks/roadsign/pkg/cmd/rdc/conn"
+	"git.solsynth.dev/goatworks/roadsign/pkg/cmd/rdc/deploy"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 	"github.com/spf13/viper"

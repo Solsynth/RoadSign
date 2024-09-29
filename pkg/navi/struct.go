@@ -5,8 +5,8 @@ import (
 	"net/url"
 	"strings"
 
-	"code.smartsheep.studio/goatworks/roadsign/pkg/navi/transformers"
-	"code.smartsheep.studio/goatworks/roadsign/pkg/warden"
+	"git.solsynth.dev/goatworks/roadsign/pkg/navi/transformers"
+	"git.solsynth.dev/goatworks/roadsign/pkg/warden"
 	"github.com/gofiber/fiber/v2"
 	"github.com/samber/lo"
 )

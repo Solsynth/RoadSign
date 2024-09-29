@@ -1,13 +1,13 @@
 package sideload
 
 import (
-	"code.smartsheep.studio/goatworks/roadsign/pkg/sideload/view"
 	"fmt"
+	"git.solsynth.dev/goatworks/roadsign/pkg/sideload/view"
 	"github.com/gofiber/fiber/v2/middleware/filesystem"
 	jsoniter "github.com/json-iterator/go"
 	"net/http"
 
-	roadsign "code.smartsheep.studio/goatworks/roadsign/pkg"
+	roadsign "git.solsynth.dev/goatworks/roadsign/pkg"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/basicauth"
 	"github.com/gofiber/fiber/v2/middleware/logger"

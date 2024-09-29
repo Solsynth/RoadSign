@@ -1,8 +1,8 @@
 package hypertext
 
 import (
-	"code.smartsheep.studio/goatworks/roadsign/pkg/hypertext/status"
 	"crypto/tls"
+	"git.solsynth.dev/goatworks/roadsign/pkg/hypertext/status"
 	jsoniter "github.com/json-iterator/go"
 	"net"
 	"net/http"

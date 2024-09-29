@@ -1,9 +1,9 @@
 package navi
 
 import (
-	roadsign "code.smartsheep.studio/goatworks/roadsign/pkg"
-	"code.smartsheep.studio/goatworks/roadsign/pkg/navi/transformers"
 	"fmt"
+	roadsign "git.solsynth.dev/goatworks/roadsign/pkg"
+	"git.solsynth.dev/goatworks/roadsign/pkg/navi/transformers"
 	"github.com/spf13/viper"
 
 	"github.com/gofiber/fiber/v2"

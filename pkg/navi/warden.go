@@ -1,6 +1,6 @@
 package navi
 
-import "code.smartsheep.studio/goatworks/roadsign/pkg/warden"
+import "git.solsynth.dev/goatworks/roadsign/pkg/warden"
 
 func InitializeWarden(regions []*Region) {
 	pool := make([]*warden.AppInstance, 0)

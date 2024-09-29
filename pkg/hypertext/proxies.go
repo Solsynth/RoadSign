@@ -6,7 +6,7 @@ import (
 
 	"github.com/spf13/viper"
 
-	"code.smartsheep.studio/goatworks/roadsign/pkg/navi"
+	"git.solsynth.dev/goatworks/roadsign/pkg/navi"
 	"github.com/gofiber/fiber/v2"
 	"github.com/samber/lo"
 )

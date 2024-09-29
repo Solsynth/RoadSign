@@ -1,7 +1,7 @@
 package sideload
 
 import (
-	roadsign "code.smartsheep.studio/goatworks/roadsign/pkg"
+	roadsign "git.solsynth.dev/goatworks/roadsign/pkg"
 	"github.com/gofiber/fiber/v2"
 )
 
