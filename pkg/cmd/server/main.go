@@ -63,7 +63,7 @@ func main() {
 	// Init sideload server
 	hypertext.RunServer(
 		sideload.InitSideload(),
-		viper.GetStringSlice("hypertext.sideload_ports"),
+		viper.GetStringSlice("sideload.ports"),
 		[]string{},
 	)
 

@@ -1,15 +1,15 @@
-id = "example-region"
+id = "capital"
 
 [[locations]]
-id = "example-warden"
-host = ["localhost:8000"]
-path = ["/"]
+id = "capital"
+hosts = ["localhost:8000"]
+paths = ["/"]
 [[locations.destinations]]
-id = "example-warden-destination"
-uri = "http://localhost:4321"
+id = "capital-destination"
+uri = "http://localhost:3000"
 
 [[applications]]
-id = "example-warden-app"
-workdir = "../data/warden"
-command = ["node", "dist/server/entry.mjs"]
-environment = ["PUBLIC_CMS=https://smartsheep.studio"]
+id = "capital-app"
+workdir = "../data/capital"
+command = ["node", "server/index.mjs"]
+environment = []

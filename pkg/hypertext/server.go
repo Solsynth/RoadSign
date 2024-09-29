@@ -77,7 +77,7 @@ type CertificateConfig struct {
 func RunServer(app *fiber.App, ports []string, securedPorts []string) {
 	var certs []CertificateConfig
 	raw, _ := jsoniter.Marshal(viper.Get("hypertext.certificate"))
-	jsoniter.Unmarshal(raw, &certs)
+	_ = jsoniter.Unmarshal(raw, &certs)
 
 	tlsCfg := &tls.Config{
 		MinVersion:   tls.VersionTLS12,
@@ -118,6 +118,8 @@ func RunServer(app *fiber.App, ports []string, securedPorts []string) {
 				}
 			}
 		}()
+
+		log.Info().Msgf("Listening for %s... http://0.0.0.0%s", app.Config().AppName, port)
 	}
 
 	for _, port := range securedPorts {
@@ -131,5 +133,7 @@ func RunServer(app *fiber.App, ports []string, securedPorts []string) {
 				log.Panic().Err(err).Msg("An error occurred when listening hypertext tls ports.")
 			}
 		}()
+
+		log.Info().Msgf("Listening for %s... https://0.0.0.0%s", app.Config().AppName, port)
 	}
 }

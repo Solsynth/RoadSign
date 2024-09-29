@@ -1,6 +1,6 @@
 # 🚦 RoadSign
 
-A blazing fast reverse proxy with a lot of shining features.
+A blazing fast http server with a lot of shining features.
 
 ## Features
 
@@ -10,18 +10,21 @@ A blazing fast reverse proxy with a lot of shining features.
 4. Low Configuration
 5. Analytics and Metrics
 6. Integrate with CI/CD
-7. Web management panel (Work in progres for v2, available in v1)
-8. One-liner CLI
-9. Open-source and free
-10. **Blazing fast ⚡**
+7. One-liner CLI
+8. Open-source and free
+9. **Blazing fast ⚡**
 
-> [!IMPORTANT]
-> Currently roadsign haven't supported for server-side events. We are working on it.
-> At the same time, we don't support HTTP/2.0, [here's](https://github.com/gofiber/fiber/issues/262) the reason
+But, as we said, this isn't a reverse proxy. It's a http server.
+So we didn't recommend you directly use it as a gateway to users, because it doesn't support all the features of http.
+For example like doesn't support multiple site HTTPS, HTTP/2.0, HTTP/3 and Server-Side Events.
+
+You can use RoadSign behind a reverse proxy like caddy, and let it handle the HTTP/2.0, HTTP/3 and all the other
+cutting-edge stuff.
 
 ### How fast is it?
 
-We use roadsign and nginx to host a same static file, and test them with [go-wrk](https://github.com/tsliwowicz/go-wrk).
+We use roadsign and nginx to host the same static file
+and test them with [go-wrk](https://github.com/tsliwowicz/go-wrk).
 Here's the result:
 
 |     **Software**      | Total Requests | Requests per Seconds | Transfer per Seconds |  Avg Time   | Fastest Time | Slowest Time | Errors Count |
@@ -69,7 +72,8 @@ go install git.solsynth.dev/goatworks/roadsign/pkg/cmd/rdc@latest
 ## Usage
 
 To use roadsign, you need to add a configuration for it. Create a file locally.
-Name whatever you like. And follow our [documentation](https://wiki.smartsheep.studio/roadsign/configuration/index.html) to
+Name whatever you like. And follow our [documentation](https://wiki.smartsheep.studio/roadsign/configuration/index.html)
+to
 write it.
 
 After configure, you need sync your config to remote server. Before that, add a connection between roadsign server and

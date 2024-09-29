@@ -2,15 +2,11 @@ package sideload
 
 import (
 	"fmt"
-	"git.solsynth.dev/goatworks/roadsign/pkg/sideload/view"
-	"github.com/gofiber/fiber/v2/middleware/filesystem"
-	jsoniter "github.com/json-iterator/go"
-	"net/http"
-
 	roadsign "git.solsynth.dev/goatworks/roadsign/pkg"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/basicauth"
 	"github.com/gofiber/fiber/v2/middleware/logger"
+	jsoniter "github.com/json-iterator/go"
 	"github.com/rs/zerolog/log"
 	"github.com/spf13/viper"
 )
@@ -25,7 +21,7 @@ func InitSideload() *fiber.App {
 		JSONEncoder:           jsoniter.ConfigCompatibleWithStandardLibrary.Marshal,
 		ProxyHeader:           fiber.HeaderXForwardedFor,
 		EnablePrintRoutes:     viper.GetBool("debug.print_routes"),
-		TrustedProxies:        viper.GetStringSlice("security.sideload_trusted_proxies"),
+		TrustedProxies:        viper.GetStringSlice("sideload.trusted_proxies"),
 		BodyLimit:             viper.GetInt("hypertext.limitation.max_body_size"),
 	})
 
@@ -52,7 +48,7 @@ func InitSideload() *fiber.App {
 		cgi.Get("/regions", getRegions)
 		cgi.Get("/regions/cfg/:id", getRegionConfig)
 		cgi.Get("/applications", getApplications)
-		cgi.Get("/applications/logs/:id", getApplicationLogs)
+		cgi.Get("/applications/:id/logs", getApplicationLogs)
 
 		cgi.Post("/reload", doReload)
 	}
@@ -62,13 +58,6 @@ func InitSideload() *fiber.App {
 		webhooks.Put("/publish/:site/:slug", doPublish)
 		webhooks.Put("/sync/:slug", doSync)
 	}
-
-	app.Use("/", filesystem.New(filesystem.Config{
-		Root:         http.FS(view.FS),
-		PathPrefix:   "dist",
-		Index:        "index.html",
-		NotFoundFile: "dist/index.html",
-	}))
 
 	return app
 }

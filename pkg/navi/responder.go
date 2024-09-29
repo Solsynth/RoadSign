@@ -38,7 +38,7 @@ func makeHypertextResponse(c *fiber.Ctx, dest *Destination) error {
 	}
 
 	limit := time.Duration(num) * time.Millisecond
-	uri := dest.MakeUri(c)
+	uri := dest.BuildUri(c)
 	return proxy.Do(c, uri, &fasthttp.Client{
 		ReadTimeout:  limit,
 		WriteTimeout: limit,

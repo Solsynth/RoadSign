@@ -1,4 +1,5 @@
 /letsencrypt
 /certs
+/dist
 
 .DS_Store

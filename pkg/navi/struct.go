@@ -60,13 +60,13 @@ func (v *Destination) GetType() DestinationType {
 func (v *Destination) GetRawUri() (string, url.Values) {
 	uri := strings.SplitN(v.Uri, "://", 2)[1]
 	data := strings.SplitN(uri, "?", 2)
-	data = append(data, " ") // Make data array least have two element
+	data = append(data, " ") // Make the data array least have two elements
 	qs, _ := url.ParseQuery(data[1])
 
 	return data[0], qs
 }
 
-func (v *Destination) MakeUri(ctx *fiber.Ctx) string {
+func (v *Destination) BuildUri(ctx *fiber.Ctx) string {
 	var queries []string
 	for k, v := range ctx.Queries() {
 		parsed, _ := url.QueryUnescape(v)
@@ -85,5 +85,5 @@ func (v *Destination) MakeUri(ctx *fiber.Ctx) string {
 }
 
 func (v *Destination) MakeWebsocketUri(ctx *fiber.Ctx) string {
-	return strings.Replace(v.MakeUri(ctx), "http", "ws", 1)
+	return strings.Replace(v.BuildUri(ctx), "http", "ws", 1)
 }
