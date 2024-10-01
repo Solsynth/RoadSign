@@ -30,7 +30,7 @@ export class LoginCommand extends Command {
     try {
       const pingRes = await fetch(`${this.host}/cgi/metadata`, {
         headers: {
-          Authorization: createAuthHeader("RoadSign CLI", this.credentials)
+          Authorization: createAuthHeader(this.credentials)
         }
       })
       if (pingRes.status !== 200) {

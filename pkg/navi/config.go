@@ -5,6 +5,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"time"
 
 	"github.com/pelletier/go-toml/v2"
 )
@@ -19,6 +20,7 @@ func ReadInConfig(root string) error {
 			Traffic:      make(map[string]int64),
 			TrafficFrom:  make(map[string]int64),
 			TotalTraffic: 0,
+			StartupAt:    time.Now(),
 		},
 	}
 
