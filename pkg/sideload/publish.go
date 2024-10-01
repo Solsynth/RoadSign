@@ -42,7 +42,7 @@ func doPublish(c *fiber.Ctx) error {
 	var instance *warden.AppInstance
 	if application != nil {
 		if instance = warden.GetFromPool(application.ID); instance != nil {
-			instance.Stop()
+			_ = instance.Stop()
 		}
 	} else if destination != nil && destination.GetType() != navi.DestinationStaticFile {
 		return fiber.ErrUnprocessableEntity
