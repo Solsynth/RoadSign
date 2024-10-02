@@ -2,10 +2,11 @@ package warden
 
 import (
 	"fmt"
-	"os"
+	"github.com/rs/zerolog/log"
 	"os/exec"
 	"path/filepath"
 	"strings"
+	"syscall"
 	"time"
 
 	"github.com/samber/lo"
@@ -87,15 +88,16 @@ func (v *AppInstance) Start() error {
 	// Monitor
 	go func() {
 		for {
-			if v.Cmd.Process == nil || v.Cmd.ProcessState == nil {
+			if v.Cmd != nil && v.Cmd.Process == nil {
 				v.Status = AppStarting
-			} else if !v.Cmd.ProcessState.Exited() {
+			} else if v.Cmd != nil && v.Cmd.ProcessState == nil {
 				v.Status = AppStarted
 			} else {
-				v.Status = lo.Ternary(v.Cmd.ProcessState.Success(), AppExited, AppFailure)
+				v.Status = lo.Ternary(v.Cmd == nil, AppExited, AppFailure)
+				v.Cmd = nil
 				return
 			}
-			time.Sleep(100 * time.Millisecond)
+			time.Sleep(1000 * time.Millisecond)
 		}
 	}()
 
@@ -104,8 +106,13 @@ func (v *AppInstance) Start() error {
 
 func (v *AppInstance) Stop() error {
 	if v.Cmd != nil && v.Cmd.Process != nil {
-		if err := v.Cmd.Process.Signal(os.Interrupt); err != nil {
-			v.Cmd.Process.Kill()
+		if err := v.Cmd.Process.Signal(syscall.SIGTERM); err != nil {
+			log.Warn().Int("pid", v.Cmd.Process.Pid).Err(err).Msgf("Failed to send SIGTERM to process...")
+			if err = v.Cmd.Process.Kill(); err != nil {
+				log.Error().Int("pid", v.Cmd.Process.Pid).Err(err).Msgf("Failed to kill process...")
+			} else {
+				v.Cmd = nil
+			}
 			return err
 		} else {
 			v.Cmd = nil

@@ -49,6 +49,9 @@ func InitSideload() *fiber.App {
 		cgi.Get("/regions/cfg/:id", getRegionConfig)
 		cgi.Get("/applications", getApplications)
 		cgi.Get("/applications/:id/logs", getApplicationLogs)
+		cgi.Post("/applications/:id/start", letApplicationStart)
+		cgi.Post("/applications/:id/stop", letApplicationStop)
+		cgi.Post("/applications/:id/restart", letApplicationRestart)
 
 		cgi.Post("/reload", doReload)
 	}

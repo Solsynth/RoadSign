@@ -15,8 +15,5 @@ func InitializeWarden(regions []*Region) {
 
 	// Hot swap
 	warden.InstancePool = pool
-
-	for _, instance := range warden.InstancePool {
-		instance.Wake()
-	}
+	warden.StartPool()
 }

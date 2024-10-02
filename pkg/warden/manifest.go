@@ -6,3 +6,8 @@ type Application struct {
 	Command     []string `json:"command" toml:"command"`
 	Environment []string `json:"environment" toml:"environment"`
 }
+
+type ApplicationInfo struct {
+	Application
+	Status AppStatus `json:"status"`
+}

@@ -7,6 +7,7 @@ import { LogoutCommand } from "./src/cmd/logout.ts"
 import { ListServerCommand } from "./src/cmd/list.ts"
 import { StatusCommand } from "./src/cmd/status.ts"
 import { InfoCommand } from "./src/cmd/info.ts"
+import { ProcessCommand } from "./src/cmd/process-info.ts"
 
 const [node, app, ...args] = process.argv
 
@@ -29,4 +30,5 @@ cli.register(LogoutCommand)
 cli.register(ListServerCommand)
 cli.register(StatusCommand)
 cli.register(InfoCommand)
+cli.register(ProcessCommand)
 cli.runExit(args)
