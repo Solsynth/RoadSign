@@ -82,6 +82,30 @@ export class InfoCommand extends Command {
     }
   }
 
+  async fetchRegions(server: RsConfigServerData) {
+    const res = await fetch(`${server.url}/cgi/regions`, {
+      headers: {
+        Authorization: createAuthHeader(server.credential)
+      }
+    })
+    if (res.status !== 200) {
+      throw new Error(await res.text())
+    }
+
+    const data = await res.json()
+    this.context.stdout.write("\n\n")
+    for (const region of data) {
+      this.context.stdout.write(` • ${chalk.bgGrey('region#')}${chalk.bold(region.id)} ${chalk.gray(`(${region.locations.length} locations)`)}\n`)
+      for (const location of region.locations) {
+        this.context.stdout.write(`   • ${chalk.bgGrey('location#')} ${chalk.bold(location.id)} ${chalk.gray(`(${location.destinations.length} destinations)`)}\n`)
+        for (const destination of location.destinations) {
+          this.context.stdout.write(`     • ${chalk.bgGrey('destination#')}${chalk.bold(destination.id)}\n`)
+        }
+      }
+      this.context.stdout.write("\n")
+    }
+  }
+
   async execute() {
     const config = await RsConfig.getInstance()
 
@@ -128,6 +152,16 @@ export class InfoCommand extends Command {
             await new Promise(resolve => setTimeout(resolve, 3000))
             this.context.stdout.write("\x1Bc")
           }
+        }
+        break
+      case "regions":
+        try {
+          await this.fetchRegions(server)
+          const prefTook = performance.now() - prefStart
+          spinner.succeed(`Fetching completed in ${(prefTook / 1000).toFixed(2)}s 🎉`)
+        } catch (e) {
+          spinner.fail(`Server with label ${chalk.bold(this.label)} is not running! 😢`)
+          return
         }
         break
       default:
