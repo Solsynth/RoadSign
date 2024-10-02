@@ -8,6 +8,7 @@ import { ListServerCommand } from "./src/cmd/list.ts"
 import { StatusCommand } from "./src/cmd/status.ts"
 import { InfoCommand } from "./src/cmd/info.ts"
 import { ProcessCommand } from "./src/cmd/process-info.ts"
+import { DeployCommand } from "./src/cmd/deploy.ts"
 
 const [node, app, ...args] = process.argv
 
@@ -31,4 +32,5 @@ cli.register(ListServerCommand)
 cli.register(StatusCommand)
 cli.register(InfoCommand)
 cli.register(ProcessCommand)
+cli.register(DeployCommand)
 cli.runExit(args)

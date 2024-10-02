@@ -43,24 +43,38 @@ func doSync(c *fiber.Ctx) error {
 		defer file.Close()
 	}
 
-	var rebootQueue []*warden.AppInstance
+	var stopQueue, startQueue []*warden.AppInstance
+	// Getting things need to stop
 	if region, ok := lo.Find(navi.R.Regions, func(item *navi.Region) bool {
 		return item.ID == id
 	}); ok {
 		for _, application := range region.Applications {
 			if instance := warden.GetFromPool(application.ID); instance != nil {
-				instance.Stop()
-				rebootQueue = append(rebootQueue, instance)
+				stopQueue = append(stopQueue, instance)
 			}
 		}
 	}
 
 	// Reload
-	navi.ReadInConfig(viper.GetString("paths.configs"))
+	_ = navi.ReadInConfig(viper.GetString("paths.configs"))
+
+	// Getting things need to start
+	if region, ok := lo.Find(navi.R.Regions, func(item *navi.Region) bool {
+		return item.ID == id
+	}); ok {
+		for _, application := range region.Applications {
+			if instance := warden.GetFromPool(application.ID); instance != nil {
+				startQueue = append(startQueue, instance)
+			}
+		}
+	}
 
 	// Reboot
-	for _, instance := range rebootQueue {
-		instance.Wake()
+	for _, instance := range stopQueue {
+		_ = instance.Stop()
+	}
+	for _, instance := range startQueue {
+		_ = instance.Start()
 	}
 
 	return c.SendStatus(fiber.StatusOK)

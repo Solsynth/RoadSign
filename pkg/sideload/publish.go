@@ -46,7 +46,7 @@ func doPublish(c *fiber.Ctx) error {
 		}
 	} else if destination != nil && destination.GetType() != navi.DestinationStaticFile {
 		return fiber.ErrUnprocessableEntity
-	} else {
+	} else if destination == nil {
 		return fiber.ErrNotFound
 	}
 
@@ -84,7 +84,7 @@ func doPublish(c *fiber.Ctx) error {
 	}
 
 	if instance != nil {
-		instance.Wake()
+		_ = instance.Wake()
 	}
 
 	return c.SendStatus(fiber.StatusOK)

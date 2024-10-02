@@ -1,0 +1,9 @@
+id = "static-files"
+
+[[locations]]
+id = "static-files-loc"
+hosts = ["localhost:8000"]
+paths = ["/"]
+[[locations.destinations]]
+id = "static-files-des"
+uri = "files://../data/static-files"

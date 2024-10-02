@@ -1,18 +1,21 @@
+id = "central-dc"
+
 [debug]
-print_routes = true
+print_routes = false
+
+[sideload]
+ports = [":81"]
+secured_ports = []
+trusted_proxies = ["localhost"]
 
 [hypertext]
-sideload_ports = [":81"]
-sideload_secured_ports = []
 ports = [":8000"]
 secured_ports = []
+force_https = false
 
-[hypertext.certificate]
-redirect = false
-sideload_key = "./cert.key"
-sideload_pem = "./cert.pem"
-key = "./cert.key"
-pem = "./cert.pem"
+# [[hypertext.certificate]]
+# key = "./certs/privkey.pem"
+# pem = "./certs/fullchain.pem"
 
 [hypertext.limitation]
 max_body_size = 549_755_813_888 # 512 GiB
@@ -21,11 +24,13 @@ max_qps = -1
 [paths]
 configs = "./config"
 
-[performance]
+[telemetry]
 request_logging = true
-network_timeout = 3_000
+capture_traces = true
+
+[performance]
+traces_limit = 256
 prefork = false
 
 [security]
-sideload_trusted_proxies = ["localhost"]
 credential = "e81f43f32d934271af6322e5376f5f59"
