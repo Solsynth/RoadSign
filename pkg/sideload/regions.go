@@ -38,8 +38,11 @@ func doSync(c *fiber.Ctx) error {
 	if file, err := os.OpenFile(path, os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0755); err != nil {
 		return fiber.NewError(fiber.ErrInternalServerError.Code, err.Error())
 	} else {
-		raw, _ := toml.Marshal(req)
-		file.Write(raw)
+		var testOut map[string]any
+		if err := toml.Unmarshal([]byte(req), &testOut); err != nil {
+			return fiber.NewError(fiber.StatusBadRequest, fmt.Sprintf("invalid configuration: %v", err))
+		}
+		_, _ = file.Write([]byte(req))
 		defer file.Close()
 	}
 

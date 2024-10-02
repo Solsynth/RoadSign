@@ -1,4 +1,4 @@
-import { Cli } from "clipanion"
+import { Builtins, Cli } from "clipanion"
 import figlet from "figlet"
 import chalk from "chalk"
 
@@ -9,6 +9,8 @@ import { StatusCommand } from "./src/cmd/status.ts"
 import { InfoCommand } from "./src/cmd/info.ts"
 import { ProcessCommand } from "./src/cmd/process-info.ts"
 import { DeployCommand } from "./src/cmd/deploy.ts"
+import { SyncCommand } from "./src/cmd/sync.ts"
+import { ReloadCommand } from "./src/cmd/reload.ts"
 
 const [node, app, ...args] = process.argv
 
@@ -26,6 +28,8 @@ const cli = new Cli({
   binaryVersion: `1.0.0`
 })
 
+cli.register(Builtins.VersionCommand)
+cli.register(Builtins.HelpCommand)
 cli.register(LoginCommand)
 cli.register(LogoutCommand)
 cli.register(ListServerCommand)
@@ -33,4 +37,6 @@ cli.register(StatusCommand)
 cli.register(InfoCommand)
 cli.register(ProcessCommand)
 cli.register(DeployCommand)
+cli.register(SyncCommand)
+cli.register(ReloadCommand)
 cli.runExit(args)

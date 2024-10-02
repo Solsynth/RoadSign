@@ -1,0 +1,9 @@
+{
+  "deployments": [
+    {
+      "path": "test/static-files",
+      "region": "static-files",
+      "site": "static-files-des"
+    }
+  ]
+}

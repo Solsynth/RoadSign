@@ -6,6 +6,7 @@ import * as fs from "node:fs"
 import * as child_process from "node:child_process"
 import * as path from "node:path"
 import { createAuthHeader } from "../utils/auth.ts"
+import { RsLocalConfig } from "../utils/config-local.ts"
 
 export class DeployCommand extends Command {
   static paths = [[`deploy`]]
@@ -13,54 +14,53 @@ export class DeployCommand extends Command {
     category: `Building`,
     description: `Deploying App / Static Site onto RoadSign`,
     details: `Deploying an application or hosting a static site via RoadSign, you need preconfigured the RoadSign, or sync the configurations via sync command.`,
-    examples: [["Deploying to RoadSign", `deploy <server> <site> <slug> <file / directory>`]]
+    examples: [
+      ["Deploying to RoadSign", `deploy <server> <region> <site> <file / directory>`],
+      ["Deploying to RoadSign with .roadsignrc file", `deploy <server>`]
+    ]
   }
 
   server = Option.String({ required: true })
-  site = Option.String({ required: true })
-  upstream = Option.String({ required: true })
-  input = Option.String({ required: true })
+  region = Option.String({ required: false })
+  site = Option.String({ required: false })
+  input = Option.String({ required: false })
 
-  async execute() {
-    const config = await RsConfig.getInstance()
-
-    const server = config.config.servers.find(item => item.label === this.server)
+  async deploy(serverLabel: string, region: string, site: string, input: string) {
+    const cfg = await RsConfig.getInstance()
+    const server = cfg.config.servers.find(item => item.label === serverLabel)
     if (server == null) {
       this.context.stdout.write(chalk.red(`Server with label ${chalk.bold(this.server)} was not found.\n`))
       return
     }
 
-    if (!fs.existsSync(this.input)) {
+    if (!fs.existsSync(input)) {
       this.context.stdout.write(chalk.red(`Input file ${chalk.bold(this.input)} was not found.\n`))
       return
     }
 
     let isDirectory = false
-    if (fs.statSync(this.input).isDirectory()) {
-      if (this.input.endsWith("/")) {
-        this.input = this.input.slice(0, -1)
-      }
-      this.input += "/*"
+    if (fs.statSync(input).isDirectory()) {
+      input = path.join(input, "*")
 
       const compressPrefStart = performance.now()
-      const compressSpinner = ora(`Compressing ${chalk.bold(this.input)}...`).start()
+      const compressSpinner = ora(`Compressing ${chalk.bold(input)}...`).start()
       const destName = `${Date.now()}-roadsign-archive.zip`
-      child_process.execSync(`zip -rj ${destName} ${this.input}`)
+      child_process.execSync(`zip -rj ${destName} ${input}`)
       const compressPrefTook = performance.now() - compressPrefStart
       compressSpinner.succeed(`Compressing completed in ${(compressPrefTook / 1000).toFixed(2)}s 🎉`)
-      this.input = destName
+      input = destName
       isDirectory = true
     }
 
-    const destBreadcrumb = [this.site, this.upstream].join(" ➜ ")
+    const destBreadcrumb = [region, site].join(" ➜ ")
     const spinner = ora(`Deploying ${chalk.bold(destBreadcrumb)} to ${chalk.bold(this.server)}...`).start()
 
     const prefStart = performance.now()
 
     try {
       const payload = new FormData()
-      payload.set("attachments", await fs.openAsBlob(this.input), isDirectory ? "dist.zip" : path.basename(this.input))
-      const res = await fetch(`${server.url}/webhooks/publish/${this.site}/${this.upstream}?mimetype=application/zip`, {
+      payload.set("attachments", await fs.openAsBlob(input), isDirectory ? "dist.zip" : path.basename(input))
+      const res = await fetch(`${server.url}/webhooks/publish/${region}/${site}?mimetype=application/zip`, {
         method: "PUT",
         body: payload,
         headers: {
@@ -76,9 +76,36 @@ export class DeployCommand extends Command {
       this.context.stdout.write(`Failed to deploy to remote: ${e}\n`)
       spinner.fail(`Server with label ${chalk.bold(this.server)} is not running! 😢`)
     } finally {
-      if (isDirectory && this.input.endsWith(".zip")) {
-        fs.unlinkSync(this.input)
+      if (isDirectory && input.endsWith(".zip")) {
+        fs.unlinkSync(input)
       }
+    }
+  }
+
+  async execute() {
+    if (this.region && this.site && this.input) {
+      await this.deploy(this.server, this.region, this.site, this.input)
+    } else {
+      let localCfg: RsLocalConfig
+      try {
+        localCfg = await RsLocalConfig.getInstance()
+      } catch (e) {
+        this.context.stdout.write(chalk.red(`Unable to load .roadsignrc: ${e}\n`))
+        return
+      }
+
+      if (!localCfg.config.deployments) {
+        this.context.stdout.write(chalk.red(`No deployments found in .roadsignrc, exiting...\n`))
+        return
+      }
+
+      let idx = 0
+      for (const deployment of localCfg.config.deployments ?? []) {
+        this.context.stdout.write(chalk.cyan(`Deploying ${idx + 1} out of ${localCfg.config.deployments.length} deployments...\n`))
+        await this.deploy(this.server, deployment.region, deployment.site, deployment.path)
+      }
+
+      this.context.stdout.write(chalk.green(`All deployments has been deployed!\n`))
     }
 
     process.exit(0)
