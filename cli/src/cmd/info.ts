@@ -49,15 +49,17 @@ export class InfoCommand extends Command {
       }
 
       const data = await res.json()
+      this.context.stdout.write('\n')
       this.context.stdout.write(`\nServer stats of ${chalk.bold(this.label)}\n`)
-      this.context.stdout.write(`Uptime: ${chalk.bold(InfoCommand.formatUptime(data["uptime"]))}\n`)
-      this.context.stdout.write(`Traffic since last startup: ${chalk.bold(data["traffic"]["total"])}\n`)
-      this.context.stdout.write(`Unique clients since last startup: ${chalk.bold(data["traffic"]["unique_client"])}\n`)
+      this.context.stdout.write(` • Uptime: ${chalk.bold(InfoCommand.formatUptime(data["uptime"]))}\n`)
+      this.context.stdout.write(` • Traffic since last startup: ${chalk.bold(data["traffic"]["total"])}\n`)
+      this.context.stdout.write(` • Unique clients since last startup: ${chalk.bold(data["traffic"]["unique_client"])}\n`)
       this.context.stdout.write(`\nServer info of ${chalk.bold(this.label)}\n`)
-      this.context.stdout.write(`Warden Applications: ${chalk.bold(data["applications"])}\n`)
-      this.context.stdout.write(`Destinations: ${chalk.bold(data["destinations"])}\n`)
-      this.context.stdout.write(`Locations: ${chalk.bold(data["locations"])}\n`)
-      this.context.stdout.write(`Regions: ${chalk.bold(data["regions"])}\n`)
+      this.context.stdout.write(` • Warden Applications: ${chalk.bold(data["applications"])}\n`)
+      this.context.stdout.write(` • Destinations: ${chalk.bold(data["destinations"])}\n`)
+      this.context.stdout.write(` • Locations: ${chalk.bold(data["locations"])}\n`)
+      this.context.stdout.write(` • Regions: ${chalk.bold(data["regions"])}\n`)
+      this.context.stdout.write('\n')
     } catch (e) {
       return
     }
