@@ -77,7 +77,7 @@ func doSync(c *fiber.Ctx) error {
 		_ = instance.Stop()
 	}
 	for _, instance := range startQueue {
-		_ = instance.Start()
+		_ = instance.Wake()
 	}
 
 	return c.SendStatus(fiber.StatusOK)

@@ -60,7 +60,7 @@ func (v *Destination) GetType() DestinationType {
 func (v *Destination) GetRawUri() (string, url.Values) {
 	uri := strings.SplitN(v.Uri, "://", 2)[1]
 	data := strings.SplitN(uri, "?", 2)
-	data = append(data, " ") // Make the data array least have two elements
+	data = append(data, " ") // Make the data array at least have two elements
 	qs, _ := url.ParseQuery(data[1])
 
 	return data[0], qs

@@ -2,9 +2,12 @@ package sideload
 
 import (
 	"context"
+	"fmt"
 	"git.solsynth.dev/goatworks/roadsign/pkg/warden"
 	"os"
+	"os/exec"
 	"path/filepath"
+	"strings"
 
 	"git.solsynth.dev/goatworks/roadsign/pkg/navi"
 	"github.com/gofiber/fiber/v2"
@@ -50,7 +53,7 @@ func doPublish(c *fiber.Ctx) error {
 		return fiber.ErrNotFound
 	}
 
-	if c.Query("overwrite", "yes") == "yes" {
+	if c.QueryBool("overwrite", true) {
 		files, _ := filepath.Glob(filepath.Join(workdir, "*"))
 		for _, file := range files {
 			_ = os.Remove(file)
@@ -74,12 +77,22 @@ func doPublish(c *fiber.Ctx) error {
 						return err
 					}
 				}
+				_ = os.Remove(dst)
 			default:
 				dst := filepath.Join(workdir, file.Filename)
 				if err := c.SaveFile(file, dst); err != nil {
 					return err
 				}
 			}
+		}
+	}
+
+	if postScript := c.FormValue("post-deploy-script", ""); len(postScript) > 0 {
+		cmd := exec.Command("sh", "-c", postScript)
+		cmd.Dir = filepath.Join(workdir)
+		cmd.Env = append(cmd.Env, strings.Split(c.FormValue("post-deploy-environment", ""), "\n")...)
+		if err := cmd.Run(); err != nil {
+			return fiber.NewError(fiber.StatusInternalServerError, fmt.Sprintf("post deploy script runs failed: %v", err))
 		}
 	}
 

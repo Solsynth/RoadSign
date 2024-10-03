@@ -62,14 +62,8 @@ func (v *AppInstance) Wake() error {
 	}
 	if v.Cmd.ProcessState.Exited() {
 		return v.Start()
-	} else if v.Cmd.ProcessState.Exited() {
-		return fmt.Errorf("process already dead")
 	}
-	if v.Cmd.ProcessState.Exited() {
-		return fmt.Errorf("cannot start process")
-	} else {
-		return nil
-	}
+	return nil
 }
 
 func (v *AppInstance) Start() error {
@@ -93,7 +87,7 @@ func (v *AppInstance) Start() error {
 			} else if v.Cmd != nil && v.Cmd.ProcessState == nil {
 				v.Status = AppStarted
 			} else {
-				v.Status = lo.Ternary(v.Cmd == nil, AppExited, AppFailure)
+				v.Status = AppFailure
 				v.Cmd = nil
 				return
 			}
@@ -119,6 +113,7 @@ func (v *AppInstance) Stop() error {
 		}
 	}
 
+	v.Status = AppExited
 	return nil
 }
 

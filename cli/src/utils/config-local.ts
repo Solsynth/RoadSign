@@ -15,11 +15,18 @@ interface RsLocalConfigDeploymentData {
   path: string
   region: string
   site: string
+  postDeploy?: RsLocalConfigDeploymentPostActionData
   autoBuild?: RsLocalConfigDeploymentAutoBuildData
 }
 
 interface RsLocalConfigDeploymentAutoBuildData {
   command: string
+  environment?: string[]
+}
+
+interface RsLocalConfigDeploymentPostActionData {
+  command?: string
+  scriptPath?: string
   environment?: string[]
 }
 
@@ -57,4 +64,4 @@ class RsLocalConfig {
   }
 }
 
-export { RsLocalConfig, type RsLocalConfigData }
+export { RsLocalConfig, type RsLocalConfigData, type RsLocalConfigDeploymentPostActionData }

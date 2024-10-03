@@ -6,7 +6,7 @@ import * as fs from "node:fs"
 import * as child_process from "node:child_process"
 import * as path from "node:path"
 import { createAuthHeader } from "../utils/auth.ts"
-import { RsLocalConfig } from "../utils/config-local.ts"
+import { RsLocalConfig, type RsLocalConfigDeploymentPostActionData } from "../utils/config-local.ts"
 import * as os from "node:os"
 
 export class DeployCommand extends Command {
@@ -26,7 +26,7 @@ export class DeployCommand extends Command {
   site = Option.String({ required: false })
   input = Option.String({ required: false })
 
-  async deploy(serverLabel: string, region: string, site: string, input: string) {
+  async deploy(serverLabel: string, region: string, site: string, input: string, postDeploy: RsLocalConfigDeploymentPostActionData | null = null) {
     const cfg = await RsConfig.getInstance()
     const server = cfg.config.servers.find(item => item.label === serverLabel)
     if (server == null) {
@@ -59,6 +59,18 @@ export class DeployCommand extends Command {
     try {
       const payload = new FormData()
       payload.set("attachments", await fs.openAsBlob(input), isDirectory ? "dist.zip" : path.basename(input))
+
+      if(postDeploy) {
+        if(postDeploy.command) {
+          payload.set("post-deploy-script", postDeploy.command)
+        } else if(postDeploy.scriptPath) {
+          payload.set("post-deploy-script", fs.readFileSync(postDeploy.scriptPath, "utf8"))
+        } else {
+          this.context.stdout.write(chalk.yellow(`Configured post deploy action but no script provided, skip performing post deploy action...\n`))
+        }
+        payload.set("post-deploy-environment", postDeploy.environment?.join("\n") ?? "")
+      }
+
       const res = await fetch(`${server.url}/webhooks/publish/${region}/${site}?mimetype=application/zip`, {
         method: "PUT",
         body: payload,
