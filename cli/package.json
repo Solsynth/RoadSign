@@ -1,7 +1,7 @@
 {
   "name": "roadsign-cli",
   "module": "index.ts",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "repository": "https://github.com/solsynth/roadsign",
   "type": "module",
   "scripts": {
@@ -34,3 +34,4 @@
     "ora": "^8.1.0"
   }
 }
+
