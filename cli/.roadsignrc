@@ -1,4 +1,8 @@
 {
+  "sync": {
+    "region": "static-files",
+    "configPath": "test/static-files.toml"
+  },
   "deployments": [
     {
       "path": "test/static-files",
