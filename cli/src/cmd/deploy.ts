@@ -41,8 +41,6 @@ export class DeployCommand extends Command {
 
     let isDirectory = false
     if (fs.statSync(input).isDirectory()) {
-      input = path.join(input, "*")
-
       const compressPrefStart = performance.now()
       const compressSpinner = ora(`Compressing ${chalk.bold(input)}...`).start()
       const destName = path.join(os.tmpdir(), `${Date.now()}-roadsign-archive.zip`)
