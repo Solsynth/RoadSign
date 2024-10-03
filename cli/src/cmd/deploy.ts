@@ -7,6 +7,7 @@ import * as child_process from "node:child_process"
 import * as path from "node:path"
 import { createAuthHeader } from "../utils/auth.ts"
 import { RsLocalConfig } from "../utils/config-local.ts"
+import * as os from "node:os"
 
 export class DeployCommand extends Command {
   static paths = [[`deploy`]]
@@ -44,8 +45,8 @@ export class DeployCommand extends Command {
 
       const compressPrefStart = performance.now()
       const compressSpinner = ora(`Compressing ${chalk.bold(input)}...`).start()
-      const destName = `${Date.now()}-roadsign-archive.zip`
-      child_process.execSync(`zip -rj ${destName} ${input}`)
+      const destName = path.join(os.tmpdir(), `${Date.now()}-roadsign-archive.zip`)
+      child_process.execSync(`cd ${input} && zip -r ${destName} .`)
       const compressPrefTook = performance.now() - compressPrefStart
       compressSpinner.succeed(`Compressing completed in ${(compressPrefTook / 1000).toFixed(2)}s 🎉`)
       input = destName
