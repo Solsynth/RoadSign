@@ -113,7 +113,7 @@ export class DeployCommand extends Command {
       let idx = 0
       for (const deployment of localCfg.config.deployments ?? []) {
         this.context.stdout.write(chalk.cyan(`Deploying ${idx + 1} out of ${localCfg.config.deployments.length} deployments...\n`))
-        await this.deploy(this.server, deployment.region, deployment.site, deployment.path)
+        await this.deploy(this.server, deployment.region, deployment.site, deployment.path, deployment.postDeploy)
       }
 
       this.context.stdout.write(chalk.green(`All deployments has been deployed!\n`))
