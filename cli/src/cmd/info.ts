@@ -48,7 +48,7 @@ export class InfoCommand extends Command {
         throw new Error(await res.text())
       }
 
-      const data = await res.json()
+      const data: any = await res.json()
       this.context.stdout.write('\n')
       this.context.stdout.write(`\nServer stats of ${chalk.bold(this.label)}\n`)
       this.context.stdout.write(` • Uptime: ${chalk.bold(InfoCommand.formatUptime(data["uptime"]))}\n`)
@@ -75,7 +75,7 @@ export class InfoCommand extends Command {
       throw new Error(await res.text())
     }
 
-    const data = await res.json()
+    const data: any = await res.json()
     for (const trace of data) {
       const ts = new Date(trace["timestamp"]).toLocaleString()
       const path = [trace["region"], trace["location"], trace["destination"]].join(" ➜ ")
@@ -94,7 +94,7 @@ export class InfoCommand extends Command {
       throw new Error(await res.text())
     }
 
-    const data = await res.json()
+    const data: any = await res.json()
     this.context.stdout.write("\n\n")
     for (const region of data) {
       this.context.stdout.write(` • ${chalk.bgGrey('region#')}${chalk.bold(region.id)} ${chalk.gray(`(${region.locations.length} locations)`)}\n`)

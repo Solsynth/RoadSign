@@ -2,13 +2,26 @@
   "name": "roadsign-cli",
   "module": "index.ts",
   "type": "module",
+  "scripts": {
+    "build": "rimraf dist && rollup -c rollup.config.js"
+  },
+  "bin": {
+    "rdcli": "./dist/index.cjs"
+  },
   "devDependencies": {
+    "@rollup/plugin-commonjs": "^28.0.0",
+    "@rollup/plugin-json": "^6.1.0",
+    "@rollup/plugin-node-resolve": "^15.3.0",
+    "@rollup/plugin-typescript": "^12.1.0",
     "@types/bun": "latest",
     "@types/cli-progress": "^3.11.6",
-    "@types/figlet": "^1.5.8"
+    "@types/figlet": "^1.5.8",
+    "rimraf": "^6.0.1",
+    "rollup": "^4.24.0",
+    "rollup-plugin-typescript2": "^0.36.0"
   },
   "peerDependencies": {
-    "typescript": "^5.0.0"
+    "typescript": "^5.6.2"
   },
   "dependencies": {
     "chalk": "^5.3.0",

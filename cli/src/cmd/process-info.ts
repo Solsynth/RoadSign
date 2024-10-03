@@ -57,7 +57,7 @@ export class ProcessCommand extends Command {
 
         const statusMapping = ["Created", "Starting", "Started", "Exited", "Failed"]
 
-        const data = await res.json()
+        const data: any = await res.json()
         for (const app of data) {
           table.push([app["id"], statusMapping[app["status"]], app["command"].join(" ")])
         }

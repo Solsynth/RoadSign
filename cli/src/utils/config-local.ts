@@ -1,5 +1,5 @@
 import * as path from "node:path"
-import * as fs from "node:fs/promises"
+import * as fs from "node:fs"
 
 interface RsLocalConfigData {
   sync?: RsLocalConfigSyncData
@@ -42,18 +42,18 @@ class RsLocalConfig {
   public async readConfig() {
     const basepath = process.cwd()
     const filepath = path.join(basepath, ".roadsignrc")
-    if (!await fs.exists(filepath)) {
+    if (!fs.existsSync(filepath)) {
       throw new Error(`.roadsignrc file was not found at ${filepath}`)
     }
 
-    const data = await fs.readFile(filepath, "utf8")
+    const data = fs.readFileSync(filepath, "utf8")
     this.config = JSON.parse(data)
   }
 
   public async writeConfig() {
     const basepath = process.cwd()
     const filepath = path.join(basepath, ".roadsignrc")
-    await fs.writeFile(filepath, JSON.stringify(this.config))
+    fs.writeFileSync(filepath, JSON.stringify(this.config))
   }
 }
 

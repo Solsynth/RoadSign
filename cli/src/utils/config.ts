@@ -1,6 +1,6 @@
 import * as os from "node:os"
 import * as path from "node:path"
-import * as fs from "node:fs/promises"
+import * as fs from "node:fs"
 
 interface RsConfigData {
   servers: RsConfigServerData[]
@@ -33,18 +33,18 @@ class RsConfig {
   public async readConfig() {
     const basepath = os.homedir()
     const filepath = path.join(basepath, ".roadsignrc")
-    if (!await fs.exists(filepath)) {
-      await fs.writeFile(filepath, JSON.stringify(this.config))
+    if (!fs.existsSync(filepath)) {
+      fs.writeFileSync(filepath, JSON.stringify(this.config))
     }
 
-    const data = await fs.readFile(filepath, "utf8")
+    const data = fs.readFileSync(filepath, "utf8")
     this.config = JSON.parse(data)
   }
 
   public async writeConfig() {
     const basepath = os.homedir()
     const filepath = path.join(basepath, ".roadsignrc")
-    await fs.writeFile(filepath, JSON.stringify(this.config))
+    fs.writeFileSync(filepath, JSON.stringify(this.config))
   }
 }
 

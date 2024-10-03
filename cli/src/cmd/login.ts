@@ -36,7 +36,7 @@ export class LoginCommand extends Command {
       if (pingRes.status !== 200) {
         throw new Error(await pingRes.text())
       } else {
-        const info = await pingRes.json()
+        const info: any = await pingRes.json()
         spinner.succeed(`Connected to ${this.host}, remote version ${info["version"]}`)
 
         config.config.servers.push({
