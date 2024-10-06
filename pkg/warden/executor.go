@@ -104,15 +104,18 @@ func (v *AppInstance) Stop() error {
 			log.Warn().Int("pid", v.Cmd.Process.Pid).Err(err).Msgf("Failed to send SIGTERM to process...")
 			if err = v.Cmd.Process.Kill(); err != nil {
 				log.Error().Int("pid", v.Cmd.Process.Pid).Err(err).Msgf("Failed to kill process...")
-			} else {
-				v.Cmd = nil
+				return err
 			}
-			return err
-		} else {
-			v.Cmd = nil
 		}
 	}
 
+	// We need to wait for the process to exit
+	// The wait syscall will read the exit status of the process
+	// So that we don't produce defunct processes
+	// Refer to https://stackoverflow.com/questions/46293435/golang-exec-command-cause-a-lot-of-defunct-processes
+	_ = v.Cmd.Wait()
+
+	v.Cmd = nil
 	v.Status = AppExited
 	return nil
 }

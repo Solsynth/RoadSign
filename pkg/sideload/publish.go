@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"git.solsynth.dev/goatworks/roadsign/pkg/warden"
+	"github.com/rs/zerolog/log"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -45,7 +46,9 @@ func doPublish(c *fiber.Ctx) error {
 	var instance *warden.AppInstance
 	if application != nil {
 		if instance = warden.GetFromPool(application.ID); instance != nil {
-			_ = instance.Stop()
+			if err := instance.Stop(); err != nil {
+				log.Warn().Err(err).Str("id", application.ID).Msg("Failed to stop application when publishing...")
+			}
 		}
 	} else if destination != nil && destination.GetType() != navi.DestinationStaticFile {
 		return fiber.ErrUnprocessableEntity
