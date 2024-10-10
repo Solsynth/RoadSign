@@ -148,10 +148,10 @@ func makeFileResponse(c *fiber.Ctx, dest *Destination) error {
 		return fmt.Errorf("failed to stat: %w", err)
 	}
 
-	// Serve index if path is directory
+	// Serve index if the path is a directory
 	if stat.IsDir() {
 		indexFile := lo.Ternary(len(queries.Get("index")) > 0, queries.Get("index"), "index.html")
-		indexPath := utils.TrimRight(path, '/') + indexFile
+		indexPath := filepath.Join(path, indexFile)
 		index, err := root.Open(indexPath)
 		if err == nil {
 			indexStat, err := index.Stat()
