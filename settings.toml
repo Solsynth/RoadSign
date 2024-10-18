@@ -29,6 +29,7 @@ request_logging = true
 capture_traces = true
 
 [performance]
+low_memory = true
 traces_limit = 256
 prefork = false
 

@@ -31,6 +31,10 @@ type RoadTraceError struct {
 }
 
 func (v *RoadMetrics) AddTrace(trace RoadTrace) {
+	if viper.GetBool("performance.low_memory") {
+		return
+	}
+
 	v.TotalTraffic++
 	trace.Timestamp = time.Now()
 	if _, ok := v.Traffic[trace.Region]; !ok {
@@ -48,12 +52,12 @@ func (v *RoadMetrics) AddTrace(trace RoadTrace) {
 
 	// Garbage recycle
 	if len(v.Traffic) > viper.GetInt("performance.traces_limit") {
-		v.Traffic = make(map[string]int64)
+		clear(v.Traffic)
 	}
 	if len(v.TrafficFrom) > viper.GetInt("performance.traces_limit") {
-		v.TrafficFrom = make(map[string]int64)
+		clear(v.TrafficFrom)
 	}
 	if len(v.Traces) > viper.GetInt("performance.traces_limit") {
-		v.Traces = v.Traces[1:]
+		clear(v.Traces)
 	}
 }

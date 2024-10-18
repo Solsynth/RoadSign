@@ -1,9 +1,9 @@
-id = "example"
+id = "static-files"
 
 [[locations]]
-id = "example-location"
-host = ["localhost:8000"]
-path = ["/"]
+id = "static-files-loc"
+hosts = ["localhost:8000"]
+paths = ["/"]
 [[locations.destinations]]
-id = "example-destination"
+id = "static-files-des"
 uri = "files://../data/spa?fallback=index.html"
