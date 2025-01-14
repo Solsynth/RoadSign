@@ -9,6 +9,7 @@ RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -buildvcs -o /dist ./pkg/cmd/
 FROM golang:alpine
 
 RUN apk add zip
+RUN apk add nodejs npm
 
 COPY --from=roadsign-server /dist /roadsign/server
 
