@@ -10,5 +10,5 @@ func getTraffic(c *fiber.Ctx) error {
 }
 
 func getTraces(c *fiber.Ctx) error {
-	return c.JSON(navi.R.Metrics.Traces)
+	return c.JSON(navi.R.Metrics.ReadTrace())
 }

@@ -1,11 +1,12 @@
 package sideload
 
 import (
+	"time"
+
 	"git.solsynth.dev/goatworks/roadsign/pkg/navi"
 	"git.solsynth.dev/goatworks/roadsign/pkg/warden"
 	"github.com/gofiber/fiber/v2"
 	"github.com/samber/lo"
-	"time"
 )
 
 func getStats(c *fiber.Ctx) error {
@@ -26,8 +27,7 @@ func getStats(c *fiber.Ctx) error {
 		"applications": len(applications),
 		"uptime":       time.Since(navi.R.Metrics.StartupAt).Milliseconds(),
 		"traffic": fiber.Map{
-			"total":         navi.R.Metrics.TotalTraffic,
-			"unique_client": len(navi.R.Metrics.TrafficFrom),
+			"total": navi.R.Metrics.TotalTraffic,
 		},
 	})
 }

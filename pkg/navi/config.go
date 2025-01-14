@@ -16,9 +16,7 @@ func ReadInConfig(root string) error {
 	instance := &RoadApp{
 		Regions: make([]*Region, 0),
 		Metrics: &RoadMetrics{
-			Traces:       make([]RoadTrace, 0),
 			Traffic:      make(map[string]int64),
-			TrafficFrom:  make(map[string]int64),
 			TotalTraffic: 0,
 			StartupAt:    time.Now(),
 		},

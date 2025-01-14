@@ -24,9 +24,10 @@ id = "example-region"
 
 [[locations]]
 id = "example"
-host = ["localhost:8000"]
-path = ["/"]
+hosts = ["localhost:8000"]
+paths = ["/"]
 [[locations.destinations]]
 id = "example-destination"
 uri = "https://example.com"
 helmet = { x_frame_options = "SAMEORIGIN" }
+

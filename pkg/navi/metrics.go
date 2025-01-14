@@ -1,15 +1,16 @@
 package navi
 
 import (
-	"github.com/spf13/viper"
+	"bufio"
+	"os"
 	"time"
+
+	jsoniter "github.com/json-iterator/go"
+	"github.com/spf13/viper"
 )
 
 type RoadMetrics struct {
-	Traces []RoadTrace `json:"-"`
-
 	Traffic      map[string]int64 `json:"traffic"`
-	TrafficFrom  map[string]int64 `json:"traffic_from"`
 	TotalTraffic int64            `json:"total_traffic"`
 	StartupAt    time.Time        `json:"startup_at"`
 }
@@ -42,22 +43,28 @@ func (v *RoadMetrics) AddTrace(trace RoadTrace) {
 	} else {
 		v.Traffic[trace.Region]++
 	}
-	if _, ok := v.TrafficFrom[trace.IpAddress]; !ok {
-		v.TrafficFrom[trace.IpAddress] = 0
-	} else {
-		v.TrafficFrom[trace.IpAddress]++
+
+	raw, _ := jsoniter.Marshal(trace)
+	accessLogger.Println(string(raw))
+}
+
+func (v *RoadMetrics) ReadTrace() []RoadTrace {
+	fp := viper.GetString("logging.access")
+	file, err := os.Open(fp)
+	if err != nil {
+		return nil
+	}
+	defer file.Close()
+
+	var out []RoadTrace
+	scanner := bufio.NewScanner(file)
+	for scanner.Scan() {
+		line := scanner.Text()
+		var entry RoadTrace
+		if err := jsoniter.Unmarshal([]byte(line), &entry); err == nil {
+			out = append(out, entry)
+		}
 	}
 
-	v.Traces = append(v.Traces, trace)
-
-	// Garbage recycle
-	if len(v.Traffic) > viper.GetInt("performance.traces_limit") {
-		clear(v.Traffic)
-	}
-	if len(v.TrafficFrom) > viper.GetInt("performance.traces_limit") {
-		clear(v.TrafficFrom)
-	}
-	if len(v.Traces) > viper.GetInt("performance.traces_limit") {
-		clear(v.Traces)
-	}
+	return out
 }
