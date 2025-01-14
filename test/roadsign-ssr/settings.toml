@@ -21,6 +21,10 @@ force_https = false
 max_body_size = 549_755_813_888 # 512 GiB
 max_qps = -1
 
+[logging]
+access = "../../logs/access.log"
+warden_apps = "../../logs/warden"
+
 [paths]
 configs = "./config"
 

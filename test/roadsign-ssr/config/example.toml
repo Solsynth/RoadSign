@@ -11,5 +11,5 @@ uri = "http://localhost:3000"
 [[applications]]
 id = "capital-app"
 workdir = "../data/capital"
-command = ["node", "server/index.mjs"]
+command = ["node", "standalone/server.js"]
 environment = []

@@ -23,6 +23,7 @@ max_qps = -1
 
 [logging]
 access = "./logs/access.log"
+warden_apps = "./logs/warden"
 
 [paths]
 configs = "./config"
