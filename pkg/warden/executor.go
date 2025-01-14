@@ -2,12 +2,16 @@ package warden
 
 import (
 	"fmt"
-	"github.com/rs/zerolog/log"
+	"io"
+	"os"
 	"os/exec"
 	"path/filepath"
-	"strings"
 	"syscall"
 	"time"
+
+	"github.com/rs/zerolog/log"
+	"github.com/spf13/viper"
+	"gopkg.in/natefinch/lumberjack.v2"
 
 	"github.com/samber/lo"
 )
@@ -43,11 +47,12 @@ const (
 
 type AppInstance struct {
 	Manifest Application `json:"manifest"`
+	Status   AppStatus   `json:"status"`
 
-	Cmd    *exec.Cmd       `json:"-"`
-	Logger strings.Builder `json:"-"`
+	Cmd *exec.Cmd `json:"-"`
 
-	Status AppStatus `json:"status"`
+	LogPath string             `json:"-"`
+	Logger  *lumberjack.Logger `json:"-"`
 }
 
 func (v *AppInstance) Wake() error {
@@ -76,8 +81,21 @@ func (v *AppInstance) Start() error {
 	v.Cmd = exec.Command(manifest.Command[0], manifest.Command[1:]...)
 	v.Cmd.Dir = filepath.Join(manifest.Workdir)
 	v.Cmd.Env = append(v.Cmd.Env, manifest.Environment...)
-	v.Cmd.Stdout = &v.Logger
-	v.Cmd.Stderr = &v.Logger
+
+	logBasePath := viper.GetString("logging.warden_apps")
+	logPath := filepath.Join(logBasePath, fmt.Sprintf("%s.log", manifest.ID))
+
+	v.LogPath = logPath
+	v.Logger = &lumberjack.Logger{
+		Filename:   v.LogPath,
+		MaxSize:    10,
+		MaxBackups: 3,
+		MaxAge:     30,
+		Compress:   true,
+	}
+
+	v.Cmd.Stdout = v.Logger
+	v.Cmd.Stderr = v.Logger
 
 	// Monitor
 	go func() {
@@ -117,9 +135,15 @@ func (v *AppInstance) Stop() error {
 
 	v.Cmd = nil
 	v.Status = AppExited
+	v.Logger.Close()
 	return nil
 }
 
 func (v *AppInstance) Logs() string {
-	return v.Logger.String()
+	file, err := os.Open(v.LogPath)
+	if err != nil {
+		return ""
+	}
+	raw, _ := io.ReadAll(file)
+	return string(raw)
 }
